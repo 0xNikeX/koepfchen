@@ -177,12 +177,43 @@
         #abschluss .summe { font: italic 400 20px/1 var(--serif); margin: 4px 0 12px; }
         #abschluss button { margin-top: 6px; }
 
+        /* Kopfbau */
+        #kopfPanel { position: fixed; right: 18px; top: 64px; z-index: 10; width: 272px; padding: 12px 14px 12px; display: none; }
+        #kopfPanel.da { display: block; }
+        #kopfPanel h3 { margin: 0 0 7px; font: 600 10.5px/1 var(--sans); letter-spacing: .8px; text-transform: uppercase; color: var(--ink-3); }
+        #kopfPanel .setups { display: flex; gap: 3px; margin-bottom: 10px; }
+        #kopfPanel .setups button { flex: 1; border: 1px solid var(--line); background: transparent; color: var(--ink-2); border-radius: 7px; padding: 6px 4px; font-size: 11.5px; cursor: pointer; }
+        #kopfPanel .setups button.an { border-color: rgba(233,162,95,.6); color: #ffd9b3; background: rgba(233,162,95,.12); }
+        #kopfPanel .skala { position: relative; height: 12px; border-radius: 6px; overflow: visible; display: flex; margin: 4px 0 5px; }
+        #kopfPanel .skala .z { display: block; height: 100%; }
+        #kopfPanel .skala .z.a { width: 35.7%; background: rgba(120,160,200,.22); border-radius: 6px 0 0 6px; }
+        #kopfPanel .skala .z.k { width: 32.1%; background: rgba(233,162,95,.25); }
+        #kopfPanel .skala .z.o { width: 32.2%; background: rgba(224,88,27,.3); border-radius: 0 6px 6px 0; }
+        #kopfPanel .skala .rand { position: absolute; left: 57.1%; top: -3px; bottom: -3px; width: 1px; background: rgba(255,236,214,.55); }
+        #kopfPanel .skala .soll { position: absolute; top: -4px; width: 8px; height: 20px; margin-left: -4px; border: 1px dashed rgba(255,217,179,.7); border-radius: 3px; }
+        #kopfPanel .skala .marke { position: absolute; top: -3px; width: 4px; height: 18px; margin-left: -2px; background: #ffd9b3; border-radius: 2px; box-shadow: 0 0 6px rgba(255,180,100,.6); transition: left .25s; }
+        #kopfPanel .beschr { display: flex; justify-content: space-between; color: var(--ink-3); font-size: 10.5px; }
+        #kopfPanel .wert { display: block; color: var(--ink-2); font-size: 12px; margin: 5px 0 9px; }
+        #kopfPanel .werte { list-style: none; padding: 0; margin: 0 0 10px; border-top: 1px solid var(--line); }
+        #kopfPanel .werte li { display: flex; justify-content: space-between; gap: 10px; padding: 4px 0; border-bottom: 1px solid var(--line); font-size: 12px; }
+        #kopfPanel .werte li span { color: var(--ink-3); }
+        #kopfPanel .werte li b { font-weight: 500; color: var(--ink-2); text-align: right; }
+        #kopfPanel .werte li.warn b { color: #ffb37a; }
+        #kopfPanel .knoepfe { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+        #kopfPanel .knoepfe .btn { padding: 6px 9px; font-size: 12px; }
+        #kopfPanel .knoepfe .btn:disabled { opacity: .4; cursor: default; }
+        #kopfPanel .fertig { width: 100%; margin-bottom: 8px; border-color: rgba(233,162,95,.55); color: #ffd9b3; }
+        #kopfPanel .blick { display: flex; align-items: center; gap: 4px; color: var(--ink-3); font-size: 11.5px; }
+        #kopfPanel .blick button { border: 0; background: transparent; color: var(--ink-2); cursor: pointer; padding: 3px 6px; border-radius: 6px; font-size: 11.5px; }
+        #kopfPanel .blick button:hover { background: rgba(255,255,255,.05); }
+
         #vergleich { position: fixed; inset: 0; z-index: 9; pointer-events: none; display: none; background-repeat: no-repeat; background-position: center; background-size: contain; opacity: .45; }
 
         @media (max-width: 900px) {
             #teile { display: none; }
             #hinweis { display: none; }
             #karte { width: 250px; }
+            #kopfPanel { width: 230px; }
             #glutPanel .kohleAnz:not(.spirale) small:last-child { display: none; }
         }
     </style>
@@ -194,7 +225,7 @@
 <div id="loader">
     <div class="box">
         <h1>Köpfchen bauen</h1>
-        <div class="sub">Shisha-Simulator · Etappe 2: Kohle und Dose</div>
+        <div class="sub">Shisha-Simulator · Etappe 3: Kopf bauen</div>
         <div class="bar"><i></i></div>
         <div class="step">lädt …</div>
         <button class="go" type="button">Loslegen</button>
@@ -202,7 +233,7 @@
     </div>
 </div>
 
-<div id="brand"><b>Köpfchen bauen</b><span>Etappe 2 · Kohle anzünden, Dose öffnen</span></div>
+<div id="brand"><b>Köpfchen bauen</b><span>Etappe 3 · Kohle, Dose, Kopf bauen</span></div>
 <div id="fps"></div>
 
 <div id="knoepfe">
@@ -251,6 +282,19 @@
         <button class="weiter" type="button"></button>
     </div>
     <div id="glutPanel" class="panel"></div>
+    <div id="kopfPanel" class="panel">
+        <h3>Ziel-Setup</h3>
+        <div class="setups"><button type="button" data-s="abstand">Abstand</button><button type="button" data-s="kontakt">Leichter Kontakt</button><button type="button" data-s="overpack">Overpack</button></div>
+        <div class="hoehe">
+            <div class="skala"><i class="z a"></i><i class="z k"></i><i class="z o"></i><span class="rand"></span><span class="soll"></span><span class="marke"></span></div>
+            <div class="beschr"><span>unter dem Rand</span><span>Rand</span><span>darüber</span></div>
+            <small class="wert"></small>
+        </div>
+        <ul class="werte"></ul>
+        <div class="knoepfe"><button class="btn" type="button" data-a="drehen">Spitze nach vorn (F)</button><button class="btn" type="button" data-a="ablegen">Ablegen (Esc)</button></div>
+        <button class="btn fertig" type="button" data-a="fertig">Kopf ist fertig</button>
+        <div class="blick">Blick: <button type="button" data-b="dose">Dose</button><button type="button" data-b="kopf">Kopf</button><button type="button" data-b="beide">beides</button></div>
+    </div>
 </div>
 <div id="tipp"></div>
 <div id="meldungen"></div>
@@ -1529,7 +1573,7 @@
         };
     }
 
-    // Unterseite der Siegelfolie: Lack mit braunen Glyzerin-/Melasseflecken
+    // Unterseite der Siegelfolie: Lack mit braunen Glyzerin-/Molasseflecken
     function texFolieUnten() {
         const W = texGr(512);
         const res = malen(W, W, (x, y, o) => {
@@ -1593,6 +1637,36 @@
             setz(o, c, 1 + pinsel);
         }, ['col']);
         return alsTextur(res.col, W, H, { srgb: true, wrap: false, name: 'bild' });
+    }
+
+    // Rautenmuster am Griff des Stechers (gekachelt)
+    function texStecherGriff() {
+        const W = 128, H = 128;
+        const res = malen(W, H, (x, y, o) => {
+            const u = (x + 0.5) / W, v = (y + 0.5) / H;
+            const a = Math.abs(((u + v) * 4) % 1 - 0.5) * 2, b = Math.abs(((u - v + 2) * 4) % 1 - 0.5) * 2;
+            const rille = Math.min(a, b);
+            o.h = smooth(0.0, 0.35, rille);
+            o.rough = 0.5 - 0.2 * o.h; o.metal = 1; o.extra = 0;
+        }, ['data', 'h']);
+        return { normal: alsTextur(normalAusHoehe(res.hf, W, H, 4.0, true, true), W, H, { name: 'stecher_n' }) };
+    }
+
+    // Küchenpapier: weiß, geprägtes Rautensteppmuster, feine Fasern
+    function texTuch() {
+        const W = 256, H = 256;
+        const res = malen(W, H, (x, y, o) => {
+            const u = (x + 0.5) / W, v = (y + 0.5) / H;
+            const a = Math.abs(((u + v) * 6) % 1 - 0.5) * 2, b = Math.abs(((u - v + 2) * 6) % 1 - 0.5) * 2;
+            const steg = 1 - smooth(0.0, 0.12, Math.min(a, b));
+            const noppe = smooth(0.24, 0.0, Math.hypot(((u * 6) % 1) - 0.5, ((v * 6) % 1) - 0.5));
+            const faser = N.n2(u * 140, v * 140, 140, 140) * 0.5 + N2.n2(u * 40, v * 40, 40, 40) * 0.3;
+            o.h = -steg * 0.8 + noppe * 0.4 + faser * 0.25;
+            const w = 244 + faser * 6 - steg * 7;
+            setz(o, [w, w - 2, w - 6]);
+            o.rough = 0.92; o.metal = 0; o.extra = 0;
+        }, ['col', 'h']);
+        return { map: alsTextur(res.col, W, H, { srgb: true, name: 'tuch' }), normal: alsTextur(normalAusHoehe(res.hf, W, H, 1.6, true, true), W, H, { name: 'tuch_n' }) };
     }
 
     // ---------------------------------------------------------------------------
@@ -1728,15 +1802,20 @@
         M.folieUnten = new THREE.MeshPhysicalMaterial({
             map: T.folieUnten, metalness: 0.55, roughness: 0.4, clearcoat: 0.6, clearcoatRoughness: 0.3, side: THREE.BackSide,
         });
-        // Shisha-Tabak: feuchte, glyzerin- und melassegetränkte Stückchen, glasig und nass glänzend
+        // Shisha-Tabak: feuchte, glyzerin- und molassegetränkte Stückchen, glasig und nass glänzend
         M.tabak = new THREE.MeshPhysicalMaterial({
             color: '#ffffff', map: T.faser, roughness: 0.3, clearcoat: 1.0, clearcoatRoughness: 0.15,
             sheen: 0.4, sheenRoughness: 0.4, sheenColor: new THREE.Color('#e0743a'), side: THREE.DoubleSide,
         });
         M.tabakMasse = new THREE.MeshPhysicalMaterial({
             map: T.tabak.map, normalMap: T.tabak.normal, normalScale: v2(1.2), roughness: 0.36,
-            clearcoat: 0.9, clearcoatRoughness: 0.2, sheen: 0.3, sheenRoughness: 0.5, sheenColor: new THREE.Color('#c8622a'),
+            clearcoat: 0.9, clearcoatRoughness: 0.2, sheen: 0.3, sheenRoughness: 0.5, sheenColor: new THREE.Color('#c8622a'), vertexColors: true,
         });
+        // Stecher: brünierter Stahl, Griff mit Rautenmuster; Küchenpapier
+        M.stecher = new THREE.MeshPhysicalMaterial({ color: '#2d2c2e', metalness: 1, roughness: 0.34, clearcoat: 0.25, clearcoatRoughness: 0.4 });
+        M.stecherGriff = new THREE.MeshPhysicalMaterial({ color: '#2d2c2e', metalness: 1, roughness: 0.38, clearcoat: 0.2, clearcoatRoughness: 0.45,
+            normalMap: wiederholt(T.stecherGriff.normal, 6, 9), normalScale: v2(1.0) });
+        M.tuch = new THREE.MeshStandardMaterial({ map: T.tuch.map, normalMap: T.tuch.normal, normalScale: v2(0.6), roughness: 0.93 });
         M.aufkleberGelb = new THREE.MeshStandardMaterial({ map: T.warndreieck, transparent: true, roughness: 0.4, polygonOffset: true, polygonOffsetFactor: -2 });
         M.aufkleberRot = new THREE.MeshStandardMaterial({ map: T.aufkleber, transparent: true, roughness: 0.35, polygonOffset: true, polygonOffsetFactor: -2 });
         // Reglerknopf: glänzender Duroplast; der Kragen bekommt die Beschriftung als Textur
@@ -2828,25 +2907,9 @@
         lasche.rotation.x = 0.3;
         folie.add(lasche);
         g.add(folie);
-        // Tabak: Masse + Fasern
+        // Tabak: verformbare Masse + Fasern (Kopfbau rührt darin)
         const tabak = new THREE.Group();
-        const huegel = (x, z) => {
-            const rr = Math.hypot(x, z) / (4.9 * CM);
-            return (7.27 + 0.48 * (1 - rr * rr) + 0.16 * N.fbm2(x * 260 + 9, z * 260, 3) * (1 - rr * rr * 0.6)) * CM;
-        };
-        // Masse mit Häufchen und Mulden (feuchte Stückchen kleben zusammen)
-        const mg = planarUV(lathe(verfeinern([[4.92, 7.15, 'c'], [4.6, 7.42], [3.6, 7.6], [2.0, 7.7], [0, 7.74, 'c']], 3), { segs: 96 }), 25);
-        const mp = mg.attributes.position;
-        for (let i = 0; i < mp.count; i++) {
-            const x = mp.getX(i), y = mp.getY(i), z = mp.getZ(i);
-            if (y < 7.2 * CM) continue;
-            const rr = Math.hypot(x, z) / (4.9 * CM);
-            mp.setY(i, y + (0.16 * N.fbm2(x * 260 + 9, z * 260, 3) + 0.05 * N2.n2(x * 900, z * 900)) * CM * (1 - rr * rr * 0.6));
-        }
-        mg.computeVertexNormals();
-        const masse = mesh(mg, M.tabakMasse);
-        tabak.add(masse);
-        tabak.add(faserHaufen(Math.round(3600 * Q0.segs), 4.85 * CM, huegel, 77, 60));
+        doseMasseBauen(tabak);
         tabak.visible = false;
         g.add(tabak);
         g.userData = { deckel, folie, lasche, tabak };
@@ -3358,6 +3421,8 @@
 
         for (const o of [kopf, dichtung, hmd, mundstueck]) merken(o);
         tischObjekte.push(shisha, matte, kopf, dichtung, hmd, dose, karton, fliese, anzuender, zange, schlauchLose, adapterLose, mundstueck, kabel);
+        kopfbauAufbauen();
+        tischObjekte.push(stecher, tuch);
     }
 
     function schlauchSpiralPunkte() {
@@ -4172,6 +4237,36 @@
             rauschStoss({ t: 0.001, dauer: 0.035, f: an ? 980 : 760, q: 7, pegel: 0.13 });
             sinusTon({ t: 0.001, f: an ? 2350 : 1900, dauer: 0.03, pegel: 0.018 });
         },
+        // Stecher auf die Gummimatte legen oder aufnehmen
+        stecher(staerke = 1) {
+            if (!ton.ctx) return;
+            rauschStoss({ dauer: 0.03, typ: 'lowpass', f: 900, pegel: 0.12 * staerke });
+            sinusTon({ t: 0.002, f: 1650, dauer: 0.07, pegel: 0.012 * staerke });
+        },
+        // feuchter Tabak beim Rühren: leises, klebriges Schmatzen
+        tabakRuehren(staerke = 1) {
+            if (!ton.ctx) return;
+            rauschStoss({ dauer: 0.05 + Math.random() * 0.04, f: 380 + Math.random() * 300, q: 1.6, pegel: 0.035 * staerke });
+            if (Math.random() < 0.4) rauschStoss({ t: 0.02, dauer: 0.012, typ: 'highpass', f: 2600, pegel: 0.012 * staerke });
+        },
+        // Stecher stößt an glasierten Ton
+        keramik(staerke = 1) {
+            if (!ton.ctx) return;
+            rauschStoss({ dauer: 0.006, typ: 'highpass', f: 3000, pegel: 0.1 * staerke, an: 0.0005 });
+            sinusTon({ f: 2950, dauer: 0.09, pegel: 0.02 * staerke });
+            sinusTon({ f: 4720, dauer: 0.05, pegel: 0.01 * staerke });
+        },
+        // Stecher stößt ans Blech der Dose
+        blech(staerke = 1) {
+            if (!ton.ctx) return;
+            rauschStoss({ dauer: 0.008, typ: 'highpass', f: 2400, pegel: 0.09 * staerke, an: 0.0005 });
+            sinusTon({ f: 1870, dauer: 0.14, pegel: 0.016 * staerke });
+        },
+        // Küchenpapier raschelt
+        papier(staerke = 1) {
+            if (!ton.ctx) return;
+            for (let i = 0; i < 4; i++) rauschStoss({ t: i * 0.02 + Math.random() * 0.02, dauer: 0.02 + Math.random() * 0.03, typ: 'highpass', f: 2500 + Math.random() * 3000, pegel: 0.025 * staerke });
+        },
         // trockenes "Tock" eines Kohlewürfels auf Metall oder Kohle
         klack(staerke = 1, metall = true) {
             if (!ton.ctx) return;
@@ -4263,7 +4358,7 @@
     const PHASEN = [
         { kurz: 'Kohle', titel: 'Kohle anzünden', etappe: 2 },
         { kurz: 'Dose', titel: 'Dose öffnen', etappe: 2 },
-        { kurz: 'Kopf', titel: 'Tabak füllen', etappe: 3 },
+        { kurz: 'Kopf', titel: 'Kopf bauen', etappe: 3 },
         { kurz: 'Wasser', titel: 'Wasser einfüllen', etappe: 4 },
         { kurz: 'Aufbau', titel: 'Zusammenbauen', etappe: 4 },
         { kurz: 'Hitze', titel: 'HMD und Kohlen', etappe: 4 },
@@ -4271,7 +4366,7 @@
         { kurz: 'Ringe', titel: 'Ausblasen und Ringe', etappe: 5 },
         { kurz: 'Session', titel: 'Kohle abklopfen', etappe: 5 },
     ];
-    const ETAPPE = 2;
+    const ETAPPE = 3;
 
     const spiel = {
         laeuft: false,
@@ -4329,7 +4424,12 @@
             b.innerHTML = `<i>${spiel.fertig.has(i) ? '✓' : i + 1}</i><span>${p.kurz}</span>`;
             b.className = [phaseOffen(i) ? 'offen' : 'zu', spiel.fertig.has(i) ? 'fertig' : '', spiel.ansicht === i ? 'aktiv' : ''].join(' ');
             b.title = phaseOffen(i) ? p.titel : `${p.titel} – kommt in Etappe ${p.etappe}`;
-            if (phaseOffen(i)) b.addEventListener('click', () => { spiel.ansicht = i; phasenLeiste(); karteZeichnen(); });
+            if (phaseOffen(i)) b.addEventListener('click', () => {
+                const erstmals = i === 2 && !KB.gesehen;
+                if (i === 2) KB.gesehen = true;
+                spiel.ansicht = i; phasenLeiste(); karteZeichnen();
+                if (erstmals) fliegeZu(...SPIEL_BLICK[2]);
+            });
             el.appendChild(b);
         });
     }
@@ -4389,7 +4489,7 @@
         if (d.folie === 'dicht' && d.laschWeg) return 'Lasche abgerissen. Folie am Rand greifen und vorsichtig ziehen.';
         if (d.folie === 'zieht') return 'Gleichmäßig weiterziehen. Ein Ruck reißt die Folie.';
         if (d.rest && !d.restWeg) return 'Am Rand klebt noch ein Streifen Folie. Anklicken, um ihn abzuzupfen.';
-        if (spiel.fertig.has(1)) return 'Frischer Virginia: feucht, klebrig, glänzt von Glyzerin und Melasse. Bis zum Kopf bauen nicht austrocknen lassen.';
+        if (spiel.fertig.has(1)) return 'Frischer Virginia: feucht, klebrig, glänzt von Glyzerin und Molasse. Bis zum Kopf bauen nicht austrocknen lassen.';
         return '';
     }
 
@@ -4405,6 +4505,9 @@
         } else if (i === 1) {
             text = 'Während die Kohle glüht: Deckel runter, Siegelfolie ab. Der Tabak bleibt in der Dose, bis der Kopf gebaut wird.';
             schritte = schritteDose(); tipp = tippDose();
+        } else if (i === 2) {
+            text = 'Erst die Molasse vom Dosenboden unterrühren, dann mit der Gabel vom Rand aus in den Kopf streichen und mit der Spitze locker zurechtrücken.';
+            schritte = schritteKopf(); tipp = tippKopf();
         }
         $('#karte p').textContent = text;
         ol.innerHTML = '';
@@ -4420,11 +4523,14 @@
         t.style.display = tipp ? '' : 'none';
         // Hinweis auf die parallele Phase
         const w = $('#karte .weiter');
-        const andere = i === 0 ? 1 : 0;
-        const zeigen = !spiel.fertig.has(andere) && ((i === 0 && spiel.anzuender.an && kohlenAufSpirale().length >= 3) || (i === 1 && spiel.fertig.has(1)));
-        w.style.display = zeigen ? '' : 'none';
-        w.textContent = andere === 1 ? 'Inzwischen: Dose öffnen →' : 'Zurück zur Kohle →';
+        let andere = -1, label = '';
+        if (i === 0 && !spiel.fertig.has(1) && spiel.anzuender.an && kohlenAufSpirale().length >= 3) { andere = 1; label = 'Inzwischen: Dose öffnen →'; }
+        else if (i !== 2 && spiel.fertig.has(1) && !spiel.fertig.has(2)) { andere = 2; label = i === 0 ? 'Inzwischen: Kopf bauen →' : 'Weiter: Kopf bauen →'; }
+        else if (i !== 0 && !spiel.fertig.has(0)) { andere = 0; label = 'Zurück zur Kohle →'; }
+        w.style.display = andere >= 0 ? '' : 'none';
+        w.textContent = label;
         w.onclick = () => { spiel.ansicht = andere; phasenLeiste(); karteZeichnen(); fliegeZu(...SPIEL_BLICK[andere]); };
+        kopfPanelZeichnen();
     }
 
     // ---------------------------------------------------------------------------
@@ -4488,7 +4594,7 @@
         meldung(`${PHASEN[i].titel}: geschafft (${wert} Punkte)`);
         phasenLeiste();
         karteZeichnen();
-        if (!spiel.abschlussGezeigt && PHASEN.every((p, j) => p.etappe !== ETAPPE || spiel.fertig.has(j))) {
+        if (!spiel.abschlussGezeigt && PHASEN.every((p, j) => p.etappe > ETAPPE || spiel.fertig.has(j))) {
             spiel.abschlussGezeigt = true;
             setTimeout(abschlussZeigen, 1600);
         }
@@ -4499,11 +4605,14 @@
         const zeilen = PHASEN.map((p, i) => spiel.punkte[i] ? `<tr><td>${p.titel}</td><td>${spiel.punkte[i].wert}</td><td>${spiel.punkte[i].notizen.join(', ')}</td></tr>` : '').join('');
         const summe = spiel.punkte.filter(Boolean).reduce((a, p) => a + p.wert, 0);
         const anz = spiel.punkte.filter(Boolean).length;
-        el.querySelector('.inhalt').innerHTML = `<h2>Kohle glüht, Dose ist offen</h2>
+        const k = spiel.kopf;
+        const kopfZeile = k ? `<p>Gebaut: <b>${SETUPS[k.setup].name}</b> (${hoeheText(k.hoeheMm)}), Ziel war ${SETUPS[k.ziel].name}.</p>` : '';
+        el.querySelector('.inhalt').innerHTML = `<h2>Kohle glüht, Kopf ist gebaut</h2>
     <p>Zwischenstand für den Köpfchen-Score nach ${mmss(spiel.zeit)} Spielzeit.</p>
+    ${kopfZeile}
     <table>${zeilen}</table>
     <div class="summe">Ø ${Math.round(summe / Math.max(1, anz))} Punkte</div>
-    <p class="klein">Etappe 3 bringt das Befüllen des Kopfs. Die Kohlen glühen so lange weiter auf dem Anzünder.</p>`;
+    <p class="klein">Etappe 4 bringt Wasser, Aufbau und HMD. Die Kohlen glühen so lange weiter auf dem Anzünder.</p>`;
         el.classList.add('da');
     }
 
@@ -4513,6 +4622,7 @@
     const SPIEL_BLICK = [
         [new THREE.Vector3(0.36, TISCH_Y + 0.045, 0.03), new THREE.Vector3(0.2, 0.84, 0.6), 36, 1.6],
         [new THREE.Vector3(0.2, TISCH_Y + 0.07, 0.11), new THREE.Vector3(0.11, 0.75, 0.47), 36, 1.4],
+        [new THREE.Vector3(0.08, TISCH_Y + 0.06, 0.13), new THREE.Vector3(0.08, TISCH_Y + 0.38, 0.4), 36, 1.2],
     ];
 
     function spielStart() {
@@ -4525,6 +4635,7 @@
         document.querySelectorAll('#tempo button').forEach((b) => b.addEventListener('click', () => tempoSetzen(+b.dataset.t)));
         $('#btnTon').addEventListener('click', () => { ton.an = !ton.an; tonLautstaerke(); $('#btnTon').classList.toggle('an', ton.an); $('#btnTon').textContent = ton.an ? 'Ton an' : 'Ton aus'; });
         $('#abschluss button').addEventListener('click', () => $('#abschluss').classList.remove('da'));
+        kopfPanelVerdrahten();
         addEventListener('keydown', (e) => {
             if (e.target && e.target.tagName === 'INPUT') return;
             if (e.key === 'z' || e.key === 'Z') tempoSetzen(spiel.tempo === 1 ? 5 : spiel.tempo === 5 ? 20 : 1);
@@ -4541,6 +4652,7 @@
         glutSimulieren(dtSim, dt);
         handFrame(dt);
         doseFrame(dt);
+        kopfbauFrame(dt);
         kohlePhasePruefen();
         // Hinweise zur rechten Zeit
         const auf = kohlenAufSpirale();
@@ -4566,7 +4678,7 @@
     // ---------------------------------------------------------------------------
     // Zeiger, Hervorhebung, Zange, Kohlen auf dem Anzünder
 
-    const zeiger = { ndc: new THREE.Vector2(), x: 0, y: 0, drin: false, unten: null, ziehen: null, shift: false, kohleDruck: null };
+    const zeiger = { ndc: new THREE.Vector2(), x: 0, y: 0, drin: false, unten: null, ziehen: null, shift: false, kohleDruck: null, kopfbau: false };
     const strahl = new THREE.Raycaster();
     const OBEN = new THREE.Vector3(0, 1, 0);
     const _v = new THREE.Vector3(), _v2 = new THREE.Vector3(), _q = new THREE.Quaternion(), _m = new THREE.Matrix4();
@@ -4706,6 +4818,13 @@
             zeiger.unten = [e.clientX, e.clientY];
             zeiger.shift = e.shiftKey;
             zeiger.ndc.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+            // Stecher oder Küchenpapier in der Hand: Drücken arbeitet, statt die Kamera zu drehen
+            if ((W.inHand || TU.inHand) && kopfbauDruck(e)) {
+                zeiger.kopfbau = true; zeiger.unten = null;
+                e.stopPropagation();
+                el.setPointerCapture(e.pointerId);
+                return;
+            }
             const z = zielBestimmen();
             if (z && doseDruck(z, e)) {
                 zeiger.ziehen = true;
@@ -4728,6 +4847,7 @@
             }
         });
         addEventListener('pointerup', (e) => {
+            if (zeiger.kopfbau) { zeiger.kopfbau = false; zeiger.unten = null; kopfbauLoslassen(); return; }
             if (zeiger.ziehen) { zeiger.ziehen = false; doseLoslassen(e); zeiger.unten = null; return; }
             const kd = zeiger.kohleDruck;
             if (kd) {
@@ -4748,12 +4868,20 @@
             if (weit < 5 && e.target === el) klick(e.shiftKey);
         });
         addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && H.inHand && !H.ablauf) zangeHinlegen(null);
+            if (e.target && e.target.tagName === 'INPUT') return;
+            if (e.key === 'Escape') {
+                if (W.inHand) stecherAblegen();
+                else if (TU.inHand) tuchAblegen();
+                else if (H.inHand && !H.ablauf) zangeHinlegen(null);
+            }
+            if ((e.key === 'f' || e.key === 'F') && W.inHand) stecherDrehen();
         });
         // Mausrad über dem Regler dreht ihn eine Raste weiter, statt zu zoomen
         let radSumme = 0, radZeit = 0;
         addEventListener('wheel', (e) => {
             if (e.target !== el || studio.an || !spiel.laeuft) return;
+            // beim Drücken mit dem Stecher: Rad = Druck
+            if (W.druck && kopfbauRad(e)) { e.preventDefault(); e.stopPropagation(); return; }
             zeiger.ndc.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
             const z = zielBestimmen();
             if (!z || z.art !== 'knopf') return;
@@ -4782,6 +4910,8 @@
         for (let p = o; p; p = p.parent) if (p.userData.spielKohle) return { art: 'kohle', kohle: p.userData.spielKohle, obj: p };
         if (o.name === 'kohle' && o.userData.imKarton) return { art: 'kartonKohle', obj: o };
         if (istIn(o, anzuender.userData.knopf)) return { art: 'knopf', obj: anzuender.userData.dreh };
+        if (stecher && istIn(o, stecher)) return { art: 'stecher', obj: stecher };
+        if (tuch && istIn(o, tuch)) return { art: 'tuch', obj: tuch };
         if (istIn(o, anzuender)) return { art: 'anzuender', obj: anzuender.userData.spirale };
         if (istIn(o, zange)) return { art: 'zange', obj: zange };
         if (istIn(o, karton)) return { art: 'karton', obj: karton };
@@ -4815,6 +4945,11 @@
             return { tipp: `Regler ${stufeName(st)} → ${stufeName(ziel)}` + (runter ? '' : ' · Umschalt+Klick: zurück · Mausrad dreht'), tun: () => knopfDrehen(runter ? -1 : 1) };
         }
         if (H.ablauf) return null;
+        if (z.art === 'stecher' || z.art === 'tuch') {
+            if (H.kohle) return { tipp: 'Erst die Kohle ablegen', tun: null };
+            if (z.art === 'tuch') return { tipp: 'Küchenpapier nehmen', tun: tuchNehmen };
+            return spiel.fertig.has(1) ? { tipp: 'Stecher nehmen (Gabel und Spitze)', tun: stecherNehmen } : { tipp: 'Stecher: erst die Dose öffnen', tun: null };
+        }
         // aus dem Karton nur, solange auf der Spirale noch Platz ist
         const platz = kohlenAufSpirale().length + spielKohlen.filter((k) => k.ort === 'zange').length < 3;
         const dz = doseAktion(z);
@@ -4902,9 +5037,10 @@
     function handFrame(dt) {
         ablaufFrame(dt);
         // Ziel unter dem Zeiger
-        const z = zeiger.drin && !zeiger.ziehen && !studio.an ? zielBestimmen() : null;
+        const kb = W.inHand || TU.inHand;
+        const z = zeiger.drin && !zeiger.ziehen && !studio.an && !kb ? zielBestimmen() : null;
         H.treffer = z;
-        const a = !zeiger.ziehen ? aktionFuer(z) : null;
+        const a = !zeiger.ziehen ? (kb ? kopfbauTipp() : aktionFuer(z)) : null;
         const tipp = $('#tipp');
         if (a && zeiger.drin && !studio.an) {
             tipp.textContent = a.tipp;
@@ -4912,9 +5048,9 @@
             tipp.style.left = zeiger.x + 'px'; tipp.style.top = zeiger.y + 'px';
             tipp.classList.toggle('nein', !a.tun);
         } else tipp.style.display = 'none';
-        const zeigeAuf = a && a.tun ? (z.art === 'deckel' || z.art === 'lasche' || z.art === 'folie' || (z.art === 'kohle' && !H.kohle) ? 'grab' : 'pointer') : '';
-        if (!zeiger.ziehen) renderer.domElement.style.cursor = zeiger.kohleDruck ? 'grabbing' : zeigeAuf;
-        leuchten(a && a.tun && z.obj && !(H.inHand && (z.art === 'tisch')) ? z.obj : (!H.inHand ? doseHinweis() : null));
+        const zeigeAuf = a && a.tun && z ? (z.art === 'deckel' || z.art === 'lasche' || z.art === 'folie' || (z.art === 'kohle' && !H.kohle) ? 'grab' : 'pointer') : '';
+        if (!zeiger.ziehen) renderer.domElement.style.cursor = kb ? 'crosshair' : zeiger.kohleDruck ? 'grabbing' : zeigeAuf;
+        leuchten(kb ? null : a && a.tun && z.obj && !(H.inHand && (z.art === 'tisch')) ? z.obj : (!H.inHand ? doseHinweis() : null));
         leuchtMat.uniforms.uStaerke.value = 0.5 + 0.18 * Math.sin(performance.now() * 0.006);
 
         if (!H.inHand) return;
@@ -4935,6 +5071,8 @@
     // Zange nehmen und hinlegen
 
     function zangeNehmen() {
+        if (W.inHand) stecherAblegen();
+        if (TU.inHand) tuchAblegen();
         const { koerper } = zange.userData;
         koerper.updateMatrixWorld(true);
         koerper.matrixWorld.decompose(hand.position, hand.quaternion, _v);
@@ -5693,6 +5831,1896 @@
     function doseFrame(dt) {
         folieFrame(dt);
     }
+    // ---------------------------------------------------------------------------
+    // Tabakphysik für den Kopfbau
+    //
+    // Feuchter Shisha-Tabak als Teilchen von 3,5 mm, jedes ein Klümpchen aus Schnipseln. Position Based
+    // Dynamics in kleinen Zeitschritten: Kontakte mit Haft- und Gleitreibung, Kohäsion (der Tabak hält
+    // zusammen und bildet Überhänge), Haften an der Glasur und am Stecher, bleibende Stauchung beim
+    // Andrücken. Ruhende Teilchen schlafen, bis ein Werkzeug oder ein Nachbar sie anstößt.
+
+    const TB = {
+        r: 0.175 * CM, max: 2400, h: 1 / 240, maxSchritte: 5,
+        luft: 0.9, vMax: 1.5,
+        reibS: 1.0, reibK: 0.62,              // Haft-/Gleitreibung, bezogen auf die Eindringtiefe
+        kohBand: 0.3, kohK: 0.055,            // Kohäsion: Band über dem Kontaktabstand, Zug je Schritt
+        wandReib: 0.6, wandHaft: 0.02, haftBand: 0.2,
+        schlafV: 0.011, schlafZeit: 0.35, schlafWeg: 0.00045,
+        stauMax: 0.45,
+    };
+    TB.zelle = 2 * TB.r * 1.1 * (1 + TB.kohBand);
+    TB.vol = 4 / 3 * Math.PI * Math.pow(TB.r / CM, 3);      // cm³ je Teilchen, ohne Lücken
+
+    const TB_MASKE = (1 << 15) - 1;
+    // Spitze an der Kopfwand: löst den Tabak vom Rand (wird vom Stecher pro Teilschritt gesetzt, Maße in cm)
+    const RL = { aktiv: false, r: 0, a: 0, y: 0, v: 0 };
+    const tb = {
+        n: 0, aktiv: 0,
+        x: new Float32Array(TB.max), y: new Float32Array(TB.max), z: new Float32Array(TB.max),
+        ax: new Float32Array(TB.max), ay: new Float32Array(TB.max), az: new Float32Array(TB.max),
+        vx: new Float32Array(TB.max), vy: new Float32Array(TB.max), vz: new Float32Array(TB.max),
+        rad: new Float32Array(TB.max), r0: new Float32Array(TB.max), stau: new Float32Array(TB.max),
+        mol: new Float32Array(TB.max), ruhe: new Float32Array(TB.max),
+        rx: new Float32Array(TB.max), ry: new Float32Array(TB.max), rz: new Float32Array(TB.max),   // Ruhepunkt
+        q: new Float32Array(TB.max * 4),
+        st: new Uint8Array(TB.max),            // 0 leer, 1 wach, 2 schläft, 3 hängt am Stecher
+        ank: new Float32Array(TB.max * 3),     // Anker im Stecher-System (m)
+        traeg: new Uint8Array(TB.max),         // liegt in diesem Schritt auf etwas
+        gleit: new Uint8Array(TB.max),         // rutscht gerade an den Zinken zur Spitze
+        gezogen: new Uint8Array(TB.max),       // hängt in diesem Schritt an der Spitze
+        mitzug: new Uint8Array(TB.max), mitzugNeu: new Uint8Array(TB.max),   // von einem solchen Büschel mitgenommen
+        dreck: new Uint8Array(TB.max),
+        frei: [],
+        kz: new Int32Array(TB_MASKE + 1), nx: new Int32Array(TB.max),
+        kol: [],                               // Werkzeug-Kollider (Welt), vom Kopfbau je Schritt gesetzt
+        box: new Float32Array(6),
+        verlust: { kamin: 0, boden: 0, tuch: 0 }, zurueck: 0,
+        fl: null,                              // Flocken-Instanzen
+        pruefen: 0,
+    };
+    const _ta = new THREE.Vector3();
+
+    // ---------------------------------------------------------------------------
+    // Abstandsfeld des Kopfs: Profil (KOPF_ZONEN) als geschlossenes Polygon im (r, y)-Halbschnitt
+
+    const KS = { dr: 0.025, dy: 0.025, r1: 5.0, y0: -0.5, y1: 9.6, nr: 0, ny: 0, d: null, gr: 0, gy: 1 };
+    function kopfSdfBauen() {
+        const poly = [];
+        for (const [, pts] of KOPF_ZONEN) for (const p of pts) poly.push([p[0], p[1]]);
+        KS.nr = Math.round(KS.r1 / KS.dr) + 1;
+        KS.ny = Math.round((KS.y1 - KS.y0) / KS.dy) + 1;
+        KS.d = new Float32Array(KS.nr * KS.ny);
+        const n = poly.length;
+        for (let j = 0; j < KS.ny; j++) {
+            const y = KS.y0 + j * KS.dy;
+            for (let i = 0; i < KS.nr; i++) {
+                const r = i * KS.dr;
+                let best = 1e9, innen = false;
+                for (let k = 0, l = n - 1; k < n; l = k++) {
+                    const ax = poly[l][0], ay = poly[l][1], bx = poly[k][0], by = poly[k][1];
+                    const ex = bx - ax, ey = by - ay, wx = r - ax, wy = y - ay;
+                    const ll = ex * ex + ey * ey;
+                    const t = ll > 0 ? clamp((wx * ex + wy * ey) / ll, 0, 1) : 0;
+                    const qx = wx - ex * t, qy = wy - ey * t, dd = qx * qx + qy * qy;
+                    if (dd < best) best = dd;
+                    if ((ay > y) !== (by > y) && r < ax + (y - ay) / (by - ay) * ex) innen = !innen;
+                }
+                KS.d[j * KS.nr + i] = innen ? -Math.sqrt(best) : Math.sqrt(best);
+            }
+        }
+    }
+
+    // Abstand in cm, Gradient (nach außen, weg vom Ton) in KS.gr / KS.gy
+    function kopfSdf(r, y) {
+        const fx = r / KS.dr, fy = (y - KS.y0) / KS.dy;
+        const i = Math.floor(fx), j = Math.floor(fy);
+        if (i < 0 || j < 0 || i >= KS.nr - 1 || j >= KS.ny - 1) { KS.gr = 0; KS.gy = 1; return 2; }
+        const tx = fx - i, ty = fy - j, k = j * KS.nr + i, d = KS.d;
+        const a = d[k], b = d[k + 1], c = d[k + KS.nr], e = d[k + KS.nr + 1];
+        let gr = (b - a) * (1 - ty) + (e - c) * ty, gy = (c - a) * (1 - tx) + (e - b) * tx;
+        const gl = Math.hypot(gr, gy) || 1;
+        KS.gr = gr / gl; KS.gy = gy / gl;
+        return (a * (1 - tx) + b * tx) * (1 - ty) + (c * (1 - tx) + e * tx) * ty;
+    }
+
+    // ---------------------------------------------------------------------------
+    // Verwaltung
+
+    function tbHash(ix, iy, iz) {
+        return ((Math.imul(ix, 73856093) ^ Math.imul(iy, 19349663) ^ Math.imul(iz, 83492791)) >>> 0) & TB_MASKE;
+    }
+
+    function tbNeu(x, y, z, mol, zustand) {
+        let i;
+        if (tb.frei.length) i = tb.frei.pop();
+        else if (tb.n < TB.max) i = tb.n++;
+        else return -1;
+        tb.x[i] = tb.ax[i] = x; tb.y[i] = tb.ay[i] = y; tb.z[i] = tb.az[i] = z;
+        tb.vx[i] = tb.vy[i] = tb.vz[i] = 0;
+        tb.r0[i] = tb.rad[i] = TB.r * (0.88 + Math.random() * 0.24);
+        tb.stau[i] = 0; tb.mol[i] = mol; tb.ruhe[i] = 0;
+        tb.rx[i] = x; tb.ry[i] = y; tb.rz[i] = z;
+        // fast aufrecht, damit die Flocken eher flach liegen
+        const a = Math.random() * TAU, k = 0.35;
+        const qx = (Math.random() - 0.5) * k, qz = (Math.random() - 0.5) * k;
+        const s = Math.sin(a / 2), c = Math.cos(a / 2);
+        const w = Math.hypot(qx, s, qz, c);
+        tb.q[i * 4] = qx / w; tb.q[i * 4 + 1] = s / w; tb.q[i * 4 + 2] = qz / w; tb.q[i * 4 + 3] = c / w;
+        tb.st[i] = zustand;
+        tb.gleit[i] = 0;
+        tb.dreck[i] = 3;                       // Bit 1: Lage, Bit 2: Farbe
+        tb.aktiv++;
+        return i;
+    }
+
+    function tbWeg(i) {
+        if (!tb.st[i]) return;
+        if (tb.st[i] === 3) W.last--;
+        tb.st[i] = 0;
+        tb.dreck[i] |= 1;
+        tb.frei.push(i);
+        tb.aktiv--;
+    }
+
+    function tbWach(i) {
+        if (tb.st[i] === 2) {
+            tb.st[i] = 1; tb.ruhe[i] = 0;
+            tb.ax[i] = tb.rx[i] = tb.x[i]; tb.ay[i] = tb.ry[i] = tb.y[i]; tb.az[i] = tb.rz[i] = tb.z[i];
+        }
+    }
+
+    function tbLoesen(i) {
+        if (tb.st[i] !== 3) return;
+        tb.st[i] = 1; tb.ruhe[i] = 0; tb.gleit[i] = 0;
+        tb.vx[i] = W.v.x + (Math.random() - 0.5) * 0.03;
+        tb.vy[i] = W.v.y + (Math.random() - 0.5) * 0.02;
+        tb.vz[i] = W.v.z + (Math.random() - 0.5) * 0.03;
+        W.last--;
+    }
+
+    function tbAnkerWelt(i, out) {
+        const k = i * 3;
+        return out.set(tb.ank[k], tb.ank[k + 1], tb.ank[k + 2]).applyMatrix4(W.matrix);
+    }
+
+    function tbGitter() {
+        tb.kz.fill(-1);
+        const c = TB.zelle;
+        for (let i = 0; i < tb.n; i++) {
+            if (!tb.st[i]) continue;
+            const k = tbHash(Math.floor(tb.x[i] / c), Math.floor(tb.y[i] / c), Math.floor(tb.z[i] / c));
+            tb.nx[i] = tb.kz[k];
+            tb.kz[k] = i;
+        }
+    }
+
+    // ---------------------------------------------------------------------------
+    // Ein Zeitschritt
+
+    function tbSchritt(h) {
+        const n = tb.n;
+        for (let i = 0; i < n; i++) {
+            const s = tb.st[i];
+            if (s === 1) {
+                tb.ax[i] = tb.x[i]; tb.ay[i] = tb.y[i]; tb.az[i] = tb.z[i];
+                const d = 1 - TB.luft * h;
+                let vx = tb.vx[i] * d, vy = (tb.vy[i] - 9.81 * h) * d, vz = tb.vz[i] * d;
+                const v2 = vx * vx + vy * vy + vz * vz;
+                if (v2 > TB.vMax * TB.vMax) { const f = TB.vMax / Math.sqrt(v2); vx *= f; vy *= f; vz *= f; }
+                tb.x[i] += vx * h; tb.y[i] += vy * h; tb.z[i] += vz * h;
+                tb.traeg[i] = 0;
+            } else if (s === 3) {
+                tb.ax[i] = tb.x[i]; tb.ay[i] = tb.y[i]; tb.az[i] = tb.z[i];
+                if (tb.gleit[i]) {
+                    // rutscht auf der Gabel zur Spitze und fällt dort ab
+                    const k = i * 3;
+                    tb.ank[k] -= 0.07 * h;
+                    tb.ank[k + 1] += (0.0005 + tb.rad[i] - tb.ank[k + 1]) * 0.06;
+                    if (tb.ank[k] < 0.0015) { tbLoesen(i); tb.vy[i] -= 0.05; continue; }
+                }
+                tbAnkerWelt(i, _ta);
+                tb.x[i] += (_ta.x - tb.x[i]) * 0.8; tb.y[i] += (_ta.y - tb.y[i]) * 0.8; tb.z[i] += (_ta.z - tb.z[i]) * 0.8;
+                tb.traeg[i] = 0;
+            }
+        }
+        tbGitter();
+        tbPaare();
+        for (let i = 0; i < n; i++) {
+            const s = tb.st[i];
+            if (s === 1 || s === 3) tbUmgebung(i, h);
+        }
+        const rutsch = W.rutschRate * h;
+        for (let i = 0; i < n; i++) {
+            const s = tb.st[i];
+            if (s !== 1 && s !== 3) continue;
+            if (s === 3) {
+                tbAnkerWelt(i, _ta);
+                // beim Abstreifen hält die Ladung fester (sie soll an der Spitze abgehen, nicht am Griff)
+                const dx = tb.x[i] - _ta.x, dy = tb.y[i] - _ta.y, dz = tb.z[i] - _ta.z, lim = (W.druck ? 3.5 : 1.6) * tb.rad[i];
+                if (dx * dx + dy * dy + dz * dz > lim * lim || (rutsch > 0 && Math.random() < rutsch)) tbLoesen(i);
+            }
+            const vx = (tb.x[i] - tb.ax[i]) / h, vy = (tb.y[i] - tb.ay[i]) / h, vz = (tb.z[i] - tb.az[i]) / h;
+            tb.vx[i] = vx; tb.vy[i] = vy; tb.vz[i] = vz;
+            tb.dreck[i] |= 1;
+            if (tb.st[i] === 1) {
+                const v2 = vx * vx + vy * vy + vz * vz;
+                // aufliegend: Kontaktdämpfung (feuchter Tabak federt nicht), kleines Zittern ganz weg
+                if (tb.traeg[i]) { tb.vx[i] *= 0.85; tb.vy[i] *= 0.85; tb.vz[i] *= 0.85; }
+                if (v2 < 0.004 * 0.004) { tb.vx[i] = tb.vy[i] = tb.vz[i] = 0; }
+                // schlafen, wenn das Teilchen seinen Platz kaum noch verlässt. Der Ruhepunkt läuft langsam mit:
+                // Zittern um eine Mitte (eingeklemmt zwischen Schläfern) und ganz langsames Kriechen zählen als Ruhe.
+                const ex = tb.x[i] - tb.rx[i], ey = tb.y[i] - tb.ry[i], ez = tb.z[i] - tb.rz[i];
+                if (ex * ex + ey * ey + ez * ez > TB.schlafWeg * TB.schlafWeg) { tb.rx[i] = tb.x[i]; tb.ry[i] = tb.y[i]; tb.rz[i] = tb.z[i]; tb.ruhe[i] = 0; }
+                else {
+                    tb.rx[i] += ex * 0.02; tb.ry[i] += ey * 0.02; tb.rz[i] += ez * 0.02;
+                    tb.ruhe[i] += h;
+                    if (tb.ruhe[i] > TB.schlafZeit) { tb.st[i] = 2; tb.vx[i] = tb.vy[i] = tb.vz[i] = 0; tb.gezogen[i] = tb.mitzug[i] = 0; }
+                }
+                // Rollen: Flocken drehen sich ein wenig mit
+                const mx = tb.x[i] - tb.ax[i], mz = tb.z[i] - tb.az[i], m = Math.hypot(mx, mz);
+                if (m > 2e-5) tbDrehen(i, -mz / m, 0, mx / m, m / tb.rad[i] * 0.3);
+                // aufliegend legen sich die Schnipsel wieder flach (jedes behält seine eigene Schräge)
+                if (tb.traeg[i]) tbFlachlegen(i, 0.03);
+            }
+        }
+    }
+
+    function tbFlachlegen(i, f) {
+        const k = i * 4, qx = tb.q[k], qy = tb.q[k + 1], qz = tb.q[k + 2], qw = tb.q[k + 3];
+        // lokale Hochachse in Welt: zweite Spalte der Drehmatrix
+        const ux = 2 * (qx * qy - qz * qw), uy = 1 - 2 * (qx * qx + qz * qz), uz = 2 * (qy * qz + qx * qw);
+        const s = Math.hypot(uz, ux);
+        if (s < 1e-4) return;
+        tbDrehen(i, -uz / s, 0, ux / s, Math.atan2(s, uy) * f);
+    }
+
+    function tbDrehen(i, ax, ay, az, w) {
+        const k = i * 4, s = Math.sin(w / 2), c = Math.cos(w / 2);
+        const bx = ax * s, by = ay * s, bz = az * s, bw = c;
+        const qx = tb.q[k], qy = tb.q[k + 1], qz = tb.q[k + 2], qw = tb.q[k + 3];
+        const nx = bw * qx + bx * qw + by * qz - bz * qy;
+        const ny = bw * qy - bx * qz + by * qw + bz * qx;
+        const nz = bw * qz + bx * qy - by * qx + bz * qw;
+        const nw = bw * qw - bx * qx - by * qy - bz * qz;
+        const l = 1 / Math.sqrt(nx * nx + ny * ny + nz * nz + nw * nw);
+        tb.q[k] = nx * l; tb.q[k + 1] = ny * l; tb.q[k + 2] = nz * l; tb.q[k + 3] = nw * l;
+    }
+
+    function tbPaare() {
+        const c = TB.zelle, n = tb.n;
+        const alt = tb.mitzug; tb.mitzug = tb.mitzugNeu; tb.mitzugNeu = alt; alt.fill(0);
+        for (let i = 0; i < n; i++) {
+            const si = tb.st[i];
+            if (si !== 1 && si !== 3) continue;
+            const cx = Math.floor(tb.x[i] / c), cy = Math.floor(tb.y[i] / c), cz = Math.floor(tb.z[i] / c);
+            for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) for (let dz = -1; dz <= 1; dz++) {
+                for (let j = tb.kz[tbHash(cx + dx, cy + dy, cz + dz)]; j !== -1; j = tb.nx[j]) {
+                    if (j === i) continue;
+                    const sj = tb.st[j];
+                    if ((sj === 1 || sj === 3) && j < i) continue;
+                    tbPaar(i, j, si, sj);
+                }
+            }
+        }
+    }
+
+    function tbPaar(i, j, si, sj) {
+        let dx = tb.x[i] - tb.x[j], dy = tb.y[i] - tb.y[j], dz = tb.z[i] - tb.z[j];
+        const rs = tb.rad[i] + tb.rad[j], band = rs * (1 + TB.kohBand);
+        const d2 = dx * dx + dy * dy + dz * dz;
+        if (d2 >= band * band) return;
+        // Faserzug: was an der Spitze hängt, nimmt seine klebrigen Nachbarn ein Stück mit (ein Büschel, kein Einzelkorn)
+        // (Stufe 2 hängt direkt an der Spitze, Stufe 1 wurde im letzten Schritt mitgenommen und nimmt selbst noch etwas mit)
+        const li = tb.gezogen[i] ? 2 : tb.mitzug[i], lj = tb.gezogen[j] ? 2 : tb.mitzug[j];
+        if (li !== lj && si !== 3 && sj !== 3) {
+            const a = li > lj ? i : j, b = a === i ? j : i, la = li > lj ? li : lj;
+            if (tb.st[b] === 2) { tbWach(b); if (b === j) sj = 1; }
+            const k = (la === 2 ? 0.35 : 0.15) * TB.h;
+            tb.x[b] += (tb.vx[a] - tb.vx[b]) * k; tb.y[b] += (tb.vy[a] - tb.vy[b]) * k * 0.5; tb.z[b] += (tb.vz[a] - tb.vz[b]) * k;
+            if (la === 2) tb.mitzugNeu[b] = 1;
+        }
+        // was am Werkzeug hängt (Gabelladung, Büschel an der Spitze), gibt kaum nach und schiebt die anderen
+        const wi = si === 1 ? (tb.gezogen[i] === 2 ? 0.5 : 1) : 0.3;
+        let wj = sj === 1 ? (tb.gezogen[j] === 2 ? 0.5 : 1) : sj === 3 ? 0.3 : 0;
+        let d = Math.sqrt(d2);
+        if (d < 1e-7) { dx = (Math.random() - 0.5) * 1e-5; dy = 1e-5; dz = (Math.random() - 0.5) * 1e-5; d = Math.hypot(dx, dy, dz); }
+        const nx = dx / d, ny = dy / d, nz = dz / d;
+        if (d < rs) {
+            const pen = rs - d;
+            let wi2 = wi;
+            if (sj === 2) {
+                // Schläfer, auf dem i liegt, trägt einfach (Stoßweitergabe); seitlich oder von unten eingedrückt wacht er auf –
+                // aber nur, wenn i wirklich auf ihn zukommt (eingeklemmte Teilchen sollen sich nicht gegenseitig wachhalten).
+                // Ein Büschel an der Spitze schiebt, was ihm im Weg liegt.
+                if (ny < 0.5 && si === 1 && ((pen > 0.18 * rs && -(tb.vx[i] * nx + tb.vy[i] * ny + tb.vz[i] * nz) > 0.003) || ((tb.gezogen[i] || tb.mitzug[i]) && pen > 0.03 * rs))) { tbWach(j); wj = 1; }
+            } else if (ny > 0.6) wj *= 0.25;          // das untere Teilchen ist "schwerer": Stapel sacken nicht ein
+            else if (ny < -0.6) wi2 *= 0.25;
+            const ws = wi2 + wj;
+            const fi = wi2 / ws, fj = wj / ws;
+            tb.x[i] += nx * pen * fi; tb.y[i] += ny * pen * fi; tb.z[i] += nz * pen * fi;
+            if (fj > 0) { tb.x[j] -= nx * pen * fj; tb.y[j] -= ny * pen * fj; tb.z[j] -= nz * pen * fj; }
+            // Reibung aus der relativen Verschiebung in diesem Schritt
+            const bewegtJ = tb.st[j] === 1 || tb.st[j] === 3;
+            const rx = (tb.x[i] - tb.ax[i]) - (bewegtJ ? tb.x[j] - tb.ax[j] : 0);
+            const ry = (tb.y[i] - tb.ay[i]) - (bewegtJ ? tb.y[j] - tb.ay[j] : 0);
+            const rz = (tb.z[i] - tb.az[i]) - (bewegtJ ? tb.z[j] - tb.az[j] : 0);
+            const rn = rx * nx + ry * ny + rz * nz;
+            const tx = rx - rn * nx, ty = ry - rn * ny, tz = rz - rn * nz;
+            const tl = Math.sqrt(tx * tx + ty * ty + tz * tz);
+            if (tl > 1e-9) {
+                const f = tl < TB.reibS * pen ? 1 : TB.reibK * pen / tl;
+                tb.x[i] -= tx * f * fi; tb.y[i] -= ty * f * fi; tb.z[i] -= tz * f * fi;
+                if (fj > 0) { tb.x[j] += tx * f * fj; tb.y[j] += ty * f * fj; tb.z[j] += tz * f * fj; }
+            }
+            if (ny > 0.55) tb.traeg[i] = 1; else if (ny < -0.55) tb.traeg[j] = 1;
+        } else {
+            // klebrig: leichter Zug auf Kontaktabstand
+            const ws = wi + wj, zug = (d - rs) * TB.kohK;
+            const fi = wi / ws, fj = wj / ws;
+            tb.x[i] -= nx * zug * fi; tb.y[i] -= ny * zug * fi; tb.z[i] -= nz * zug * fi;
+            if (fj > 0) { tb.x[j] += nx * zug * fj; tb.y[j] += ny * zug * fj; tb.z[j] += nz * zug * fj; }
+        }
+    }
+
+    // Kontakt mit einer festen Fläche: herausschieben, starke Reibung
+    function tbFest(i, nx, ny, nz, pen, reib) {
+        tb.x[i] += nx * pen; tb.y[i] += ny * pen; tb.z[i] += nz * pen;
+        const rx = tb.x[i] - tb.ax[i], ry = tb.y[i] - tb.ay[i], rz = tb.z[i] - tb.az[i];
+        const rn = rx * nx + ry * ny + rz * nz;
+        const tx = rx - rn * nx, ty = ry - rn * ny, tz = rz - rn * nz;
+        const tl = Math.sqrt(tx * tx + ty * ty + tz * tz);
+        if (tl > 1e-9) {
+            const f = tl < reib * pen ? 1 : 0.65 * reib * pen / tl;
+            tb.x[i] -= tx * f; tb.y[i] -= ty * f; tb.z[i] -= tz * f;
+        }
+        if (ny > 0.55) tb.traeg[i] = 1;
+        return tl;
+    }
+
+    function tbUmgebung(i, h) {
+        const r = tb.rad[i], rc = r / CM, s = tb.st[i];
+        tb.gezogen[i] = 0;
+        // Tisch und Matte
+        const mp = matte.position;
+        const boden = Math.abs(tb.x[i] - mp.x) < MATTE.b * CM / 2 && Math.abs(tb.z[i] - mp.z) < MATTE.t * CM / 2 ? TISCH_Y + MATTE.oben * CM : TISCH_Y;
+        if (tb.y[i] - r < boden && tb.y[i] > boden - 0.02) tbFest(i, 0, 1, 0, boden - (tb.y[i] - r), 1.0);
+        if (tb.y[i] < TISCH_Y - 0.05) { tb.verlust.boden++; tbWeg(i); return; }
+        // Kopf
+        const kp = KB.kopfPos;
+        const lx = tb.x[i] - kp.x, lz = tb.z[i] - kp.z;
+        const rl = Math.sqrt(lx * lx + lz * lz) / CM, yl = (tb.y[i] - kp.y) / CM;
+        if (rl < 4.9 && yl > -0.4 && yl < 9.5) {
+            const d = kopfSdf(rl, yl);
+            if (d < rc * (1 + TB.haftBand)) {
+                const ex = rl > 1e-4 ? lx / (rl * CM) : 0, ez = rl > 1e-4 ? lz / (rl * CM) : 0;
+                const nx = KS.gr * ex, ny = KS.gy, nz = KS.gr * ez;
+                if (d < rc) {
+                    const weg = tbFest(i, nx, ny, nz, (rc - d) * CM, TB.wandReib);
+                    if (yl > 8.0 && rl > 3.5 && weg > 2e-5) schmierAuftragen(lx, lz, rl, yl, tb.mol[i] * weg / CM * 0.15);
+                } else if (s === 1) {
+                    const zug = (d - rc) * CM * TB.wandHaft;
+                    tb.x[i] -= nx * zug; tb.y[i] -= ny * zug; tb.z[i] -= nz * zug;
+                }
+            }
+            // ins Kaminloch gefallen: weg, aber gezählt
+            if (rl < 0.76 && yl < 8.0) {
+                if (yl < 7.3) { tb.verlust.kamin++; tbWeg(i); return; }
+            }
+        }
+        // Dose: Blechwand und Tabakmasse (fällt etwas hinein, gehört es wieder zur Masse)
+        const dp = KB.dosePos;
+        const cx = tb.x[i] - dp.x, cz = tb.z[i] - dp.z;
+        const rd = Math.sqrt(cx * cx + cz * cz) / CM, yd = (tb.y[i] - dp.y) / CM;
+        if (rd < 5.4 && yd < 9.4 && yd > -0.5) {
+            const qx = Math.abs(rd - 4.99) - 0.07, qy = Math.abs(yd - 4.53) - 4.53;
+            const dw = Math.min(Math.max(qx, qy), 0) + Math.hypot(Math.max(qx, 0), Math.max(qy, 0));
+            if (dw < rc) {
+                let gx, gy;
+                if (qx > 0 || qy > 0) { gx = Math.max(qx, 0) * Math.sign(rd - 4.99); gy = Math.max(qy, 0) * Math.sign(yd - 4.53); }
+                else if (qx > qy) { gx = Math.sign(rd - 4.99); gy = 0; } else { gx = 0; gy = Math.sign(yd - 4.53); }
+                const gl = Math.hypot(gx, gy) || 1;
+                const ex = rd > 1e-4 ? cx / (rd * CM) : 0, ez = rd > 1e-4 ? cz / (rd * CM) : 0;
+                tbFest(i, gx / gl * ex, gy / gl, gx / gl * ez, (rc - dw) * CM, 0.6);
+            }
+            if (s === 1 && rd < 4.9 && yd - rc < masseHoehe(cx / CM, cz / CM)) {
+                tb.zurueck++; KB.doseEntnommen -= TB.vol * 2; tbWeg(i); return;
+            }
+        }
+        // Werkzeuge
+        for (const k of tb.kol) {
+            if (s === 3 && k.gabel) continue;
+            tbWerkzeug(i, k, h);
+        }
+        // Spitze an der Wand entlanggeführt: was zwischen ihr und der Glasur steckt, wird nach innen gelöst
+        if (RL.aktiv && s === 1) {
+            const kp = KB.kopfPos, lx = (tb.x[i] - kp.x) / CM, lz = (tb.z[i] - kp.z) / CM, rl = Math.hypot(lx, lz), yl = (tb.y[i] - kp.y) / CM;
+            if (rl > RL.r - 0.15 && rl > 0.5 && yl > RL.y - 0.35 && yl < RL.y + 0.9) {
+                let da = Math.atan2(lz, lx) - RL.a; da = Math.atan2(Math.sin(da), Math.cos(da));
+                const quer = Math.abs(da) * rl;
+                if (quer < 0.45) {
+                    const f = (1 - quer / 0.45) * RL.v * h * 0.7;
+                    tb.x[i] -= lx / rl * f; tb.z[i] -= lz / rl * f; tb.y[i] += f * 0.9;
+                    tb.gezogen[i] = 2;
+                }
+            }
+        }
+    }
+
+    // Abstand zur Oberfläche eines Werkzeug-Kolliders, Normale nach _tw
+    const _tw = { nx: 0, ny: 0, nz: 0 };
+    function kolAbstand(k, px, py, pz) {
+        let d;
+        if (k.typ === 'kapsel') {
+            const ex = k.b[0] - k.a[0], ey = k.b[1] - k.a[1], ez = k.b[2] - k.a[2];
+            const t = clamp(((px - k.a[0]) * ex + (py - k.a[1]) * ey + (pz - k.a[2]) * ez) / k.ll, 0, 1);
+            const qx = px - (k.a[0] + ex * t), qy = py - (k.a[1] + ey * t), qz = pz - (k.a[2] + ez * t);
+            const ql = Math.sqrt(qx * qx + qy * qy + qz * qz) || 1e-9;
+            d = ql - (k.ra + (k.rb - k.ra) * t);
+            _tw.nx = qx / ql; _tw.ny = qy / ql; _tw.nz = qz / ql;
+        } else {
+            // abgerundeter Quader im Werkzeugsystem
+            const ox = px - k.c[0], oy = py - k.c[1], oz = pz - k.c[2];
+            const lx = ox * k.ex[0] + oy * k.ex[1] + oz * k.ex[2];
+            const ly = ox * k.ey[0] + oy * k.ey[1] + oz * k.ey[2];
+            const lz = ox * k.ez[0] + oy * k.ez[1] + oz * k.ez[2];
+            const qx = Math.abs(lx) - k.hx, qy = Math.abs(ly) - k.hy, qz = Math.abs(lz) - k.hz;
+            let gx, gy, gz;
+            if (qx > 0 || qy > 0 || qz > 0) {
+                const mx = Math.max(qx, 0), my = Math.max(qy, 0), mz = Math.max(qz, 0);
+                const ml = Math.sqrt(mx * mx + my * my + mz * mz) || 1e-9;
+                d = ml + Math.min(Math.max(qx, qy, qz), 0) - k.rund;
+                gx = mx / ml * Math.sign(lx); gy = my / ml * Math.sign(ly); gz = mz / ml * Math.sign(lz);
+            } else {
+                d = Math.max(qx, qy, qz) - k.rund;
+                gx = qx >= qy && qx >= qz ? Math.sign(lx) : 0;
+                gy = qy > qx && qy >= qz ? Math.sign(ly) : 0;
+                gz = qz > qx && qz > qy ? Math.sign(lz) : 0;
+            }
+            _tw.nx = gx * k.ex[0] + gy * k.ey[0] + gz * k.ez[0];
+            _tw.ny = gx * k.ex[1] + gy * k.ey[1] + gz * k.ez[1];
+            _tw.nz = gx * k.ex[2] + gy * k.ey[2] + gz * k.ez[2];
+        }
+        return d;
+    }
+
+    function tbWerkzeug(i, k, h) {
+        const r = tb.rad[i], m = k.haft > 0 ? r * 1.8 : r;
+        const px = tb.x[i], py = tb.y[i], pz = tb.z[i];
+        if (px < k.min[0] - m || px > k.max[0] + m || py < k.min[1] - m || py > k.max[1] + m || pz < k.min[2] - m || pz > k.max[2] + m) return;
+        const d = kolAbstand(k, px, py, pz);
+        const nx = _tw.nx, ny = _tw.ny, nz = _tw.nz;
+        if (d < r) {
+            const pen = r - d;
+            tb.x[i] += nx * pen; tb.y[i] += ny * pen; tb.z[i] += nz * pen;
+            // Reibung gegenüber dem bewegten Werkzeug: es nimmt den Tabak mit
+            const rx = tb.x[i] - tb.ax[i] - k.v[0] * h, ry = tb.y[i] - tb.ay[i] - k.v[1] * h, rz = tb.z[i] - tb.az[i] - k.v[2] * h;
+            const rn = rx * nx + ry * ny + rz * nz;
+            const tx = rx - rn * nx, ty = ry - rn * ny, tz = rz - rn * nz;
+            const tl = Math.sqrt(tx * tx + ty * ty + tz * tz);
+            if (tl > 1e-9) {
+                const f = tl < k.reib * pen ? 1 : 0.7 * k.reib * pen / tl;
+                tb.x[i] -= tx * f; tb.y[i] -= ty * f; tb.z[i] -= tz * f;
+            }
+            if (tb.st[i] === 2) tbWach(i);
+            if (k.haft > 0) tb.gezogen[i] = 2;
+            // Andrücken: das Werkzeug drückt von oben auf Tabak, der unten aufliegt
+            if (k.drueck && ny < -0.5 && tb.traeg[i] && tb.st[i] === 1) {
+                const neu = Math.min(TB.stauMax, tb.stau[i] + pen / r * 0.35);
+                if (neu > tb.stau[i]) { KB.drueckt += neu - tb.stau[i]; tb.stau[i] = neu; tb.rad[i] = tb.r0[i] * (1 - 0.32 * neu); }
+            }
+        } else if (k.haft > 0 && d < m && tb.st[i] === 1) {
+            // die Spitze hakt sich in die klebrigen Fasern: ein Büschel um sie herum wandert mit und wird dabei
+            // etwas angehoben (aufgelockert), statt sich an den Nachbarn festzufahren
+            const f = k.haft * (1 - (d / m) * (d / m)), vh = Math.hypot(k.v[0], k.v[2]);
+            tb.x[i] += k.v[0] * h * f; tb.y[i] += (k.v[1] * 0.5 + vh * 0.15) * h * f; tb.z[i] += k.v[2] * h * f;
+            if (vh > 0.004) tb.gezogen[i] = 2;
+        }
+    }
+
+    // ---------------------------------------------------------------------------
+    // Pro Frame: wecken, was Werkzeuge berühren könnten; Stützprüfung für Schläfer
+
+    function tbWecken() {
+        // nur das geführte Werkzeug weckt; abgelegt liegt es still und ist bloß noch ein Hindernis
+        const oben = tb.box[4] + 0.01;
+        if (W.inHand || W.uebergang) for (const k of tb.kol) {
+            if (k.min[1] > oben) continue;           // hoch über dem Tabak: nichts zu wecken
+            const m = k.haft > 0 ? 0.005 : 0.004;
+            for (let i = 0; i < tb.n; i++) {
+                if (tb.st[i] !== 2) continue;
+                const x = tb.x[i], y = tb.y[i], z = tb.z[i];
+                if (x > k.min[0] - m && x < k.max[0] + m && y > k.min[1] - m && y < k.max[1] + m && z > k.min[2] - m && z < k.max[2] + m &&
+                    kolAbstand(k, x, y, z) < tb.rad[i] + m) tbWach(i);
+            }
+        }
+        if (RL.aktiv && RL.v > 0.003) {
+            const kp = KB.kopfPos;
+            for (let i = 0; i < tb.n; i++) {
+                if (tb.st[i] !== 2) continue;
+                const lx = (tb.x[i] - kp.x) / CM, lz = (tb.z[i] - kp.z) / CM, rl = Math.hypot(lx, lz), yl = (tb.y[i] - kp.y) / CM;
+                if (rl < RL.r - 0.3 || yl < RL.y - 0.5 || yl > RL.y + 1.1) continue;
+                let da = Math.atan2(lz, lx) - RL.a; da = Math.atan2(Math.sin(da), Math.cos(da));
+                if (Math.abs(da) * rl < 0.7) tbWach(i);
+            }
+        }
+        // ein Teil der Schläfer pro Frame: liegt noch etwas darunter?
+        const c = TB.zelle;
+        let geprueft = 0;
+        for (let n = 0; n < tb.n && geprueft < 160; n++) {
+            const i = tb.pruefen = (tb.pruefen + 1) % Math.max(1, tb.n);
+            if (tb.st[i] !== 2) continue;
+            geprueft++;
+            if (tbGestuetzt(i, c)) continue;
+            tb.weckAudit = (tb.weckAudit || 0) + 1;
+            tbWach(i);
+        }
+    }
+
+    function tbGestuetzt(i, c) {
+        const r = tb.rad[i];
+        const kp = KB.kopfPos;
+        const lx = tb.x[i] - kp.x, lz = tb.z[i] - kp.z;
+        const rl = Math.sqrt(lx * lx + lz * lz) / CM, yl = (tb.y[i] - kp.y) / CM;
+        if (rl < 4.9 && yl > -0.4 && yl < 9.5 && kopfSdf(rl, yl) < r / CM * 1.4) return true;
+        const mp = matte.position;
+        const boden = Math.abs(tb.x[i] - mp.x) < MATTE.b * CM / 2 && Math.abs(tb.z[i] - mp.z) < MATTE.t * CM / 2 ? TISCH_Y + MATTE.oben * CM : TISCH_Y;
+        if (tb.y[i] - r < boden + 0.0004) return true;
+        const cx = Math.floor(tb.x[i] / c), cy = Math.floor(tb.y[i] / c), cz = Math.floor(tb.z[i] / c);
+        for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 0; dy++) for (let dz = -1; dz <= 1; dz++) {
+            for (let j = tb.kz[tbHash(cx + dx, cy + dy, cz + dz)]; j !== -1; j = tb.nx[j]) {
+                if (j === i || !tb.st[j]) continue;
+                const ddx = tb.x[i] - tb.x[j], ddy = tb.y[i] - tb.y[j], ddz = tb.z[i] - tb.z[j];
+                const rs = (r + tb.rad[j]) * 1.12;
+                if (ddy > 0.15 * r && ddx * ddx + ddy * ddy + ddz * ddz < rs * rs) return true;
+            }
+        }
+        return false;
+    }
+
+    function tbHuelle() {
+        const b = tb.box;
+        b[0] = b[1] = b[2] = 1e9; b[3] = b[4] = b[5] = -1e9;
+        for (let i = 0; i < tb.n; i++) {
+            const s = tb.st[i];
+            if (s !== 1 && s !== 2) continue;
+            const x = tb.x[i], y = tb.y[i], z = tb.z[i];
+            if (x < b[0]) b[0] = x; if (y < b[1]) b[1] = y; if (z < b[2]) b[2] = z;
+            if (x > b[3]) b[3] = x; if (y > b[4]) b[4] = y; if (z > b[5]) b[5] = z;
+        }
+    }
+
+    // Abstand zum nächsten freien Teilchen (für den Zeigerstrahl), konservativ
+    function tbAbstand(px, py, pz) {
+        const b = tb.box, m = 2.5 * TB.r;
+        if (b[0] > b[3]) return 1;
+        const ox = Math.max(b[0] - m - px, 0, px - b[3] - m), oy = Math.max(b[1] - m - py, 0, py - b[4] - m), oz = Math.max(b[2] - m - pz, 0, pz - b[5] - m);
+        if (ox > 0 || oy > 0 || oz > 0) return Math.hypot(ox, oy, oz) + m * 0.5;
+        const c = TB.zelle;
+        let best = c - 1.3 * TB.r;
+        const cx = Math.floor(px / c), cy = Math.floor(py / c), cz = Math.floor(pz / c);
+        for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) for (let dz = -1; dz <= 1; dz++) {
+            for (let j = tb.kz[tbHash(cx + dx, cy + dy, cz + dz)]; j !== -1; j = tb.nx[j]) {
+                const s = tb.st[j];
+                if (s !== 1 && s !== 2) continue;
+                const d = Math.hypot(px - tb.x[j], py - tb.y[j], pz - tb.z[j]) - tb.rad[j];
+                if (d < best) best = d;
+            }
+        }
+        return best;
+    }
+
+    // ---------------------------------------------------------------------------
+    // Darstellung: drei Flocken je Teilchen als Instanzen (6 Grundformen)
+
+    // Feinschnitt für die losen Klümpchen: kleiner als die Fasern auf der Dose. Je Teilchen sechs Stücke –
+    // längliche Blattschnipsel, gekräuselte Fäden und ab und zu ein Krümel. Längen 3,5–8 mm.
+    const TB_STUECKE = 6;
+    function schnittGeos() {
+        const geos = [];
+        const fertig = (pos, uv, idx) => {
+            const g = new THREE.BufferGeometry();
+            g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+            g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+            g.setIndex(idx);
+            g.computeVertexNormals();
+            geos.push(g);
+        };
+        // Schnipsel: Vieleck um die Mitte, x ist die Längsrichtung (Skalierung macht sie schmal)
+        for (let v = 0; v < 3; v++) {
+            const r = rng(620 + v);
+            const n = 7 + Math.floor(r() * 3);
+            const pos = [0, 0, 0], uv = [0.5, 0.5], idx = [];
+            const wolb = (r() - 0.4) * 0.6, knick = (r() - 0.5) * 0.5;
+            for (let k = 0; k < n; k++) {
+                const a = k / n * TAU + (r() - 0.5) * 0.5;
+                const rr = 0.5 * (0.55 + r() * 0.45);
+                const x = Math.cos(a) * rr, y = Math.sin(a) * rr;
+                pos.push(x, y, wolb * x * x + knick * x * y);
+                uv.push(0.5 + x, 0.5 + y);
+            }
+            for (let k = 0; k < n; k++) idx.push(0, 1 + k, 1 + (k + 1) % n);
+            fertig(pos, uv, idx);
+        }
+        // Fäden: schmales Band, in der Fläche gebogen, aus der Fläche gerollt und leicht verdreht
+        for (let v = 0; v < 2; v++) {
+            const r = rng(640 + v);
+            const seg = 6, pos = [], uv = [], idx = [];
+            const bogen = (r() - 0.5) * 1.6, roll = (0.5 + r() * 0.6) * (v ? -1 : 1), dreh = (r() - 0.5) * 2.2;
+            for (let s = 0; s <= seg; s++) {
+                const t = s / seg, x = t - 0.5;
+                const b = (0.09 + 0.05 * Math.sin(Math.PI * (0.1 + 0.8 * t))) * (0.8 + r() * 0.45);
+                const y = bogen * x * x, z = roll * x * x;
+                const w = dreh * x;
+                const cy = Math.cos(w) * b, cz = Math.sin(w) * b;
+                pos.push(x, y - cy, z - cz, x, y + cy, z + cz);
+                uv.push(t, 0.3, t, 0.7);
+            }
+            for (let s = 0; s < seg; s++) { const a = s * 2; idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3); }
+            fertig(pos, uv, idx);
+        }
+        // Krümel
+        const g = new THREE.IcosahedronGeometry(0.5, 0);
+        const p = g.attributes.position, rn = new Rauschen(660);
+        for (let i = 0; i < p.count; i++) {
+            _vk.fromBufferAttribute(p, i);
+            const k = 0.75 + 0.4 * rn.n3(_vk.x * 4, _vk.y * 4, _vk.z * 4);
+            p.setXYZ(i, _vk.x * k, _vk.y * k * 0.6, _vk.z * k * 0.85);
+        }
+        g.computeVertexNormals();
+        geos.push(g);
+        return geos;
+    }
+
+    function tbFlockenBauen() {
+        const geos = schnittGeos();
+        const r = rng(907);
+        const n = TB.max * TB_STUECKE;
+        const fl = { meshes: [], geo: new Uint8Array(n), slot: new Uint16Array(n), lok: new Float32Array(n * 12), farben: [] };
+        // erst die Formen verteilen, dann zählen: drei Schnipsel, zwei Fäden, das sechste Stück manchmal ein Krümel
+        const anzahl = new Array(geos.length).fill(0);
+        for (let f = 0; f < n; f++) {
+            const j = f % TB_STUECKE;
+            let g;
+            if (j < 3) g = Math.floor(r() * 3);
+            else if (j < 5) g = 3 + Math.floor(r() * 2);
+            else g = r() < 0.35 ? 5 : Math.floor(r() * 3);
+            fl.geo[f] = g; fl.slot[f] = anzahl[g]++;
+        }
+        geos.forEach((g, gi) => {
+            const im = new THREE.InstancedMesh(g, M.tabak, Math.max(1, anzahl[gi]));
+            im.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+            im.frustumCulled = false;
+            im.castShadow = true; im.receiveShadow = true;
+            im.raycast = () => {};
+            im.name = 'tabakFlocken';
+            const nullM = new THREE.Matrix4().makeScale(0, 0, 0);
+            for (let s = 0; s < anzahl[gi]; s++) { im.setMatrixAt(s, nullM); im.setColorAt(s, TABAK_FARBEN[0]); }
+            fl.meshes.push(im);
+        });
+        const m = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), p = new THREE.Vector3(), sc = new THREE.Vector3();
+        for (let f = 0; f < n; f++) {
+            const g = fl.geo[f];
+            // Schnipsel überlappen die Nachbarn, damit die Glasur verdeckt bleibt
+            if (g < 3) {
+                const lang = (0.36 + Math.pow(r(), 1.4) * 0.34) * CM;
+                sc.set(lang, lang * (0.34 + r() * 0.22), lang * 0.6);
+                e.set(-Math.PI / 2 + (r() - 0.5) * 1.0, r() * TAU, (r() - 0.5) * 0.8, 'YXZ');
+            } else if (g < 5) {
+                const lang = (0.45 + r() * 0.4) * CM;
+                sc.set(lang, lang, lang);
+                e.set(-Math.PI / 2 + (r() - 0.5) * 1.4, r() * TAU, (r() - 0.5) * 1.2, 'YXZ');
+            } else {
+                const d = (0.12 + r() * 0.08) * CM;
+                sc.set(d, d, d);
+                e.set(r() * TAU, r() * TAU, r() * TAU, 'YXZ');
+            }
+            const a = r() * TAU, rr = Math.sqrt(r()) * 0.75 * TB.r;
+            p.set(Math.cos(a) * rr, (r() - 0.5) * 0.8 * TB.r, Math.sin(a) * rr);
+            q.setFromEuler(e);
+            m.compose(p, q, sc);
+            const el = m.elements, o = f * 12;
+            // 3x3 spaltenweise + Verschiebung
+            fl.lok[o] = el[0]; fl.lok[o + 1] = el[1]; fl.lok[o + 2] = el[2];
+            fl.lok[o + 3] = el[4]; fl.lok[o + 4] = el[5]; fl.lok[o + 5] = el[6];
+            fl.lok[o + 6] = el[8]; fl.lok[o + 7] = el[9]; fl.lok[o + 8] = el[10];
+            fl.lok[o + 9] = el[12]; fl.lok[o + 10] = el[13]; fl.lok[o + 11] = el[14];
+            // aufgelockert wirkt der Tabak heller und oranger als die satte Masse in der Dose
+            const c = tabakFarbe(r);
+            c.r *= 1.06; c.g *= 1.16; c.b *= 1.1;
+            fl.farben.push(c);
+        }
+        for (const im of fl.meshes) scene.add(im);
+        tb.fl = fl;
+    }
+
+    const _tf = new THREE.Color();
+    function tbZeichnen() {
+        const fl = tb.fl;
+        if (!fl) return;
+        const geaendert = new Uint8Array(fl.meshes.length);
+        let farbe = false;
+        for (let i = 0; i < tb.n; i++) {
+            const dr = tb.dreck[i];
+            if (!dr) continue;
+            tb.dreck[i] = 0;
+            const lebt = tb.st[i] !== 0;
+            const k = i * 4;
+            const qx = tb.q[k], qy = tb.q[k + 1], qz = tb.q[k + 2], qw = tb.q[k + 3];
+            // Drehmatrix des Teilchens, senkrecht gestaucht
+            const sq = 1 - 0.45 * tb.stau[i], sr = tb.rad[i] / TB.r;
+            const r00 = 1 - 2 * (qy * qy + qz * qz), r01 = 2 * (qx * qy - qz * qw), r02 = 2 * (qx * qz + qy * qw);
+            const r10 = (2 * (qx * qy + qz * qw)) * sq, r11 = (1 - 2 * (qx * qx + qz * qz)) * sq, r12 = (2 * (qy * qz - qx * qw)) * sq;
+            const r20 = 2 * (qx * qz - qy * qw), r21 = 2 * (qy * qz + qx * qw), r22 = 1 - 2 * (qx * qx + qy * qy);
+            const px = tb.x[i], py = tb.y[i], pz = tb.z[i];
+            for (let f = i * TB_STUECKE; f < (i + 1) * TB_STUECKE; f++) {
+                const g = fl.geo[f], im = fl.meshes[g], a = im.instanceMatrix.array, o = fl.slot[f] * 16, l = fl.lok, b = f * 12;
+                geaendert[g] = 1;
+                if (!lebt) { for (let t = 0; t < 16; t++) a[o + t] = 0; continue; }
+                for (let c = 0; c < 3; c++) {
+                    const lx = l[b + c * 3], ly = l[b + c * 3 + 1], lz = l[b + c * 3 + 2];
+                    a[o + c * 4] = (r00 * lx + r01 * ly + r02 * lz) * sr;
+                    a[o + c * 4 + 1] = (r10 * lx + r11 * ly + r12 * lz) * sr;
+                    a[o + c * 4 + 2] = (r20 * lx + r21 * ly + r22 * lz) * sr;
+                    a[o + c * 4 + 3] = 0;
+                }
+                const tx = l[b + 9], ty = l[b + 10], tz = l[b + 11];
+                a[o + 12] = px + (r00 * tx + r01 * ty + r02 * tz) * sr;
+                a[o + 13] = py + (r10 * tx + r11 * ty + r12 * tz) * sr;
+                a[o + 14] = pz + (r20 * tx + r21 * ty + r22 * tz) * sr;
+                a[o + 15] = 1;
+                if (dr & 2) {
+                    // frisch aus der Dose: je mehr Molasse, desto satter (der Glanz kommt über das Material)
+                    const m = tb.mol[i];
+                    _tf.copy(fl.farben[f]).multiplyScalar(1 - 0.08 * m);
+                    _tf.g *= 1 - 0.06 * m; _tf.b *= 1 - 0.14 * m;
+                    im.setColorAt(fl.slot[f], _tf);
+                    farbe = true;
+                }
+            }
+        }
+        fl.meshes.forEach((im, g) => {
+            if (geaendert[g]) im.instanceMatrix.needsUpdate = true;
+            if (farbe && im.instanceColor) im.instanceColor.needsUpdate = true;
+        });
+    }
+    // ---------------------------------------------------------------------------
+    // Kopfbau (Etappe 3): Tabak in der Dose umrühren (Molasse vom Boden), mit der Gabel vom Rand aus in
+    // den Kopf streichen, mit der Spitze locker zurechtrücken, Rand bei Bedarf mit Küchenpapier abwischen.
+    // Werkzeug: Stecher mit Gabel (Umrühren, Aufnehmen, Abstreifen) und Spitze (Zurechtrücken).
+
+    const KB = {
+        kopfPos: new THREE.Vector3(), dosePos: new THREE.Vector3(),
+        genommen: false, ruehr: 0, gabeln: 0, doseEntnommen: 0, drueckt: 0, drueckStart: 0,
+        ziel: 'kontakt', stat: null, statTakt: 0, ruehrGemeldet: false, randGemeldet: false, tonTakt: 0,
+    };
+    const KAP = 110;                                   // Teilchen je Gabel, gut 2 g
+    const STECHER_L = 15.5;                            // cm
+    const SETUPS = {
+        abstand: { name: 'Abstand', kurz: 'unter dem Rand', soll: -4.5, info: 'Tabak gut 3 mm unter dem Rand: der HMD berührt ihn nicht. Sanfte Hitze, länger haltbar, etwas weniger Rauch.' },
+        kontakt: { name: 'Leichter Kontakt', kurz: 'auf Randhöhe', soll: -1.0, info: 'Tabak auf Randhöhe: der Ring unter dem HMD berührt ihn leicht. Der Klassiker für einen Phunnel.' },
+        overpack: { name: 'Overpack', kurz: 'über dem Rand', soll: 3.0, info: 'Tabak über dem Rand: die ganze Unterseite des HMD liegt auf. Viel Hitze, viel Rauch, will gut gemanagt werden.' },
+    };
+
+    const W = {
+        inHand: false, ende: 'gabel', druck: false, extra: 0, last: 0,
+        ursprung: new THREE.Vector3(), q: new THREE.Quaternion(), matrix: new THREE.Matrix4(),
+        tip: new THREE.Vector3(), tipZiel: new THREE.Vector3(), tipFrame: new THREE.Vector3(), v: new THREE.Vector3(),
+        qZiel: new THREE.Quaternion(), rutschRate: 0, art: '', treffer: null, testTreffer: null,
+        imTabak: false, maxTiefe: 0, weg: 0, klebrig: 0, kontakt: '', kontaktAlt: '', uebergang: null, dreh: 0,
+        ruhePos: new THREE.Vector3(), ruheQ: new THREE.Quaternion(), gelegt: true,
+        qSperre: new THREE.Quaternion(), gesperrt: false, ausziehen: false,
+    };
+    const TU = {
+        inHand: false, druck: false, pos: new THREE.Vector3(), ziel: new THREE.Vector3(), q: new THREE.Quaternion(),
+        ruhePos: new THREE.Vector3(), ruheQ: new THREE.Quaternion(), treffer: null, gewischt: 0, tonTakt: 0,
+    };
+    let stecher = null, tuch = null;
+    const _kv = new THREE.Vector3(), _kv2 = new THREE.Vector3(), _kv3 = new THREE.Vector3(), _kq = new THREE.Quaternion(), _km = new THREE.Matrix4();
+    const OBEN_K = new THREE.Vector3(0, 1, 0);
+
+    // ---------------------------------------------------------------------------
+    // Stecher: drei Zinken, Hals, Griff mit Rautenmuster, lange Spitze. Ursprung = Gabelspitze,
+    // x läuft zur Spitze hin, y ist die Gabelfläche (oben), z die Breite.
+
+    function stecherBauen() {
+        const g = new THREE.Group();
+        g.name = 'stecher';
+        const s = new THREE.Shape();
+        const P = (x, y) => [x * CM, y * CM];
+        s.moveTo(...P(4.85, -0.26));
+        s.lineTo(...P(2.8, -0.3)); s.quadraticCurveTo(...P(2.15, -0.5), ...P(1.85, -0.61));
+        s.lineTo(...P(0.3, -0.61)); s.quadraticCurveTo(...P(0.05, -0.6), ...P(0, -0.48));
+        s.quadraticCurveTo(...P(0.05, -0.36), ...P(0.3, -0.35));
+        s.lineTo(...P(1.69, -0.35)); s.absarc(1.69 * CM, -0.24 * CM, 0.11 * CM, -Math.PI / 2, Math.PI / 2, false);
+        s.lineTo(...P(0.3, -0.13)); s.quadraticCurveTo(...P(0.05, -0.12), ...P(0, 0));
+        s.quadraticCurveTo(...P(0.05, 0.12), ...P(0.3, 0.13));
+        s.lineTo(...P(1.69, 0.13)); s.absarc(1.69 * CM, 0.24 * CM, 0.11 * CM, -Math.PI / 2, Math.PI / 2, false);
+        s.lineTo(...P(0.3, 0.35)); s.quadraticCurveTo(...P(0.05, 0.36), ...P(0, 0.48));
+        s.quadraticCurveTo(...P(0.05, 0.6), ...P(0.3, 0.61));
+        s.lineTo(...P(1.85, 0.61)); s.quadraticCurveTo(...P(2.15, 0.5), ...P(2.8, 0.3));
+        s.lineTo(...P(4.85, 0.26)); s.closePath();
+        const kopfGeo = flachExtrudieren(s, 0.1 * CM, { bevelEnabled: true, bevelThickness: 0.012 * CM, bevelSize: 0.012 * CM, bevelSegments: 1, curveSegments: 8 });
+        kopfGeo.translate(0, -0.05 * CM, 0);
+        g.add(mesh(kopfGeo, M.stecher, { name: 'stecher' }));
+        const achse = (geo) => { geo.rotateZ(-Math.PI / 2); return geo; };
+        const griff = achse(lathe(verfeinern([[0, 4.75, 'c'], [0.22, 4.75], [0.3, 4.95], [0.37, 5.25], [0.4, 5.7], [0.4, 8.8], [0.37, 9.25],
+            [0.3, 9.5], [0.22, 9.68, 'c'], [0, 9.68, 'c']], 2), { segs: 40 }));
+        griff.scale(1, 0.72, 1);
+        g.add(mesh(griff, M.stecherGriff, { name: 'stecher' }));
+        const spitze = achse(lathe(verfeinern([[0, 9.6, 'c'], [0.24, 9.6], [0.26, 9.75], [0.22, 9.95], [0.2, 10.25], [0.17, 11.5],
+            [0.11, 13.2], [0.05, 14.8], [0.012, 15.45], [0, 15.5, 'c']], 2), { segs: 28 }));
+        g.add(mesh(spitze, M.stecher, { name: 'stecher' }));
+        return g;
+    }
+
+    // gefaltetes Küchenpapier, vier Lagen, leicht zerknittert
+    function tuchBauen() {
+        const g = new THREE.Group();
+        g.name = 'tuch';
+        const geo = new RoundedBoxGeometry(6.4 * CM, 0.3 * CM, 6.4 * CM, 3, 0.12 * CM);
+        const p = geo.attributes.position, rn = new Rauschen(515);
+        for (let i = 0; i < p.count; i++) {
+            const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
+            const k = 0.07 * CM * rn.n2(x * 90, z * 90) + 0.04 * CM * rn.n2(x * 260 + 5, z * 260);
+            const rand = smooth(2.4 * CM, 3.2 * CM, Math.max(Math.abs(x), Math.abs(z)));
+            p.setXYZ(i, x + k * 0.3, y + k + rand * 0.06 * CM * (y > 0 ? 1 : 0.6), z - k * 0.3);
+        }
+        geo.computeVertexNormals();
+        g.add(mesh(geo, M.tuch, { name: 'tuch' }));
+        return g;
+    }
+
+    // ---------------------------------------------------------------------------
+    // Tabak in der Dose: verformbare Oberfläche (Polargitter) mit Furchen beim Umrühren
+
+    const DM = { nr: 26, nt: 96, R: 4.92, n: 0, basis: null, dh: null, nass: null, px: null, pz: null, geo: null, fasern: [], geaendert: true, nachlauf: 0, alle: true, faserTakt: 0 };
+
+    function masseBasis(x, z) {
+        const r = Math.hypot(x, z), rr = Math.min(1, r / 4.9);
+        const h = 7.27 + 0.48 * (1 - rr * rr) + 0.16 * N.fbm2(x * CM * 260 + 9, z * CM * 260, 3) * (1 - rr * rr * 0.6);
+        return lerp(h - 0.03, 7.15, smooth(4.45, 4.92, r));
+    }
+
+    function masseIdx(k, t) { return k === 0 ? 0 : 1 + (k - 1) * DM.nt + ((t % DM.nt) + DM.nt) % DM.nt; }
+
+    function doseMasseBauen(gruppe) {
+        const nr = DM.nr, nt = DM.nt;
+        DM.n = 1 + nr * nt;
+        DM.basis = new Float32Array(DM.n); DM.dh = new Float32Array(DM.n); DM.nass = new Float32Array(DM.n);
+        DM.px = new Float32Array(DM.n); DM.pz = new Float32Array(DM.n);
+        const pos = new Float32Array(DM.n * 3), uv = new Float32Array(DM.n * 2), col = new Float32Array(DM.n * 3).fill(1);
+        for (let k = 0; k <= nr; k++) {
+            for (let t = 0; t < (k ? nt : 1); t++) {
+                const i = masseIdx(k, t), r = DM.R * k / nr, a = t / nt * TAU;
+                const x = Math.cos(a) * r, z = Math.sin(a) * r;
+                DM.px[i] = x; DM.pz[i] = z;
+                DM.basis[i] = masseBasis(x, z);
+                pos[i * 3] = x * CM; pos[i * 3 + 1] = DM.basis[i] * CM; pos[i * 3 + 2] = z * CM;
+                uv[i * 2] = x * CM * 25; uv[i * 2 + 1] = -z * CM * 25;
+            }
+        }
+        const idx = [];
+        for (let t = 0; t < nt; t++) idx.push(0, masseIdx(1, t + 1), masseIdx(1, t));
+        for (let k = 1; k < nr; k++) for (let t = 0; t < nt; t++) {
+            const a = masseIdx(k, t), b = masseIdx(k, t + 1), c = masseIdx(k + 1, t), d = masseIdx(k + 1, t + 1);
+            idx.push(a, d, c, a, b, d);
+        }
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+        geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+        geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+        geo.setIndex(idx);
+        geo.computeVertexNormals();
+        DM.geo = geo;
+        gruppe.add(mesh(geo, M.tabakMasse, { name: 'tabakMasse' }));
+        // Fasern obenauf; ihre Lage merken, damit sie beim Rühren mitwandern
+        const fasern = faserHaufen(Math.round(3600 * Q0.segs), 4.85 * CM, (x, z) => (masseBasis(x / CM, z / CM) + 0.02) * CM, 77, 60);
+        gruppe.add(fasern);
+        const m4 = new THREE.Matrix4(), p = new THREE.Vector3(), q = new THREE.Quaternion(), sc = new THREE.Vector3();
+        for (const im of fasern.children) {
+            const n = im.count;
+            const d = { im, x: new Float32Array(n), z: new Float32Array(n), off: new Float32Array(n), q: new Float32Array(n * 4), s: new Float32Array(n), dreck: new Uint8Array(n), irgend: false };
+            for (let i = 0; i < n; i++) {
+                im.getMatrixAt(i, m4);
+                m4.decompose(p, q, sc);
+                d.x[i] = p.x; d.z[i] = p.z; d.off[i] = p.y - masseBasis(p.x / CM, p.z / CM) * CM; d.s[i] = sc.x;
+                d.q[i * 4] = q.x; d.q[i * 4 + 1] = q.y; d.q[i * 4 + 2] = q.z; d.q[i * 4 + 3] = q.w;
+            }
+            DM.fasern.push(d);
+        }
+    }
+
+    function massePegel() { return -Math.min(2.5, Math.max(0, KB.doseEntnommen) / (Math.PI * DM.R * DM.R)); }
+
+    // Höhe der Tabakoberfläche in der Dose (cm, Dosen-System)
+    function masseHoehe(x, z) {
+        if (!DM.basis) return 7.5;
+        const r = Math.hypot(x, z);
+        const fk = Math.min(r / DM.R * DM.nr, DM.nr - 1e-4);
+        const k0 = Math.floor(fk), tk = fk - k0;
+        let a = Math.atan2(z, x); if (a < 0) a += TAU;
+        const ft = a / TAU * DM.nt, t0 = Math.floor(ft), tt = ft - t0;
+        const w = (k, t) => { const i = masseIdx(k, t); return DM.basis[i] + DM.dh[i]; };
+        const h0 = w(k0, t0) * (1 - tt) + w(k0, t0 + 1) * tt;
+        const h1 = w(k0 + 1, t0) * (1 - tt) + w(k0 + 1, t0 + 1) * tt;
+        return h0 * (1 - tk) + h1 * tk + massePegel();
+    }
+
+    // Gabel pflügt durch die Masse: in der Spur eine Furche, daneben aufgeworfen; Molasse glänzt in der Furche
+    function masseFurche(x, z, vx, vz, tiefe, breite, dt) {
+        const v = Math.hypot(vx, vz), fv = Math.min(1, v / 3);
+        const hebt = 0.12 * Math.min(1.5, tiefe) * fv * dt * 6;
+        for (let i = 0; i < DM.n; i++) {
+            const dx = DM.px[i] - x, dz = DM.pz[i] - z;
+            const d = Math.hypot(dx, dz);
+            if (d > breite * 2.6) continue;
+            if (d < breite) {
+                const soll = -Math.min(1.1, tiefe * 0.5) * (1 - d / breite * 0.5);
+                DM.dh[i] += (soll - DM.dh[i]) * Math.min(1, dt * 7 * (0.4 + fv));
+                DM.nass[i] = Math.max(DM.nass[i], Math.min(1, tiefe / 1.4) * (1 - 0.65 * KB.ruehr));
+            } else {
+                DM.dh[i] = Math.min(0.55, DM.dh[i] + hebt * (1 - (d - breite) / (breite * 1.6)) * (0.6 + 0.8 * Math.random()));
+            }
+        }
+        // Fasern in der Nähe wandern mit, die im Umkreis folgen der neuen Oberfläche
+        for (const f of DM.fasern) {
+            for (let i = 0; i < f.x.length; i++) {
+                const dx = f.x[i] / CM - x, dz = f.z[i] / CM - z, d = Math.hypot(dx, dz);
+                if (d > breite * 2.6) continue;
+                f.dreck[i] = 1; f.irgend = true;
+                if (d > breite * 2.2) continue;
+                const w = 1 - d / (breite * 2.2);
+                f.x[i] += (vx * dt * 0.35 * w + (Math.random() - 0.5) * 0.06 * w * fv) * CM;
+                f.z[i] += (vz * dt * 0.35 * w + (Math.random() - 0.5) * 0.06 * w * fv) * CM;
+                const rr = Math.hypot(f.x[i], f.z[i]), lim = 4.8 * CM;
+                if (rr > lim) { f.x[i] *= lim / rr; f.z[i] *= lim / rr; }
+                if (Math.random() < 0.3 * w) {
+                    // umgewälzt, aber die Schnitte bleiben eher flach liegen
+                    _kq.set((Math.random() - 0.5) * 0.25, Math.random() - 0.5, (Math.random() - 0.5) * 0.25, 3).normalize();
+                    const k = i * 4;
+                    const q = _kq2.set(f.q[k], f.q[k + 1], f.q[k + 2], f.q[k + 3]).premultiply(_kq);
+                    f.q[k] = q.x; f.q[k + 1] = q.y; f.q[k + 2] = q.z; f.q[k + 3] = q.w;
+                }
+            }
+        }
+        DM.geaendert = true; DM.nachlauf = 2;
+    }
+    const _kq2 = new THREE.Quaternion();
+
+    function masseDelle(x, z, menge) {
+        for (let i = 0; i < DM.n; i++) {
+            const d = Math.hypot(DM.px[i] - x, DM.pz[i] - z);
+            if (d < 1.3) DM.dh[i] -= menge * (1 - d / 1.3);
+        }
+        DM.geaendert = true; DM.nachlauf = 2; DM.alle = true;     // der Pegel sinkt überall
+    }
+
+    let masseRelaxTakt = 0;
+    function masseFrame(dt) {
+        if (!DM.geo) return;
+        DM.nachlauf -= dt;
+        masseRelaxTakt -= dt;
+        if (masseRelaxTakt <= 0 && DM.nachlauf > 0) {
+            masseRelaxTakt = 0.05;
+            // klebrig: Furchen sacken nur langsam zusammen, die dunkle Molasse verteilt sich
+            const dh = DM.dh, nt = DM.nt;
+            for (let k = 1; k < DM.nr; k++) for (let t = 0; t < nt; t++) {
+                const i = masseIdx(k, t);
+                const m = (dh[masseIdx(k - 1, t)] + dh[masseIdx(k + 1, t)] + dh[masseIdx(k, t - 1)] + dh[masseIdx(k, t + 1)]) * 0.25;
+                dh[i] += (m - dh[i]) * 0.04;
+                DM.nass[i] *= 1 - 0.05 * (0.2 + 0.8 * KB.ruehr);
+            }
+            dh[0] += ((dh[masseIdx(1, 0)] + dh[masseIdx(1, nt / 4)] + dh[masseIdx(1, nt / 2)] + dh[masseIdx(1, nt * 3 / 4)]) * 0.25 - dh[0]) * 0.05;
+            DM.geaendert = true;
+        }
+        if (!DM.geaendert) return;
+        DM.geaendert = false;
+        const p = DM.geo.attributes.position, c = DM.geo.attributes.color, pegel = massePegel();
+        for (let i = 0; i < DM.n; i++) {
+            p.array[i * 3 + 1] = (DM.basis[i] + DM.dh[i] + pegel) * CM;
+            const n = DM.nass[i];
+            c.array[i * 3] = 1 - 0.42 * n; c.array[i * 3 + 1] = 1 - 0.6 * n; c.array[i * 3 + 2] = 1 - 0.72 * n;
+        }
+        p.needsUpdate = true; c.needsUpdate = true;
+        DM.geo.computeVertexNormals();
+        // Fasern: bewegte sofort, der Rest folgt dem Nachsacken in größeren Abständen
+        DM.faserTakt -= dt;
+        const alle = DM.alle || DM.faserTakt <= 0;
+        if (DM.faserTakt <= 0) DM.faserTakt = 0.4;
+        DM.alle = false;
+        const m4 = _km, pp = _kv, qq = _kq, sc = _kv3;
+        for (const f of DM.fasern) {
+            if (!alle && !f.irgend) continue;
+            for (let i = 0; i < f.x.length; i++) {
+                if (!alle && !f.dreck[i]) continue;
+                f.dreck[i] = 0;
+                pp.set(f.x[i], masseHoehe(f.x[i] / CM, f.z[i] / CM) * CM + f.off[i], f.z[i]);
+                const k = i * 4;
+                qq.set(f.q[k], f.q[k + 1], f.q[k + 2], f.q[k + 3]);
+                m4.compose(pp, qq, sc.set(f.s[i], f.s[i], f.s[i]));
+                f.im.setMatrixAt(i, m4);
+            }
+            f.irgend = false;
+            f.im.instanceMatrix.needsUpdate = true;
+        }
+    }
+
+    // ---------------------------------------------------------------------------
+    // Molasse am Rand: Maske (Winkel x Profilweg) auf einer hauchdünnen Schicht über dem Rand
+
+    const SCHMIER = { w: 256, h: 24, daten: null, tex: null, profil: null, s: null, gesamt: 0, dirty: false, takt: 0 };
+
+    function schmierAufbauen() {
+        const pts = [[4.06, 8.06], [4.1, 8.18], [4.095, 8.25], [4.06, 8.29], [3.98, 8.31], [3.78, 8.31], [3.71, 8.28], [3.675, 8.21], [3.6, 8.06], [3.47, 7.84]];
+        SCHMIER.profil = pts;
+        SCHMIER.s = [0];
+        for (let i = 1; i < pts.length; i++) SCHMIER.s.push(SCHMIER.s[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+        SCHMIER.gesamt = SCHMIER.s[SCHMIER.s.length - 1];
+        // um 0,08 mm nach außen versetzt
+        const versetzt = pts.map((p, i) => {
+            const a = pts[Math.max(0, i - 1)], b = pts[Math.min(pts.length - 1, i + 1)];
+            const dr = b[0] - a[0], dh = b[1] - a[1], l = Math.hypot(dr, dh) || 1;
+            return [p[0] + dh / l * 0.008, p[1] - dr / l * 0.008];
+        });
+        SCHMIER.daten = new Uint8Array(SCHMIER.w * SCHMIER.h * 4);
+        SCHMIER.tex = new THREE.DataTexture(SCHMIER.daten, SCHMIER.w, SCHMIER.h, THREE.RGBAFormat);
+        SCHMIER.tex.wrapS = THREE.RepeatWrapping;
+        SCHMIER.tex.magFilter = THREE.LinearFilter; SCHMIER.tex.minFilter = THREE.LinearFilter;
+        SCHMIER.tex.needsUpdate = true;
+        M.molasse = new THREE.MeshPhysicalMaterial({
+            color: '#3a1504', roughness: 0.12, clearcoat: 1, clearcoatRoughness: 0.05, transparent: true, alphaMap: SCHMIER.tex,
+            depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
+        });
+        const m = mesh(lathe(versetzt, { segs: 160, knick: 80 }), M.molasse, { schatten: false, name: 'molasse' });
+        m.raycast = () => {};
+        kopf.add(m);
+    }
+
+    // Auftrag an Kopf-Punkt (lx, lz in m, rl/yl in cm); menge ungefähr in "Deckung"
+    function schmierAuftragen(lx, lz, rl, yl, menge) {
+        if (!SCHMIER.daten || menge <= 0) return;
+        const p = SCHMIER.profil;
+        let best = 1e9, sBest = 0;
+        for (let i = 1; i < p.length; i++) {
+            const ax = p[i - 1][0], ay = p[i - 1][1], ex = p[i][0] - ax, ey = p[i][1] - ay;
+            const ll = ex * ex + ey * ey, t = clamp(((rl - ax) * ex + (yl - ay) * ey) / ll, 0, 1);
+            const d = Math.hypot(rl - ax - ex * t, yl - ay - ey * t);
+            if (d < best) { best = d; sBest = SCHMIER.s[i - 1] + Math.sqrt(ll) * t; }
+        }
+        if (best > 0.3) return;
+        let u = Math.atan2(lx, lz) / TAU; if (u < 0) u += 1;
+        const cx = u * SCHMIER.w, cy = sBest / SCHMIER.gesamt * SCHMIER.h;
+        const W2 = SCHMIER.w, d = SCHMIER.daten;
+        for (let dy = -1; dy <= 1; dy++) for (let dx = -2; dx <= 2; dx++) {
+            const y = Math.round(cy + dy);
+            if (y < 0 || y >= SCHMIER.h) continue;
+            const x = ((Math.round(cx + dx) % W2) + W2) % W2;
+            const k = (y * W2 + x) * 4;
+            const w = Math.exp(-(dx * dx) / 2.2 - (dy * dy) / 1.2);
+            const v = Math.min(255, d[k + 1] + menge * 255 * 3 * w);
+            d[k] = d[k + 1] = d[k + 2] = d[k + 3] = v;
+        }
+        SCHMIER.dirty = true;
+    }
+
+    function schmierWischen(u0, breite, staerke) {
+        const W2 = SCHMIER.w, d = SCHMIER.daten;
+        const b = Math.ceil(breite * W2);
+        for (let y = 0; y < SCHMIER.h; y++) for (let dx = -b; dx <= b; dx++) {
+            const x = ((Math.round(u0 * W2) + dx) % W2 + W2) % W2, k = (y * W2 + x) * 4;
+            const w = 1 - Math.abs(dx) / (b + 1);
+            const v = d[k + 1] * (1 - staerke * w);
+            d[k] = d[k + 1] = d[k + 2] = d[k + 3] = v < 3 ? 0 : v;
+        }
+        SCHMIER.dirty = true;
+    }
+
+    function schmierAnteil() {
+        if (!SCHMIER.daten) return 0;
+        let s = 0;
+        for (let k = 1; k < SCHMIER.daten.length; k += 4) s += SCHMIER.daten[k];
+        return s / (255 * SCHMIER.w * SCHMIER.h);
+    }
+
+    function schmierFrame(dt) {
+        SCHMIER.takt -= dt;
+        if (SCHMIER.dirty && SCHMIER.takt <= 0) { SCHMIER.tex.needsUpdate = true; SCHMIER.dirty = false; SCHMIER.takt = 0.08; }
+    }
+
+    // ---------------------------------------------------------------------------
+    // Feste Umgebung als Abstandsfeld (m): Tisch, Matte, Kopf, Dose (Wand, Boden, optional Tabakmasse)
+
+    const FA = { art: '', nx: 0, ny: 1, nz: 0 };
+    function festAbstand(px, py, pz, mitMasse) {
+        let best = py - TISCH_Y; FA.art = 'tisch'; FA.nx = 0; FA.ny = 1; FA.nz = 0;
+        if (Math.abs(px) > TISCH.b / 2 || Math.abs(pz) > TISCH.t / 2) best = Math.max(best, 0.02);
+        // Matte
+        const mp = matte.position, mh = MATTE.oben * CM / 2;
+        const qx = Math.abs(px - mp.x) - MATTE.b * CM / 2, qy = Math.abs(py - TISCH_Y - mh) - mh, qz = Math.abs(pz - mp.z) - MATTE.t * CM / 2;
+        const dm = Math.min(Math.max(qx, qy, qz), 0) + Math.hypot(Math.max(qx, 0), Math.max(qy, 0), Math.max(qz, 0));
+        if (dm < best) { best = dm; FA.art = 'matte'; FA.nx = 0; FA.ny = 1; FA.nz = 0; if (qx > qy && qx > qz) { FA.nx = Math.sign(px - mp.x); FA.ny = 0; } }
+        // Kopf
+        const kp = KB.kopfPos;
+        const lx = px - kp.x, lz = pz - kp.z, rl = Math.sqrt(lx * lx + lz * lz) / CM, yl = (py - kp.y) / CM;
+        if (rl < 4.95 && yl > -0.45 && yl < 9.55) {
+            const d = kopfSdf(rl, yl) * CM;
+            if (d < best) {
+                best = d; FA.art = 'kopf';
+                const ex = rl > 1e-4 ? lx / (rl * CM) : 0, ez = rl > 1e-4 ? lz / (rl * CM) : 0;
+                FA.nx = KS.gr * ex; FA.ny = KS.gy; FA.nz = KS.gr * ez;
+            }
+        } else {
+            const ox = Math.max(rl - 4.95, 0), oy = Math.max(-0.45 - yl, yl - 9.55, 0);
+            const dz = Math.hypot(ox, oy) * CM;
+            if (dz < best) { best = Math.max(dz, 0.0005); FA.art = ''; }
+        }
+        // Dose
+        const dp = KB.dosePos;
+        const cx = px - dp.x, cz = pz - dp.z, rd = Math.sqrt(cx * cx + cz * cz) / CM, yd = (py - dp.y) / CM;
+        if (rd < 5.4 && yd > -0.45 && yd < 9.5) {
+            const ex = rd > 1e-4 ? cx / (rd * CM) : 0, ez = rd > 1e-4 ? cz / (rd * CM) : 0;
+            const wx = Math.abs(rd - 4.99) - 0.07, wy = Math.abs(yd - 4.53) - 4.53;
+            const dw = (Math.min(Math.max(wx, wy), 0) + Math.hypot(Math.max(wx, 0), Math.max(wy, 0))) * CM;
+            if (dw < best) {
+                best = dw; FA.art = 'dose';
+                if (wx > wy) { FA.nx = Math.sign(rd - 4.99) * ex; FA.ny = 0; FA.nz = Math.sign(rd - 4.99) * ez; } else { FA.nx = 0; FA.ny = Math.sign(yd - 4.53); FA.nz = 0; }
+            }
+            if (rd < 4.92) {
+                const db = (yd - 0.2) * CM;
+                if (db < best) { best = db; FA.art = 'dose'; FA.nx = 0; FA.ny = 1; FA.nz = 0; }
+                if (mitMasse) {
+                    const dmz = (yd - masseHoehe(cx / CM, cz / CM)) * CM * 0.75;
+                    if (dmz < best) { best = dmz; FA.art = 'masse'; FA.nx = 0; FA.ny = 1; FA.nz = 0; }
+                }
+            }
+        } else {
+            const ox = Math.max(rd - 5.4, 0), oy = Math.max(-0.45 - yd, yd - 9.5, 0);
+            const dz = Math.hypot(ox, oy) * CM;
+            if (dz < best) { best = Math.max(dz, 0.0005); FA.art = ''; }
+        }
+        return best;
+    }
+
+    // Zeigerstrahl gegen Tisch, Matte, Kopf, Dose und Tabak (Kugel-Abtastung)
+    const _ro = new THREE.Vector3(), _rd = new THREE.Vector3();
+    function arbeitsTreffer() {
+        if (W.testTreffer) return W.testTreffer;
+        strahl.setFromCamera(zeiger.ndc, camera);
+        _ro.copy(strahl.ray.origin); _rd.copy(strahl.ray.direction);
+        let t = 0;
+        for (let k = 0; k < 260; k++) {
+            const x = _ro.x + _rd.x * t, y = _ro.y + _rd.y * t, z = _ro.z + _rd.z * t;
+            const d = festAbstand(x, y, z, true), dt = tbAbstand(x, y, z);
+            const m = Math.min(d, dt);
+            if (m < 0.0003) {
+                const p = new THREE.Vector3(x, y, z);
+                return { p, art: trefferArt(p, dt < d ? 'tabak' : FA.art) };
+            }
+            t += Math.max(m * 0.85, 0.0002);
+            if (t > 4) break;
+        }
+        return null;
+    }
+
+    // Wo liegt ein Punkt? dose, kopf, matte oder tisch
+    function trefferArt(p, roh) {
+        const kp = KB.kopfPos, dp = KB.dosePos;
+        if (Math.hypot(p.x - dp.x, p.z - dp.z) < 5.15 * CM && p.y > dp.y + 0.05) return roh === 'masse' || roh === 'tabak' || roh === 'dose' ? 'dose' : roh;
+        if (Math.hypot(p.x - kp.x, p.z - kp.z) < 4.3 * CM && p.y > kp.y + 0.05) return 'kopf';
+        if (roh === 'tabak') {
+            const mp = matte.position;
+            return Math.abs(p.x - mp.x) < MATTE.b * CM / 2 && Math.abs(p.z - mp.z) < MATTE.t * CM / 2 ? 'matte' : 'tisch';
+        }
+        return roh || 'tisch';
+    }
+
+    // ---------------------------------------------------------------------------
+    // Stecher in der Hand
+
+    // Ladung als Hügel auf der Gabel (Gitter versetzt geschichtet), unten zuerst gefüllt
+    const ANKER = (() => {
+        const out = [], d = 0.33, r = rng(4401), H = 1.2, y0 = 0.05 + TB.r / CM;
+        for (let l = 0; l < 12; l++) {
+            const y = y0 + l * d * 0.82;
+            for (let x = 0.18 + (l % 2) * d * 0.5; x <= 2.7; x += d) {
+                const halb = x < 1.75 ? 0.66 : lerp(0.66, 0.36, (x - 1.75) / 0.95);
+                for (let z = -1.2 + (l % 2) * d * 0.5; z <= 1.2; z += d) {
+                    const ux = (x - 1.3) / 1.5, uz = z / (halb + 0.25);
+                    if (y - y0 > H * (1 - ux * ux) * (1 - uz * uz)) continue;
+                    out.push([(x + (r() - 0.5) * 0.05) * CM, (y + (r() - 0.5) * 0.03) * CM, (z + (r() - 0.5) * 0.05) * CM]);
+                }
+            }
+        }
+        return out;
+    })();
+
+    const STECHER_PROBEN = [[0, 0, 0], [0, 0, -0.48], [0, 0, 0.48], [1.0, 0.06, 0], [1.9, 0, -0.6], [1.9, 0, 0.6], [2.8, 0, 0], [6.5, 0, 0], [15.45, 0, 0], [14.5, 0, 0], [13.2, 0, 0]];
+
+    function stecherAchsen(q, ax, ay, az) {
+        ax.set(1, 0, 0).applyQuaternion(q); ay.set(0, 1, 0).applyQuaternion(q); az.set(0, 0, 1).applyQuaternion(q);
+    }
+
+    // Zielhaltung: die Hand kommt von rechts unten (aus Sicht der Kamera)
+    function stecherZielQ(tip, out) {
+        const rechts = _kv.set(1, 0, 0).applyQuaternion(camera.quaternion);
+        rechts.y = 0; rechts.normalize();
+        const zurKamera = _kv2.subVectors(camera.position, tip); zurKamera.y = 0;
+        if (zurKamera.lengthSq() < 1e-8) zurKamera.set(0, 0, 1);
+        zurKamera.normalize();
+        const hor = rechts.multiplyScalar(0.62).addScaledVector(zurKamera, 0.5).normalize();
+        // Über dem Kopf zeigt der Griff nach außen, Zinken bzw. Spitze zur Mitte: so streift die Gabel am Rand ab, und
+        // die Spitze zieht wie eine nach hinten geneigte Schaufel – was sie vor sich hat, wandert zur Mitte und obenauf.
+        // Gedreht wird über den Winkel, damit die Haltung beim Umschwenken nicht springt.
+        const kx = tip.x - KB.kopfPos.x, kz = tip.z - KB.kopfPos.z, kr = Math.hypot(kx, kz);
+        let randNah = 0;
+        if (kr < 4.6 * CM && kr > 0.2 * CM) {
+            const w = smooth(4.6 * CM, 3.6 * CM, kr) * 0.75;
+            let ah = Math.atan2(hor.z, hor.x), d = Math.atan2(kz, kx) - ah;
+            d = Math.atan2(Math.sin(d), Math.cos(d));
+            ah += d * w;
+            hor.set(Math.cos(ah), 0, Math.sin(ah));
+            randNah = smooth(2.8 * CM, 3.5 * CM, kr);
+        }
+        let neig;
+        if (W.ende === 'gabel') neig = W.druck ? (W.last > 0 && W.art !== 'dose' ? 64 : 40) : 22;
+        else neig = (W.druck ? 52 : 40) + randNah * 14;      // an der Wand steiler, damit die Spitze hinunterkommt
+        const a = neig * Math.PI / 180;
+        const zurHand = _kv3.copy(hor).multiplyScalar(Math.cos(a)).addScaledVector(OBEN_K, Math.sin(a)).normalize();
+        const ax = W.ende === 'gabel' ? zurHand : zurHand.negate();
+        const ay = new THREE.Vector3().copy(OBEN_K).addScaledVector(ax, -ax.y).normalize();
+        const az = new THREE.Vector3().crossVectors(ax, ay);
+        _km.makeBasis(ax, ay, az);
+        return out.setFromRotationMatrix(_km);
+    }
+
+    function stecherNehmen() {
+        if (!spiel.fertig.has(1)) { meldung('Erst die Dose öffnen, dann den Tabak.', 2.6); return; }
+        if (H.inHand) { H.danach = null; zangeHinlegen(null); H.danach = () => stecherNehmen(); return; }
+        if (TU.inHand) tuchAblegen();
+        W.inHand = true; W.gelegt = false; W.ende = 'gabel'; W.druck = false; W.extra = 0; W.ausziehen = false;
+        stecher.updateMatrixWorld(true);
+        W.ursprung.copy(stecher.position); W.q.copy(stecher.quaternion);
+        W.tip.copy(W.ursprung); W.tipZiel.copy(W.tip).y += 3 * CM;
+        W.uebergang = { t: 0, dauer: 0.35 };
+        KB.genommen = true;
+        if (spiel.ansicht !== 2) { spiel.ansicht = 2; phasenLeiste(); karteZeichnen(); }
+        hinweisSetzen();
+        geraeusch.stecher(0.6);
+    }
+
+    function stecherAblegen() {
+        if (!W.inHand) return;
+        W.druck = false; W.rutschRate = 0;
+        // Ladung bleibt nicht kleben: fällt dort, wo die Gabel gerade ist
+        for (let i = 0; i < tb.n; i++) if (tb.st[i] === 3) tbLoesen(i);
+        W.inHand = false;
+        W.uebergang = { t: 0, dauer: 0.45, ablegen: true, von: W.ursprung.clone(), vonQ: W.q.clone() };
+        hinweisSetzen();
+    }
+
+    function stecherDrehen() {
+        if (!W.inHand || W.uebergang) return;
+        W.ende = W.ende === 'gabel' ? 'spitze' : 'gabel';
+        W.dreh = 0.4;
+        W.druck = false; W.ausziehen = false;
+        meldung(W.ende === 'spitze' ? 'Spitze vorn: Tabak locker zurechtrücken, nicht drücken.' : 'Gabel vorn: aufnehmen und abstreifen.', 2.2, 'stecher');
+        hinweisSetzen();
+    }
+
+    function druckStart() {
+        if (!W.inHand || W.uebergang) return false;
+        W.druck = true; W.extra = 0; W.maxTiefe = 0; W.weg = 0; W.gesperrt = false;
+        KB.drueckStart = KB.drueckt;
+        if (W.ende === 'gabel' && W.last > 0 && W.art === 'dose') {
+            for (let i = 0; i < tb.n; i++) if (tb.st[i] === 3) tbLoesen(i);
+            meldung('Tabak zurück in die Dose.', 1.8, 'stecher');
+        }
+        return true;
+    }
+
+    function druckEnde() {
+        if (!W.druck) return;
+        W.druck = false; W.rutschRate = 0; W.ausziehen = W.gesperrt;
+        if (W.ende !== 'gabel') return;
+        if (W.art === 'dose' && W.maxTiefe > 0.25) gabelFuellen();
+        else if (W.last === 0) gabelAufnehmen();
+    }
+
+    // Aus der Dose: Gabel bekommt eine Ladung, je tiefer eingetaucht, desto mehr
+    function gabelFuellen() {
+        const soll = Math.round(KAP * clamp(W.maxTiefe / 1.5, 0.35, 1) * (W.weg > 1.5 ? 1 : 0.75));
+        const neu = Math.max(0, soll - W.last);
+        if (!neu) return;
+        W.matrix.compose(W.ursprung, W.q, _kv.set(1, 1, 1));
+        const mol = 0.3 + 0.7 * KB.ruehr;
+        let n = 0;
+        for (let k = W.last; k < ANKER.length && n < neu; k++) {
+            const a = ANKER[k];
+            _kv2.set(a[0], a[1], a[2]).applyMatrix4(W.matrix);
+            const i = tbNeu(_kv2.x, _kv2.y, _kv2.z, mol, 3);
+            if (i < 0) break;
+            tb.ank[i * 3] = a[0]; tb.ank[i * 3 + 1] = a[1]; tb.ank[i * 3 + 2] = a[2];
+            W.last++; n++;
+        }
+        KB.doseEntnommen += n * TB.vol * 2;
+        KB.gabeln++;
+        const lk = _kv.copy(W.tip).sub(KB.dosePos).divideScalar(CM);
+        masseDelle(lk.x, lk.z, 0.25 + 0.3 * n / KAP);
+        W.klebrig = Math.max(W.klebrig, 0.4 + 0.6 * KB.ruehr);
+        geraeusch.tabakRuehren(0.5);
+    }
+
+    // Leere Gabel hebt an, was auf ihr liegt (Tabak im Kopf oder Krümel auf der Matte)
+    function gabelAufnehmen() {
+        W.matrix.compose(W.ursprung, W.q, _kv.set(1, 1, 1));
+        _km.copy(W.matrix).invert();
+        const auf = [];
+        for (let i = 0; i < tb.n; i++) {
+            const s = tb.st[i];
+            if (s !== 1 && s !== 2) continue;
+            _kv.set(tb.x[i], tb.y[i], tb.z[i]).applyMatrix4(_km);
+            const x = _kv.x / CM, y = _kv.y / CM, z = _kv.z / CM;
+            if (x > -0.1 && x < 2.9 && Math.abs(z) < 0.78 && y > -0.02 && y < 1.1) auf.push([i, y]);
+        }
+        auf.sort((a, b) => a[1] - b[1]);
+        for (const [i] of auf.slice(0, KAP)) {
+            _kv.set(tb.x[i], tb.y[i], tb.z[i]).applyMatrix4(_km);
+            tb.ank[i * 3] = _kv.x; tb.ank[i * 3 + 1] = Math.max(_kv.y, 0.05 * CM + tb.rad[i]); tb.ank[i * 3 + 2] = _kv.z;
+            tb.st[i] = 3; W.last++;
+        }
+    }
+
+    // Haltung pro Teilschritt: Spitze folgt dem Ziel, Stecher bleibt aus Ton, Blech und Tisch heraus
+    const _w0 = new THREE.Vector3(), _wx = new THREE.Vector3(), _wy = new THREE.Vector3(), _wz = new THREE.Vector3();
+    function werkzeugSchritt(h) {
+        if (!W.inHand && !W.uebergang) return;
+        _w0.copy(W.tip);
+        if (W.uebergang) {
+            const u = W.uebergang;
+            u.t = Math.min(1, u.t + h / u.dauer);
+            const k = u.t * u.t * (3 - 2 * u.t);
+            if (u.ablegen) {
+                W.ursprung.lerpVectors(u.von, W.ruhePos, k);
+                W.ursprung.y += Math.sin(Math.PI * u.t) * 2.5 * CM;
+                W.q.slerpQuaternions(u.vonQ, W.ruheQ, k);
+            } else {
+                stecherZielQ(W.tipZiel, W.qZiel);
+                W.q.slerp(W.qZiel, k * 0.5 + 0.1);
+                W.ursprung.lerp(W.tipZiel, k * 0.35 + 0.05);
+            }
+            if (u.t >= 1) {
+                W.uebergang = null;
+                if (u.ablegen) { W.gelegt = true; geraeusch.stecher(0.4); }
+            }
+            W.tip.copy(W.ursprung);
+            if (W.ende === 'spitze' && !u.ablegen) W.tip.addScaledVector(_wx.set(1, 0, 0).applyQuaternion(W.q), STECHER_L * CM);
+        } else {
+            const k = 1 - Math.exp(-h * 22);
+            const z = _kv.copy(W.tipZiel).sub(W.tip).multiplyScalar(k);
+            // nicht gedrückt: erst aus dem Tabak heraus, dann seitlich (sonst schleift die Spitze Krümel mit)
+            if (!W.druck) {
+                const unter = (W.tipZiel.y - W.tip.y) / CM;
+                if (unter > 0.1) { const f = clamp(1 - unter / 0.8, 0.15, 1); z.x *= f; z.z *= f; }
+                if (W.ausziehen && unter < 0.35) { W.ausziehen = false; W.gesperrt = false; }
+            }
+            const vmax = 0.9 * h, l = z.length();
+            if (l > vmax) z.multiplyScalar(vmax / l);
+            W.tip.add(z);
+            if (W.dreh > 0) W.dreh = Math.max(0, W.dreh - h);
+            W.q.slerp(W.qZiel, 1 - Math.exp(-h * (W.dreh > 0 ? 7 : 15)));
+            stecherAchsen(W.q, _wx, _wy, _wz);
+            W.ursprung.copy(W.tip);
+            if (W.ende === 'spitze') W.ursprung.addScaledVector(_wx, -STECHER_L * CM);
+            // aus festen Dingen heraushalten; in die Dosenmasse darf die Gabel nur gedrückt
+            const mitMasse = !(W.druck && W.art === 'dose') && !W.imTabak;
+            W.kontakt = '';
+            for (let it = 0; it < 3; it++) {
+                W.matrix.compose(W.ursprung, W.q, _kv.set(1, 1, 1));
+                let tief = 0, nx = 0, ny = 0, nz = 0, art = '';
+                for (const pr of STECHER_PROBEN) {
+                    _kv2.set(pr[0] * CM, pr[1] * CM, pr[2] * CM).applyMatrix4(W.matrix);
+                    const d = festAbstand(_kv2.x, _kv2.y, _kv2.z, mitMasse) - 0.0004;
+                    if (d < tief) { tief = d; nx = FA.nx; ny = FA.ny; nz = FA.nz; art = FA.art; _kv3.copy(_kv2); }
+                }
+                if (tief >= 0) break;
+                W.ursprung.x -= nx * tief; W.ursprung.y -= ny * tief; W.ursprung.z -= nz * tief;
+                W.kontakt = art;
+                // klebrige Gabel schmiert Molasse auf den Rand
+                if (art === 'kopf' && W.klebrig > 0.05) {
+                    const lx = _kv3.x - KB.kopfPos.x, lz = _kv3.z - KB.kopfPos.z, rl = Math.hypot(lx, lz) / CM, yl = (_kv3.y - KB.kopfPos.y) / CM;
+                    const weg = _kv.copy(W.tip).sub(_w0).length() / CM;
+                    if (yl > 7.85 && rl > 3.35) { schmierAuftragen(lx, lz, rl, yl, W.klebrig * weg * 0.2); W.klebrig = Math.max(0, W.klebrig - weg * 0.03); }
+                }
+            }
+            W.tip.copy(W.ursprung);
+            if (W.ende === 'spitze') W.tip.addScaledVector(_wx, STECHER_L * CM);
+        }
+        W.matrix.compose(W.ursprung, W.q, _kv.set(1, 1, 1));
+        W.v.copy(W.tip).sub(_w0).divideScalar(h);
+        if (W.v.length() > 1.2) W.v.setLength(1.2);
+        kolliderSetzen();
+    }
+
+    // Kollider für die Tabakteilchen aus der aktuellen Haltung
+    const KOL = [];
+    function kolliderSetzen() {
+        stecherAchsen(W.q, _wx, _wy, _wz);
+        const o = W.ursprung, v = W.v;
+        const spitzeAktiv = W.inHand && W.ende === 'spitze' && W.druck;
+        const drueckt = W.inHand && W.druck && W.ende === 'gabel' && W.extra > 0.05 && W.art !== 'dose';
+        if (!KOL.length) {
+            KOL.push({ typ: 'box', gabel: true, c: [0, 0, 0], ex: [0, 0, 0], ey: [0, 0, 0], ez: [0, 0, 0], hx: 1.42 * CM, hy: 0.05 * CM, hz: 0.66 * CM, rund: 0.015 * CM, min: [0, 0, 0], max: [0, 0, 0], v: [0, 0, 0], reib: 0.8, reib0: 0.8, haft: 0, drueck: false });
+            KOL.push({ typ: 'kapsel', gabel: false, a: [0, 0, 0], b: [0, 0, 0], ra: 0.3 * CM, rb: 0.3 * CM, ll: 1, min: [0, 0, 0], max: [0, 0, 0], v: [0, 0, 0], reib: 0.5, reib0: 0.5, haft: 0, drueck: false, x0: 2.8, x1: 9.6 });
+            KOL.push({ typ: 'kapsel', gabel: false, a: [0, 0, 0], b: [0, 0, 0], ra: 0.2 * CM, rb: 0.12 * CM, ll: 1, min: [0, 0, 0], max: [0, 0, 0], v: [0, 0, 0], reib: 0.75, reib0: 0.75, haft: 0, drueck: false, x0: 9.7, x1: 11.9 });
+            KOL.push({ typ: 'kapsel', gabel: false, a: [0, 0, 0], b: [0, 0, 0], ra: 0.12 * CM, rb: 0.025 * CM, ll: 1, min: [0, 0, 0], max: [0, 0, 0], v: [0, 0, 0], reib: 0.75, reib0: 0.75, haft: 0, drueck: false, x0: 11.9, x1: 15.45 });
+        }
+        const b = KOL[0];
+        b.c[0] = o.x + _wx.x * 1.4 * CM; b.c[1] = o.y + _wx.y * 1.4 * CM; b.c[2] = o.z + _wx.z * 1.4 * CM;
+        b.ex[0] = _wx.x; b.ex[1] = _wx.y; b.ex[2] = _wx.z; b.ey[0] = _wy.x; b.ey[1] = _wy.y; b.ey[2] = _wy.z; b.ez[0] = _wz.x; b.ez[1] = _wz.y; b.ez[2] = _wz.z;
+        const e = 1.6 * CM;
+        for (let k = 0; k < 3; k++) { b.min[k] = b.c[k] - e; b.max[k] = b.c[k] + e; }
+        b.drueck = drueckt;
+        for (let n = 1; n < 4; n++) {
+            const c = KOL[n];
+            c.a[0] = o.x + _wx.x * c.x0 * CM; c.a[1] = o.y + _wx.y * c.x0 * CM; c.a[2] = o.z + _wx.z * c.x0 * CM;
+            c.b[0] = o.x + _wx.x * c.x1 * CM; c.b[1] = o.y + _wx.y * c.x1 * CM; c.b[2] = o.z + _wx.z * c.x1 * CM;
+            c.ll = (c.x1 - c.x0) * (c.x1 - c.x0) * CM * CM;
+            for (let k = 0; k < 3; k++) { c.min[k] = Math.min(c.a[k], c.b[k]) - c.ra; c.max[k] = Math.max(c.a[k], c.b[k]) + c.ra; }
+            c.haft = spitzeAktiv ? [0, 0, 0.6, 0.9][n] : 0;      // die Spitze hakt sich in die Fasern und zieht ein Büschel mit
+        }
+        // nur beim Arbeiten nimmt das Werkzeug Tabak über die Reibung mit; beim Herausziehen gleitet es
+        for (const c of KOL) { c.v[0] = v.x; c.v[1] = v.y; c.v[2] = v.z; c.reib = W.druck ? c.reib0 : c.reib0 * 0.25; }
+        tb.kol = KOL;
+        // Spitze nah an der Wand: Tabak vom Rand lösen
+        const kx = W.tip.x - KB.kopfPos.x, kz = W.tip.z - KB.kopfPos.z;
+        RL.r = Math.hypot(kx, kz) / CM; RL.a = Math.atan2(kz, kx); RL.y = (W.tip.y - KB.kopfPos.y) / CM; RL.v = v.length();
+        RL.aktiv = spitzeAktiv && W.art === 'kopf' && RL.r > 2.9 && RL.r < 3.9 && RL.y > 7.2;
+    }
+
+    // Ziel aus dem Zeiger, einmal pro Frame
+    function zielAusZeiger() {
+        const t = zeiger.drin || W.testTreffer ? arbeitsTreffer() : null;
+        W.treffer = t;
+        if (!t) return;
+        if (!W.druck) W.art = t.art;
+        const p = t.p;
+        const ziel = _kv.copy(p);
+        if (!W.druck) ziel.y += (W.last > 0 ? 1.7 : 1.1) * CM;
+        else {
+            let tiefe;
+            if (W.art === 'dose') tiefe = W.ende === 'gabel' ? 1.6 : 1.2;
+            else if (W.art === 'kopf') tiefe = W.ende === 'gabel' ? (W.last > 0 ? 0.05 : 0.55) : 0.5;
+            else tiefe = 0.08;
+            ziel.y -= (tiefe + W.extra) * CM;
+        }
+        if (W.dreh > 0) ziel.y += 2.0 * CM;
+        W.tipZiel.copy(ziel);
+        // während eines Zugs hält die Hand den Stecher ruhig; erst wenn er aus dem Tabak heraus ist, richtet er sich neu aus
+        if ((W.druck || W.ausziehen) && W.gesperrt) W.qZiel.copy(W.qSperre);
+        else {
+            stecherZielQ(W.tipZiel, W.qZiel);
+            if (W.druck) { W.qSperre.copy(W.qZiel); W.gesperrt = true; }
+        }
+    }
+
+    function werkzeugNachFrame(dt) {
+        if (!W.inHand) { W.tipFrame.copy(W.tip); return; }
+        const dp = KB.dosePos;
+        const weg = _kv.copy(W.tip).sub(W.tipFrame).length() / CM;
+        W.tipFrame.copy(W.tip);
+        // Abstreifen: gedrückt über Kopf oder Matte löst sich der Tabak an den Zinken, je weiter gezogen,
+        // desto mehr; still gehalten rutscht nur wenig. Wer die volle Gabel schüttelt, verliert Krümel.
+        W.rutschRate = 0;
+        if (W.ende === 'gabel' && W.last > 0) {
+            if (W.druck && W.art !== 'dose') gabelAbstreifen(weg, dt);
+        }
+        // In der Dose: Tiefe merken, Umrühren zählen, Masse pflügen
+        const lx = (W.tip.x - dp.x) / CM, lz = (W.tip.z - dp.z) / CM, ly = (W.tip.y - dp.y) / CM;
+        W.imTabak = false;
+        if (Math.hypot(lx, lz) < 4.9 && ly < 9.0) {
+            const tiefe = masseHoehe(lx, lz) - ly;
+            if (tiefe > 0.05) {
+                W.imTabak = true;
+                // Ladung nach der Tiefe unter der ungestörten Oberfläche (die Furche zählt nicht als flach)
+                if (W.druck) W.maxTiefe = Math.max(W.maxTiefe, masseBasis(lx, lz) + massePegel() - ly);
+                W.weg += weg;
+                const breite = W.ende === 'gabel' ? 0.62 : 0.3;
+                masseFurche(lx, lz, W.v.x / CM, W.v.z / CM, tiefe, breite, dt);
+                const fd = clamp(tiefe / 1.6, 0, 1) * (W.ende === 'gabel' ? 1 : 0.4);
+                const vorher = KB.ruehr;
+                KB.ruehr = Math.min(1, KB.ruehr + weg * fd / 110);
+                if (vorher < 1 && KB.ruehr >= 1 && !KB.ruehrGemeldet) {
+                    KB.ruehrGemeldet = true;
+                    meldung('Die Molasse ist wieder im Tabak: er glänzt jetzt gleichmäßig.', 3.4);
+                }
+                W.klebrig = Math.max(W.klebrig, 0.4 + 0.6 * KB.ruehr);
+                KB.tonTakt -= dt;
+                if (KB.tonTakt <= 0 && weg > 0.02) { KB.tonTakt = 0.09; geraeusch.tabakRuehren(Math.min(1, W.v.length() / 0.12)); }
+            }
+        }
+        // Anstoßen an Ton oder Blech hört man leise
+        if (W.kontakt && !W.kontaktAlt) {
+            const s = Math.min(1, W.v.length() / 0.25);
+            if (s > 0.15) { if (W.kontakt === 'kopf') geraeusch.keramik(s); else if (W.kontakt === 'dose') geraeusch.blech(s); }
+        }
+        W.kontaktAlt = W.kontakt;
+        // Andrücken melden
+        if (KB.drueckt - KB.drueckStart > 0.6) {
+            KB.drueckStart = KB.drueckt;
+            meldung('Nicht andrücken: gepresster Tabak lässt kaum Luft durch und brennt schneller an.', 3.6, 'druck');
+        }
+    }
+
+    // Abstreifen: Teilchen nahe den Zinkenspitzen rutschen zuerst zur Spitze und fallen dort ab,
+    // etwa eine volle Gabel auf 3 cm Weg; still gehalten rutscht nur wenig nach
+    function gabelAbstreifen(weg, dt) {
+        W.streich = (W.streich || 0) + weg * KAP / 3.0 + dt * 4;
+        let n = Math.floor(W.streich);
+        if (n <= 0) return;
+        W.streich -= n;
+        const liste = [];
+        for (let i = 0; i < tb.n; i++) if (tb.st[i] === 3 && !tb.gleit[i]) liste.push(i);
+        liste.sort((a, b) => tb.ank[a * 3] - tb.ank[b * 3] + (tb.ank[a * 3 + 1] - tb.ank[b * 3 + 1]) * 0.5);
+        for (const i of liste) { if (n-- <= 0) break; tb.gleit[i] = 1; }
+    }
+
+    function stecherDarstellen() {
+        if (!stecher) return;
+        if (W.inHand || W.uebergang || !W.gelegt) { stecher.position.copy(W.ursprung); stecher.quaternion.copy(W.q); }
+    }
+
+    // ---------------------------------------------------------------------------
+    // Küchenpapier: aufnehmen, über den Rand wischen, ablegen
+
+    function tuchNehmen() {
+        if (H.inHand) { H.danach = null; zangeHinlegen(null); H.danach = () => tuchNehmen(); return; }
+        if (W.inHand) stecherAblegen();
+        TU.inHand = true; TU.druck = false;
+        TU.pos.copy(tuch.position); TU.q.copy(tuch.quaternion);
+        TU.ziel.copy(TU.pos).y += 2 * CM;
+        hinweisSetzen();
+        geraeusch.papier(0.5);
+    }
+
+    function tuchAblegen() {
+        if (!TU.inHand) return;
+        TU.inHand = false; TU.druck = false;
+        tuch.position.copy(TU.ruhePos); tuch.quaternion.copy(TU.ruheQ);
+        hinweisSetzen();
+        geraeusch.papier(0.4);
+    }
+
+    function tuchFrame(dt) {
+        const t = zeiger.drin || W.testTreffer ? arbeitsTreffer() : null;
+        TU.treffer = t;
+        if (t) TU.ziel.copy(t.p).y += (TU.druck ? 0.1 : 1.0) * CM;
+        const alt = _kv2.copy(TU.pos);
+        TU.pos.lerp(TU.ziel, 1 - Math.exp(-dt * 18));
+        _kq.setFromAxisAngle(OBEN_K, -0.4);
+        TU.q.slerp(_kq, 1 - Math.exp(-dt * 10));
+        tuch.position.copy(TU.pos); tuch.quaternion.copy(TU.q);
+        if (!TU.druck || !t || t.art !== 'kopf') return;
+        // nur auf dem Rand wischen
+        const kp = KB.kopfPos;
+        const lx = t.p.x - kp.x, lz = t.p.z - kp.z, rl = Math.hypot(lx, lz) / CM, yl = (t.p.y - kp.y) / CM;
+        if (rl < 3.4 || yl < 7.8) return;
+        const bew = _kv.copy(TU.pos).sub(alt).length() / CM;
+        let u = Math.atan2(lx, lz) / TAU; if (u < 0) u += 1;
+        schmierWischen(u, 1.4 / (TAU * 3.9), Math.min(0.8, 0.12 + bew * 0.9));
+        TU.gewischt += bew;
+        for (let i = 0; i < tb.n; i++) {
+            const s = tb.st[i];
+            if (s !== 1 && s !== 2) continue;
+            const dx = tb.x[i] - kp.x, dz = tb.z[i] - kp.z, r = Math.hypot(dx, dz) / CM, y = (tb.y[i] - kp.y) / CM;
+            // nur was auf dem Rand liegt oder außen klebt, nicht den Tabak im Kopf
+            if (r < 3.66 || y < 8.15) continue;
+            if (Math.hypot(tb.x[i] - t.p.x, tb.z[i] - t.p.z) < 1.3 * CM) { tb.verlust.tuch++; tbWeg(i); }
+        }
+        TU.tonTakt -= dt;
+        if (TU.tonTakt <= 0 && bew > 0.03) { TU.tonTakt = 0.12; geraeusch.papier(Math.min(1, bew * 3)); }
+    }
+
+    // ---------------------------------------------------------------------------
+    // Aufbau und Frame
+
+    function kopfbauAufbauen() {
+        kopfSdfBauen();
+        stecher = stecherBauen();
+        tuch = tuchBauen();
+        // Stecher liegt rechts auf der Matte, in der Mulde, schräg; Küchenpapier links neben der Matte
+        const mp = matte.position;
+        const richtung = new THREE.Vector3(Math.sin(0.35), 0, Math.cos(0.35));       // Gabel hinten, Spitze vorn
+        const mitte = new THREE.Vector3(mp.x + 7.3 * CM, TISCH_Y + MATTE.oben * CM + 0.28 * CM, mp.z + 0.4 * CM);
+        W.ruhePos.copy(mitte).addScaledVector(richtung, -STECHER_L / 2 * CM);
+        _km.makeBasis(richtung, OBEN_K, new THREE.Vector3().crossVectors(richtung, OBEN_K));
+        W.ruheQ.setFromRotationMatrix(_km);
+        stecher.position.copy(W.ruhePos); stecher.quaternion.copy(W.ruheQ);
+        W.ursprung.copy(W.ruhePos); W.q.copy(W.ruheQ); W.tip.copy(W.ruhePos); W.tipFrame.copy(W.ruhePos);
+        scene.add(stecher);
+        TU.ruhePos.set(mp.x - 16.5 * CM, TISCH_Y + 0.17 * CM, mp.z + 6.5 * CM);
+        TU.ruheQ.setFromAxisAngle(OBEN_K, 0.32);
+        tuch.position.copy(TU.ruhePos); tuch.quaternion.copy(TU.ruheQ);
+        scene.add(tuch);
+        kopf.updateMatrixWorld(true); dose.updateMatrixWorld(true);
+        kopf.getWorldPosition(KB.kopfPos); dose.getWorldPosition(KB.dosePos);
+        tbFlockenBauen();
+        schmierAufbauen();
+        W.matrix.compose(W.ursprung, W.q, _kv.set(1, 1, 1));
+        kolliderSetzen();
+    }
+
+    function kopfbauFrame(dt) {
+        if (!tb.fl) return;
+        kopf.getWorldPosition(KB.kopfPos); dose.getWorldPosition(KB.dosePos);
+        if (W.inHand && !W.uebergang) zielAusZeiger();
+        if (TU.inHand) tuchFrame(dt);
+        let wach = W.inHand || !!W.uebergang;
+        if (!wach) for (let i = 0; i < tb.n; i++) if (tb.st[i] === 1 || tb.st[i] === 3) { wach = true; break; }
+        if (wach) {
+            const n = clamp(Math.ceil(dt / TB.h - 0.01), 1, TB.maxSchritte);
+            const h = Math.min(dt, TB.maxSchritte * TB.h) / n;
+            tbWecken();
+            for (let s = 0; s < n; s++) { werkzeugSchritt(h); tbSchritt(h); }
+            werkzeugNachFrame(dt);
+        }
+        tbHuelle();
+        tbZeichnen();
+        masseFrame(dt);
+        schmierFrame(dt);
+        stecherDarstellen();
+        // Glanz: je besser die Molasse untergerührt ist, desto nasser glänzt der Tabak
+        const g = 0.3 + 0.7 * KB.ruehr;
+        M.tabak.clearcoatRoughness = lerp(0.32, 0.13, g);
+        M.tabakMasse.roughness = lerp(0.5, 0.34, g);
+        M.tabakMasse.clearcoat = lerp(0.45, 0.95, g);
+        KB.statTakt -= dt;
+        if (KB.statTakt <= 0) { KB.statTakt = 0.3; KB.stat = kopfStatistik(); if (spiel.ansicht === 2) kopfPanelZeichnen(); }
+    }
+
+    // ---------------------------------------------------------------------------
+    // Auswertung
+
+    const KOPF_BAND = { rIn: 1.25, rOut: 3.4, S: 36, B: 4, boden: null };
+    function bodenHoehe(r) {
+        // tiefster freier Punkt unter y = 9 bei Radius r
+        for (let y = 9; y > 6; y -= 0.02) if (kopfSdf(r, y) < 0) return y + 0.02;
+        return 6.88;
+    }
+
+    function kopfStatistik() {
+        const kb = KOPF_BAND, kp = KB.kopfPos;
+        if (!kb.boden) { kb.boden = []; for (let b = 0; b < kb.B; b++) kb.boden.push(bodenHoehe(kb.rIn + (b + 0.5) * (kb.rOut - kb.rIn) / kb.B)); }
+        const top = new Float32Array(kb.S * kb.B).fill(-1);
+        let imKopf = 0, ueberLoch = 0, amRand = 0, aufRand = 0, daneben = 0, stau = 0, mol = 0;
+        for (let i = 0; i < tb.n; i++) {
+            const s = tb.st[i];
+            if (s !== 1 && s !== 2) continue;
+            const lx = tb.x[i] - kp.x, lz = tb.z[i] - kp.z, rl = Math.hypot(lx, lz) / CM, yl = (tb.y[i] - kp.y) / CM;
+            if (rl < 3.72 && yl > 6.7 && yl < 10.5) {
+                if (rl < 1.02 && yl > 7.95) { ueberLoch++; continue; }
+                imKopf++; stau += tb.stau[i]; mol += tb.mol[i];
+                // steht an der Wand über die Kante: da drückt später der HMD-Rand drauf, und es sieht unsauber aus
+                if (rl > 3.45 && yl + tb.rad[i] / CM > KOPF.hoehe + 0.02) amRand++;
+                const b = Math.floor((rl - kb.rIn) / (kb.rOut - kb.rIn) * kb.B);
+                if (b >= 0 && b < kb.B) {
+                    let a = Math.atan2(lz, lx) / TAU; if (a < 0) a += 1;
+                    const k = Math.min(kb.S - 1, Math.floor(a * kb.S)) * kb.B + b, h = yl + tb.rad[i] / CM;
+                    if (h > top[k]) top[k] = h;
+                }
+            } else if (rl < 4.25 && yl > 7.95) aufRand++;
+            else if (rl >= 4.25 || yl < 6.7) daneben++;
+        }
+        let summe = 0, summe2 = 0, leer = 0, n = 0;
+        for (let k = 0; k < top.length; k++) {
+            const b = k % kb.B;
+            const h = top[k] > 0 ? top[k] : kb.boden[b];
+            if (top[k] < 0 || top[k] < kb.boden[b] + 0.25) leer++;
+            summe += h; summe2 += h * h; n++;
+        }
+        const mittel = summe / n;
+        const streu = Math.sqrt(Math.max(0, summe2 / n - mittel * mittel));
+        const delta = (mittel - KOPF.hoehe) * 10;                 // mm relativ zum Rand
+        const setup = delta < -3 ? 'abstand' : delta <= 1.5 ? 'kontakt' : 'overpack';
+        const tiefe = KOPF.hoehe - (kb.boden.reduce((a, b) => a + b, 0) / kb.B);
+        const fuell = clamp((mittel - (KOPF.hoehe - tiefe)) / tiefe, 0, 1.4);
+        return {
+            imKopf, ueberLoch, amRand, aufRand, daneben, leer: leer / n, streu: streu * 10, delta, setup, fuell,
+            stau: imKopf ? stau / imKopf : 0, mol: imKopf ? mol / imKopf : 0, kamin: tb.verlust.kamin, schmier: schmierAnteil(),
+            gabel: W.last,
+        };
+    }
+
+    const KRUEMEL_OK = 6;
+    function kopfBewerten() {
+        const s = kopfStatistik(), z = SETUPS[KB.ziel];
+        let wert = 100;
+        const notizen = [];
+        if (s.imKopf < 200) return { wert: 20, notizen: ['Kopf fast leer'], s };
+        if (s.setup === KB.ziel) notizen.push(`${z.name} getroffen`);
+        else { wert -= 16; notizen.push(`${SETUPS[s.setup].name} statt ${z.name}`); }
+        const abw = Math.abs(s.delta - z.soll);
+        if (abw > 2) wert -= Math.min(10, Math.round((abw - 2) * 3));
+        if (s.streu > 2.4) { wert -= Math.min(18, Math.round((s.streu - 2.4) * 6)); notizen.push('uneben'); }
+        if (s.leer > 0.06) { wert -= Math.min(14, Math.round(s.leer * 60)); notizen.push('Lücken im Tabak'); }
+        if (s.ueberLoch) { wert -= Math.min(15, s.ueberLoch * 3); notizen.push('Tabak über dem Mittelloch'); }
+        // ein paar Krümel fallen beim Abstreifen immer ins Loch; erst mehr davon kostet
+        if (s.kamin > KRUEMEL_OK) { wert -= Math.min(8, Math.round((s.kamin - KRUEMEL_OK) * 0.5)); notizen.push(`${s.kamin} Krümel ins Loch gefallen`); }
+        if (!s.ueberLoch && s.kamin <= KRUEMEL_OK) notizen.push('Mittelloch frei');
+        let randOk = true;
+        if (s.amRand > 10) { wert -= Math.min(10, Math.round(s.amRand * 0.4)); notizen.push('Tabak steht über den Rand'); randOk = false; }
+        if (s.aufRand) { wert -= Math.min(8, s.aufRand); notizen.push('Krümel auf dem Rand'); randOk = false; }
+        if (s.schmier > 0.03) { wert -= Math.min(8, Math.round(s.schmier * 120)); notizen.push('Molasse am Rand'); randOk = false; }
+        if (randOk) notizen.push('Rand sauber');
+        if (s.stau > 0.05) { wert -= Math.min(20, Math.round(s.stau * 160)); notizen.push('angedrückt'); }
+        else notizen.push('locker');
+        if (s.mol < 0.75) { wert -= 10; notizen.push('Molasse nicht untergerührt'); }
+        if (s.daneben > 12) { wert -= Math.min(6, Math.round(s.daneben * 0.15)); notizen.push('Tabak daneben'); }
+        return { wert: clamp(wert, 20, 100), notizen, s };
+    }
+
+    function kopfFertig() {
+        if (spiel.fertig.has(2)) return;
+        const b = kopfBewerten();
+        if (b.s.imKopf < 200) { meldung('Da ist noch kaum Tabak im Kopf.', 2.6); return; }
+        if (W.inHand) stecherAblegen();
+        if (TU.inHand) tuchAblegen();
+        spiel.kopf = { setup: b.s.setup, ziel: KB.ziel, hoeheMm: b.s.delta, streuMm: b.s.streu, stau: b.s.stau, molasse: b.s.mol, teilchen: b.s.imKopf };
+        phaseAbschliessen(2, b.wert, b.notizen);
+    }
+
+    // ---------------------------------------------------------------------------
+    // Karte, Tipps, Seitenleiste
+
+    function schritteKopf() {
+        const s = KB.stat || kopfStatistik(), z = SETUPS[KB.ziel];
+        const offen = spiel.fertig.has(1);
+        const nahZiel = s.imKopf > 200 && Math.abs(s.delta - z.soll) < 2.2;
+        const sauber = !s.ueberLoch && s.amRand <= 10 && s.streu <= 2.4 && s.leer <= 0.06 && s.imKopf > 200;
+        const l = [
+            { text: 'Stecher von der Matte nehmen', ok: KB.genommen },
+            { text: 'Tabak in der Dose umrühren', sub: offen ? `Molasse untergerührt: ${Math.round(KB.ruehr * 100)} %` : 'Dose ist noch zu', ok: KB.ruehr >= 1 },
+            { text: 'Mit der Gabel vom Rand aus in den Kopf streichen', sub: s.imKopf ? `${KB.gabeln} Gabeln · ${hoeheText(s.delta)}` : `Ziel: ${z.name}, ${z.kurz}`, ok: nahZiel || spiel.fertig.has(2) },
+            { text: 'Mit der Spitze zurechtrücken, nicht andrücken', sub: s.imKopf > 200 ? `${s.ueberLoch ? 'Mittelloch zu' : 'Mittelloch frei'} · ${s.amRand > 10 ? 'steht über den Rand' : 'Rand frei'} · ${s.streu <= 2.4 && s.leer <= 0.06 ? 'gleichmäßig' : 'noch uneben'}` : '', ok: sauber || spiel.fertig.has(2) },
+            { text: 'Rand abwischen (wenn nötig)', sub: s.schmier > 0.03 || s.aufRand ? 'Molasse oder Krümel auf dem Rand' : 'Rand ist sauber', ok: (s.schmier <= 0.03 && !s.aufRand && s.imKopf > 200) || spiel.fertig.has(2) },
+        ];
+        const j = l.findIndex((x) => !x.ok);
+        if (j >= 0 && !spiel.fertig.has(2)) l[j].jetzt = true;
+        return l;
+    }
+
+    function hoeheText(d) {
+        const mm = Math.abs(d).toFixed(1).replace('.', ',');
+        return Math.abs(d) < 0.5 ? 'genau auf Randhöhe' : d < 0 ? `${mm} mm unter dem Rand` : `${mm} mm über dem Rand`;
+    }
+
+    function tippKopf() {
+        const s = KB.stat || kopfStatistik(), z = SETUPS[KB.ziel];
+        if (!spiel.fertig.has(1)) return 'Der Tabak ist noch versiegelt: erst die Dose öffnen (Phase 2).';
+        if (spiel.fertig.has(2)) return 'Kopf ist fertig. Er wartet auf der Matte, bis HMD und Kohle kommen.';
+        if (!W.inHand && !KB.genommen) return 'Der Stecher liegt rechts auf der Matte: Gabel auf der einen, Spitze auf der anderen Seite.';
+        if (KB.ruehr < 1 && !s.imKopf) return 'Molasse setzt sich unten in der Dose ab. Gabel eintauchen (Taste gedrückt halten) und ein paar Runden rühren, bis alles glänzt.';
+        if (W.inHand && W.ende === 'gabel' && W.last > 0) return 'Über den Kopf, am Rand ansetzen, gedrückt halten und zur Mitte ziehen: die Kante streift den Tabak ab.';
+        if (s.ueberLoch) return 'Tabak liegt über dem Mittelloch. Mit der Spitze (Taste F) zur Seite schieben.';
+        if (s.imKopf > 200 && s.delta < z.soll - 2.2) return `Noch zu wenig für ${z.name}: nachfüllen, ${hoeheText(s.delta)}.`;
+        if (s.imKopf > 200 && s.delta > z.soll + 2.2) return `Zu viel für ${z.name}: mit der leeren Gabel etwas abnehmen, ${hoeheText(s.delta)}.`;
+        if (s.amRand > 10) return 'An der Wand steht Tabak über den Rand. Mit der Spitze innen an der Wand entlangfahren: das löst ihn vom Rand.';
+        if (s.imKopf > 200 && (s.streu > 2.4 || s.leer > 0.06)) return 'Mit der Spitze Hügel abtragen und Lücken füllen: locker ziehen, nicht drücken.';
+        if (s.schmier > 0.03 || s.aufRand) return 'Auf dem Rand klebt Molasse. Wenn es ganz sauber sein soll: Küchenpapier nehmen und über den Rand wischen.';
+        if (s.stau > 0.05) return 'Der Tabak ist angedrückt. Mit der Spitze wieder auflockern.';
+        if (s.imKopf > 200) return 'Sieht gut aus. Wenn du zufrieden bist: „Kopf ist fertig“.';
+        return z.info;
+    }
+
+    function hinweisSetzen() {
+        const el = $('#hinweis');
+        if (!el) return;
+        if (W.inHand) el.textContent = `${W.ende === 'gabel' ? 'Gabel' : 'Spitze'} vorn · gedrückt halten = eintauchen, abstreifen, schieben · loslassen = anheben · Rad beim Drücken = Druck · F dreht den Stecher · Esc legt ihn ab`;
+        else if (TU.inHand) el.textContent = 'Küchenpapier · gedrückt halten und über den Rand wischen · Esc legt es weg';
+        else el.textContent = 'Klicken = zugreifen · Kohle ziehen = umsetzen · Ziehen auf leerer Fläche dreht · rechts schieben · Rad zoomen, am Regler stellt es die Stufe · Z Zeitraffer · M Ton · Esc legt ab';
+    }
+
+    function kopfPanelZeichnen() {
+        const el = $('#kopfPanel');
+        if (!el) return;
+        const zeigen = spiel.ansicht === 2 && spiel.laeuft;
+        el.classList.toggle('da', zeigen);
+        if (!zeigen) return;
+        const s = KB.stat || kopfStatistik();
+        el.querySelectorAll('.setups button').forEach((b) => b.classList.toggle('an', b.dataset.s === KB.ziel));
+        const lo = -8, hi = 6;
+        const pos = (v) => `${clamp((v - lo) / (hi - lo), 0, 1) * 100}%`;
+        const marke = el.querySelector('.skala .marke');
+        marke.style.left = pos(s.delta);
+        marke.style.display = s.imKopf ? '' : 'none';
+        el.querySelector('.skala .soll').style.left = pos(SETUPS[KB.ziel].soll);
+        el.querySelector('.hoehe .wert').textContent = s.imKopf ? `Füllhöhe: ${hoeheText(s.delta)} · ${SETUPS[s.setup].name}` : 'Kopf ist noch leer';
+        const werte = [
+            ['Molasse', `${Math.round(KB.ruehr * 100)} % untergerührt`, KB.ruehr >= 1],
+            ['Gabel', W.inHand ? (W.ende === 'spitze' ? 'Spitze vorn' : W.last ? `${Math.round(W.last / KAP * 100)} % voll` : 'leer') : 'liegt auf der Matte', true],
+            ['Tabak', s.stau > 0.05 ? 'angedrückt' : 'locker', s.stau <= 0.05],
+            ['Mittelloch', s.ueberLoch ? `${s.ueberLoch} Krümel drüber` : s.kamin ? `frei, ${s.kamin} reingefallen` : 'frei', !s.ueberLoch && s.kamin <= KRUEMEL_OK],
+            ['Rand', s.aufRand || s.schmier > 0.03 ? 'Molasse oder Krümel drauf' : s.amRand > 10 ? 'Tabak steht drüber' : 'sauber', !s.aufRand && s.schmier <= 0.03 && s.amRand <= 10],
+        ];
+        el.querySelector('.werte').innerHTML = werte.map(([k, v, ok]) => `<li class="${ok ? '' : 'warn'}"><span>${k}</span><b>${v}</b></li>`).join('');
+        const dreh = el.querySelector('[data-a="drehen"]');
+        dreh.textContent = W.ende === 'gabel' ? 'Spitze nach vorn (F)' : 'Gabel nach vorn (F)';
+        dreh.disabled = !W.inHand;
+        el.querySelector('[data-a="ablegen"]').disabled = !W.inHand && !TU.inHand;
+        const fertig = el.querySelector('[data-a="fertig"]');
+        fertig.disabled = spiel.fertig.has(2) || s.imKopf < 200;
+        fertig.textContent = spiel.fertig.has(2) ? 'Kopf ist fertig ✓' : 'Kopf ist fertig';
+    }
+
+    function kopfPanelVerdrahten() {
+        const el = $('#kopfPanel');
+        el.querySelectorAll('.setups button').forEach((b) => b.addEventListener('click', () => {
+            if (spiel.fertig.has(2)) return;
+            KB.ziel = b.dataset.s;
+            meldung(SETUPS[KB.ziel].info, 4.2, 'setup');
+            kopfPanelZeichnen(); karteZeichnen();
+        }));
+        el.querySelector('[data-a="drehen"]').addEventListener('click', stecherDrehen);
+        el.querySelector('[data-a="ablegen"]').addEventListener('click', () => { if (W.inHand) stecherAblegen(); if (TU.inHand) tuchAblegen(); });
+        el.querySelector('[data-a="fertig"]').addEventListener('click', kopfFertig);
+        el.querySelectorAll('.blick button').forEach((b) => b.addEventListener('click', () => kopfBlick(b.dataset.b)));
+    }
+
+    function kopfBlick(wo) {
+        const kp = KB.kopfPos, dp = KB.dosePos;
+        if (wo === 'kopf') { const z = kp.clone().add(new THREE.Vector3(0, 8.0 * CM, 0)); fliegeZu(z, z.clone().add(new THREE.Vector3(0.0, 0.17, 0.13)), 36); }
+        else if (wo === 'dose') { const z = dp.clone().add(new THREE.Vector3(0, 7.6 * CM, 0)); fliegeZu(z, z.clone().add(new THREE.Vector3(-0.03, 0.19, 0.15)), 36); }
+        else fliegeZu(...SPIEL_BLICK[2]);
+    }
+
+    // ---------------------------------------------------------------------------
+    // Zeiger: Drücken, Loslassen, Rad, Tooltip
+
+    function kopfbauDruck(e) {
+        if (!W.inHand && !TU.inHand) return false;
+        if (W.uebergang) return true;
+        const t = arbeitsTreffer();
+        if (!t || (t.art !== 'kopf' && t.art !== 'dose' && t.art !== 'matte')) return false;
+        if (W.inHand) { W.art = t.art; return druckStart(); }
+        TU.druck = true;
+        return true;
+    }
+
+    function kopfbauLoslassen() {
+        if (W.druck) { druckEnde(); return true; }
+        if (TU.druck) { TU.druck = false; return true; }
+        return false;
+    }
+
+    function kopfbauRad(e) {
+        if (!W.druck) return false;
+        W.extra = clamp(W.extra + (e.deltaY > 0 ? 0.1 : -0.1), 0, 1.0);
+        return true;
+    }
+
+    function kopfbauTipp() {
+        if (TU.inHand) {
+            const t = TU.treffer;
+            if (t && t.art === 'kopf') return { tipp: TU.druck ? 'Wischen …' : 'Gedrückt halten und über den Rand wischen', tun: () => {} };
+            return { tipp: 'Küchenpapier (Esc legt es weg)', tun: null };
+        }
+        const t = W.treffer;
+        if (!t) return null;
+        const druck = W.druck ? (W.extra > 0.05 ? ` · Druck ${Math.round(W.extra * 10)} mm` : '') : '';
+        if (W.ende === 'spitze') {
+            if (t.art === 'kopf') return { tipp: W.druck ? `Zurechtrücken${druck}` : 'Gedrückt halten und ziehen: zurechtrücken', tun: () => {} };
+            return { tipp: 'Spitze: zum Zurechtrücken im Kopf (F dreht auf die Gabel)', tun: null };
+        }
+        if (t.art === 'dose') {
+            if (W.last > 0) return { tipp: 'Gedrückt halten: Tabak zurück in die Dose', tun: () => {} };
+            return { tipp: W.druck ? `Rühren … loslassen hebt eine Gabel voll an${druck}` : (KB.ruehr < 1 ? 'Gedrückt halten: eintauchen und umrühren' : 'Gedrückt halten: eintauchen, loslassen: Gabel voll'), tun: () => {} };
+        }
+        if (t.art === 'kopf') {
+            if (W.last > 0) return { tipp: W.druck ? `Abstreifen …${druck}` : 'Am Rand ansetzen, gedrückt halten, zur Mitte ziehen', tun: () => {} };
+            return { tipp: W.druck ? `Unter den Tabak, loslassen hebt ihn an${druck}` : 'Gedrückt halten: Tabak wieder aufnehmen', tun: () => {} };
+        }
+        if (t.art === 'matte') return { tipp: W.last > 0 ? 'Hier nicht abstreifen' : 'Gedrückt halten: Krümel aufnehmen', tun: () => {} };
+        return null;
+    }
 
     // ---------------------------------------------------------------------------
     // Laden & Loop
@@ -5743,7 +7771,7 @@
             ['Edelstahl wird gedreht', () => { T.stahl = texDrehriefen(); T.raendel = texRaendel(); T.hmdGravur = texHmdGravur(); T.riffel = texRiffel(); }],
             ['Gummi wird gegossen', () => { T.gummi = texGummi(); T.schiefer = texSchiefer(); T.karton = texKarton(); }],
             ['Kohle wird gepresst', () => { T.kohle = texKohle(); }],
-            ['Etikett wird gedruckt', () => { T.etikett = texEtikett(); T.faser = texFaser(); T.tabak = texTabak(); T.folieUnten = texFolieUnten(); T.reglerSchrift = texReglerSchrift(); T.warndreieck = texWarndreieck(); T.aufkleber = texRunderAufkleber(); }],
+            ['Etikett wird gedruckt', () => { T.etikett = texEtikett(); T.faser = texFaser(); T.tabak = texTabak(); T.folieUnten = texFolieUnten(); T.reglerSchrift = texReglerSchrift(); T.warndreieck = texWarndreieck(); T.aufkleber = texRunderAufkleber(); T.stecherGriff = texStecherGriff(); T.tuch = texTuch(); }],
             ['Materialien werden angerührt', () => materialienAnlegen()],
             ['Raum wird eingerichtet', () => raumBauen()],
             ['Bowl wird sandgestrahlt', () => { shisha = shishaBauen(); }],
