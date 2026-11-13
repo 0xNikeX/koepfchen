@@ -1682,6 +1682,10 @@
         M.putz = new THREE.MeshStandardMaterial({ map: T.putz.map, normalMap: T.putz.normal, normalScale: v2(0.35), roughness: 0.94 });
         M.decke = new THREE.MeshStandardMaterial({ color: '#d9d2c7', roughness: 0.95 });
         M.weissLack = new THREE.MeshStandardMaterial({ color: '#ebe6dd', roughness: 0.42 });
+        // Steckdosenleiste, Stecker, Wandsteckdose
+        M.kunststoffWeiss = new THREE.MeshPhysicalMaterial({ color: '#efeee9', roughness: 0.38, clearcoat: 0.25, clearcoatRoughness: 0.3 });
+        M.kabelWeiss = new THREE.MeshStandardMaterial({ color: '#e8e7e2', roughness: 0.5 });
+        M.schalterRot = new THREE.MeshPhysicalMaterial({ color: '#c21a10', roughness: 0.25, clearcoat: 0.6, emissive: new THREE.Color('#ff2a12'), emissiveIntensity: 0.45 });
         M.teppich = new THREE.MeshStandardMaterial({ map: T.teppich.map, normalMap: T.teppich.normal, normalScale: v2(0.9), roughness: 0.97 });
         M.samt = new THREE.MeshPhysicalMaterial({
             color: '#4a5744', map: wiederholt(T.samt.map, 4, 4), normalMap: wiederholt(T.samt.normal, 4, 4), normalScale: v2(0.5),
@@ -3380,26 +3384,115 @@
         return pts;
     }
 
+    // Strom: Netzkabel des Anzünders über die Tischkante zur Steckdosenleiste auf dem Boden,
+    // deren Kabel an der Rückwand rechts neben dem Sofa in eine Wandsteckdose geht. Alles neutral, ohne Aufdruck.
+    const STROM = { leiste: { x: 0.975, z: -0.9, ry: 1.22 }, wand: { x: 1.22, y: 0.3 }, steckplatz: -5.4 };
+
     function kabelBauen() {
         const s = anzuender;
         s.updateMatrixWorld(true);
-        // Netzkabel hinten rechts raus, am Kohlekarton vorbei über die Tischkante zur Steckdose
+        const leiste = leisteBauen();
+        leiste.updateMatrixWorld(true);
+        const wand = wandsteckdoseBauen();
+        // Anzünderkabel: hinten raus, über die Fliese und die Tischkante, auf dem Boden zum Stecker in der Leiste
         const p0 = s.localToWorld(new THREE.Vector3(6 * CM, 2 * CM, -10.7 * CM));
+        const stecker = leiste.localToWorld(new THREE.Vector3(STROM.steckplatz * CM, 0, 0));
+        const boden = new THREE.Vector3(p0.x + 0.13, 0.0032, -0.52);
+        const u = new THREE.Vector3(stecker.x - boden.x, 0, stecker.z - boden.z).normalize();
+        const vor = (d, y) => new THREE.Vector3(stecker.x - u.x * d, y, stecker.z - u.z * d);
         const pts = [
             p0,
-            s.localToWorld(new THREE.Vector3(6.2 * CM, 0.4 * CM, -13 * CM)),
-            new THREE.Vector3(p0.x + 0.01, TISCH_Y + 0.003, -0.24),
-            new THREE.Vector3(p0.x + 0.02, TISCH_Y + 0.003, -0.318),
-            new THREE.Vector3(p0.x + 0.02, TISCH_Y - 0.03, -0.333),
-            new THREE.Vector3(p0.x + 0.01, 0.22, -0.36),
-            new THREE.Vector3(p0.x + 0.06, 0.02, -0.42),
-            new THREE.Vector3(p0.x + 0.15, 0.003, -0.56),
-            new THREE.Vector3(0.9, 0.003, -0.86),
-            new THREE.Vector3(1.7, 0.003, -1.1),
+            s.localToWorld(new THREE.Vector3(6.2 * CM, (0.28 - ANZ.hub) * CM, -13.5 * CM)),
+            new THREE.Vector3(p0.x + 0.008, TISCH_Y + 0.0128, -0.068),
+            new THREE.Vector3(p0.x + 0.012, TISCH_Y + 0.0035, -0.12),
+            new THREE.Vector3(p0.x + 0.015, TISCH_Y + 0.0032, -0.24),
+            new THREE.Vector3(p0.x + 0.02, TISCH_Y + 0.003, -0.312),
+            new THREE.Vector3(p0.x + 0.022, TISCH_Y - 0.008, -0.332),
+            new THREE.Vector3(p0.x + 0.02, TISCH_Y - 0.06, -0.338),
+            new THREE.Vector3(p0.x + 0.03, 0.2, -0.36),
+            new THREE.Vector3(p0.x + 0.07, 0.025, -0.42),
+            boden,
+            new THREE.Vector3(lerp(boden.x, stecker.x, 0.5) + 0.03, 0.0032, lerp(boden.z, stecker.z, 0.5)),
+            vor(0.12, 0.0032), vor(0.06, 0.03), vor(0.022, 0.088),
+            new THREE.Vector3(stecker.x, 0.094, stecker.z), new THREE.Vector3(stecker.x, 0.0785, stecker.z),
         ];
         const kurve = new THREE.CatmullRomCurve3(pts, false, 'centripetal');
-        kabel = mesh(new THREE.TubeGeometry(kurve, 220, 0.0028, 10, false), new THREE.MeshStandardMaterial({ color: '#111111', roughness: 0.55 }), { name: 'kabel' });
+        kabel = mesh(new THREE.TubeGeometry(kurve, 320, 0.0028, 10, false), new THREE.MeshStandardMaterial({ color: '#111111', roughness: 0.55 }), { name: 'kabel' });
         scene.add(kabel);
+        // Kabel der Leiste: aus dem Knickschutz, über den Boden zur Wand, an der Sockelleiste vorbei hoch zum Stecker
+        const z = RAUM.z0 + 0.022, x = STROM.wand.x;
+        const a0 = leiste.localToWorld(new THREE.Vector3(11.5 * CM, 2.0 * CM, 0));
+        const a1 = leiste.localToWorld(new THREE.Vector3(14 * CM, 1.0 * CM, 0.3 * CM));
+        const a2 = leiste.localToWorld(new THREE.Vector3(18 * CM, 0, 0.5 * CM)); a2.y = 0.0036;
+        const fussW = new THREE.Vector3(x, 0.0036, z + 0.012);
+        const zwischen = (t, seit) => new THREE.Vector3(lerp(a2.x, fussW.x, t) + seit, 0.0036, lerp(a2.z, fussW.z, t));
+        const wpts = [a0, a1, a2, zwischen(0.35, 0.035), zwischen(0.7, 0.025), fussW,
+            new THREE.Vector3(x, 0.02, z - 0.002), new THREE.Vector3(x, 0.085, z - 0.003), new THREE.Vector3(x, 0.2, z - 0.003), wand.kabelEnde];
+        const wkurve = new THREE.CatmullRomCurve3(wpts, false, 'centripetal');
+        scene.add(mesh(new THREE.TubeGeometry(wkurve, 320, 0.0035, 10, false), M.kabelWeiss, { name: 'leistenkabel' }));
+    }
+
+    // Dreifach-Steckdosenleiste mit beleuchtetem Schalter; im ersten Platz steckt der Stecker des Anzünders
+    function leisteBauen() {
+        const g = new THREE.Group();
+        g.name = 'steckdosenleiste';
+        const L = STROM.leiste;
+        g.position.set(L.x, 0, L.z);
+        g.rotation.y = L.ry;
+        const plaetze = [STROM.steckplatz, -0.6, 4.2];
+        const form = abgerundetesRechteck(19.5 * CM, 5.4 * CM, 1.2 * CM);
+        // Lochkontur 2,2 cm: die Fase schrumpft die Wand auf 1,95 cm (Schuko-Mulde)
+        for (const x of plaetze) { const loch = new THREE.Path(); loch.absarc(x * CM, 0, 2.2 * CM, 0, TAU, true); form.holes.push(loch); }
+        const koerper = mesh(flachExtrudieren(form, 3.4 * CM, { bevelEnabled: true, bevelThickness: 0.25 * CM, bevelSize: 0.25 * CM, bevelSegments: 4, curveSegments: 40 }), M.kunststoffWeiss);
+        koerper.position.y = 0.25 * CM;
+        g.add(koerper);
+        const bodenGeo = new THREE.CircleGeometry(1.96 * CM, 40);
+        bodenGeo.rotateX(-Math.PI / 2);
+        const lochGeo = new THREE.CircleGeometry(0.24 * CM, 16);
+        lochGeo.rotateX(-Math.PI / 2);
+        const klemmeGeo = new THREE.BoxGeometry(0.12 * CM, 1.0 * CM, 0.5 * CM);
+        const schwarz = new THREE.MeshStandardMaterial({ color: '#070707', roughness: 1 });
+        for (const x of plaetze) {
+            const b = mesh(bodenGeo, M.kunststoffWeiss, { schatten: false });
+            b.position.set(x * CM, 2.3 * CM, 0); g.add(b);
+            for (const sz of [-1, 1]) {
+                const l = mesh(lochGeo, schwarz, { schatten: false });
+                l.position.set(x * CM, 2.302 * CM, sz * 0.95 * CM); g.add(l);
+                const k = mesh(klemmeGeo, M.stahl, { schatten: false });
+                k.position.set((x + sz * 1.88) * CM, 3.1 * CM, 0); g.add(k);
+            }
+        }
+        // Schalter und Knickschutz am Kabelende
+        const schalter = mesh(new RoundedBoxGeometry(1.5 * CM, 0.6 * CM, 2.2 * CM, 2, 0.2 * CM), M.schalterRot);
+        schalter.position.set(7.7 * CM, 3.95 * CM, 0); schalter.rotation.z = 0.12;
+        g.add(schalter);
+        const knick = mesh(new THREE.CylinderGeometry(0.42 * CM, 0.6 * CM, 1.75 * CM, 20), M.kunststoffWeiss);
+        knick.rotation.z = -Math.PI / 2; knick.position.set(10.62 * CM, 2.0 * CM, 0);
+        g.add(knick);
+        // Stecker des Anzünders, Kabel geht oben aus dem Knickschutz
+        const stecker = mesh(lathe([[0, 2.33, 'c'], [1.8, 2.33], [1.83, 2.4, 'c'], [1.83, 4.2], [1.86, 4.6], [1.8, 5.8], [1.6, 6.15], [1.0, 6.3],
+            [0.62, 6.32, 'c'], [0.6, 6.5], [0.5, 7.4], [0.42, 7.85], [0, 7.88]], { segs: 40 }), M.kunststoffSchwarz, { name: 'stecker' });
+        stecker.position.set(STROM.steckplatz * CM, 0, 0);
+        g.add(stecker);
+        scene.add(g);
+        return g;
+    }
+
+    // Unterputzsteckdose an der Rückwand mit gestecktem Stecker; liefert das Kabelende unten am Stecker
+    function wandsteckdoseBauen() {
+        const { x, y } = STROM.wand, z = RAUM.z0;
+        const rahmen = mesh(new RoundedBoxGeometry(0.08, 0.08, 0.009, 3, 0.004), M.kunststoffWeiss, { name: 'wandsteckdose' });
+        rahmen.position.set(x, y, z + 0.0045);
+        scene.add(rahmen);
+        const koerperGeo = lathe([[0, 0, 'c'], [1.75, 0], [1.85, 0.3], [1.85, 2.0], [1.72, 2.45], [1.3, 2.6], [0, 2.62]], { segs: 40 });
+        koerperGeo.rotateX(Math.PI / 2);
+        const stecker = mesh(koerperGeo, M.kunststoffWeiss);
+        stecker.position.set(x, y, z + 0.009);
+        scene.add(stecker);
+        const knick = mesh(new THREE.CylinderGeometry(0.55 * CM, 0.42 * CM, 1.6 * CM, 20), M.kunststoffWeiss);
+        knick.position.set(x, y - 0.024, z + 0.022);
+        scene.add(knick);
+        return { kabelEnde: new THREE.Vector3(x, y - 0.031, z + 0.022) };
     }
 
     // Kollider für die Schlauch-Simulation
@@ -3878,8 +3971,9 @@
         kontakt: 0.016,        // 1/s Kopplung an die Spirale
         asche: 0.0008,         // 1/s Aschezuwachs bei voller Glut
         abbrand: 1 / 4300,     // Brennstoff pro s bei voller Glut (gut 70 min)
-        spiraleMax: 830, spiraleAn: 32, spiraleAus: 75,
-        // Regler: Solltemperatur je Stufe (5 heizt durch), Bimetall mit Schaltdifferenz und Mindesttakt in s
+        spiraleMax: 900, spiraleAn: 32, spiraleAus: 75,   // Max = ungeregelt, das Bimetall schaltet vorher ab
+        // Regler: Solltemperatur je Stufe. Auch auf 5 taktet das Bimetall (klickt alle paar Sekunden),
+        // Schaltdifferenz in K und Mindesttakt in s
         stufeT: [22, 480, 590, 680, 760, 830], hysterese: 18, takt: 5,
     };
 
@@ -3963,7 +4057,7 @@
     // ---------------------------------------------------------------------------
     // Geräusche: alles synthetisch über Web Audio (Rauschen, Filter, Oszillatoren, kurzer Raumhall)
 
-    const ton = { ctx: null, master: null, trocken: null, rauschen: null, an: true, laut: 0.8, brumm: null, folie: null, knistern: 0, ticks: 0 };
+    const ton = { ctx: null, master: null, trocken: null, rauschen: null, an: true, laut: 0.8, folie: null, relaisZeit: 0 };
 
     function hallImpuls(ctx, dauer, abfall) {
         const n = Math.round(ctx.sampleRate * dauer);
@@ -4067,11 +4161,16 @@
             if (!ton.ctx) return;
             rauschStoss({ t, dauer: 0.007, typ: 'highpass', f: 3200, pegel: 0.09 });
         },
-        // Bimetall im Regler schaltet: dumpfes Knacken aus dem Gehäuse
+        // Bimetall im Regler schnappt um: trockenes Klacken aus dem Blechgehäuse. Das ist das Einzige, was man
+        // vom Anzünder hört. Im Zeitraffer höchstens alle 0,8 s, sonst rattert es.
         relais(an) {
             if (!ton.ctx) return;
-            rauschStoss({ dauer: 0.01, f: an ? 1500 : 1100, q: 2.5, pegel: 0.12 });
-            sinusTon({ f: an ? 520 : 430, dauer: 0.025, pegel: 0.03 });
+            const jetzt = performance.now();
+            if (jetzt - ton.relaisZeit < 800) return;
+            ton.relaisZeit = jetzt;
+            rauschStoss({ dauer: 0.006, typ: 'highpass', f: 1900, pegel: 0.26, an: 0.0005 });
+            rauschStoss({ t: 0.001, dauer: 0.035, f: an ? 980 : 760, q: 7, pegel: 0.13 });
+            sinusTon({ t: 0.001, f: an ? 2350 : 1900, dauer: 0.03, pegel: 0.018 });
         },
         // trockenes "Tock" eines Kohlewürfels auf Metall oder Kohle
         klack(staerke = 1, metall = true) {
@@ -4128,45 +4227,10 @@
         },
     };
 
-    // laufende Geräusche, einmal pro Frame aktualisiert
+    // laufende Geräusche, einmal pro Frame. Spirale und Glut sind in echt stumm, deshalb nur die Folie.
     function tonFrame(dt, z) {
         if (!ton.ctx) return;
         const ctx = ton.ctx, jetzt = ctx.currentTime;
-        // Anzünder: Brummen des Heizstabs (doppelte Netzfrequenz) und leises Zischen bei Glut
-        if (z.anzuender && !ton.brumm) {
-            const o1 = ctx.createOscillator(), o2 = ctx.createOscillator();
-            o1.type = 'sawtooth'; o1.frequency.value = 100;
-            o2.type = 'sine'; o2.frequency.value = 150;
-            const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 420;
-            const g = ctx.createGain(); g.gain.value = 0;
-            const g2 = ctx.createGain(); g2.gain.value = 0.25;
-            o1.connect(lp); o2.connect(g2); g2.connect(lp); lp.connect(g); g.connect(ton.trocken);
-            o1.start(); o2.start();
-            const zisch = ctx.createBufferSource(); zisch.buffer = ton.rauschen; zisch.loop = true;
-            const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 5200;
-            const gz = ctx.createGain(); gz.gain.value = 0;
-            zisch.connect(hp); hp.connect(gz); gz.connect(ton.trocken); zisch.start();
-            ton.brumm = { o1, o2, g, gz, zisch };
-            g.gain.setTargetAtTime(0.022, jetzt, 0.08);
-        } else if (!z.anzuender && ton.brumm) {
-            const b = ton.brumm;
-            b.g.gain.setTargetAtTime(0, jetzt, 0.05); b.gz.gain.setTargetAtTime(0, jetzt, 0.05);
-            for (const n of [b.o1, b.o2, b.zisch]) n.stop(jetzt + 0.4);
-            ton.brumm = null;
-        }
-        if (ton.brumm) ton.brumm.gz.gain.setTargetAtTime(0.004 * z.spiraleGlut, jetzt, 0.3);
-        // Spirale tickt beim Aufheizen und Abkühlen (Wärmedehnung)
-        ton.ticks += Math.abs(z.spiraleRate) * dt * 0.012;
-        while (ton.ticks > 1) {
-            ton.ticks -= 1 + Math.random();
-            rauschStoss({ t: Math.random() * 0.05, dauer: 0.006, typ: 'highpass', f: 3000 + Math.random() * 2500, pegel: 0.05 + Math.random() * 0.06 });
-        }
-        // Glut knistert: seltene, kurze Knacker, je mehr Glut, desto öfter
-        ton.knistern += z.glut * dt * 2.2;
-        while (ton.knistern > 1) {
-            ton.knistern -= 0.5 + Math.random();
-            rauschStoss({ t: Math.random() * 0.05, dauer: 0.004 + Math.random() * 0.012, typ: 'highpass', f: 1600 + Math.random() * 3500, pegel: 0.03 + Math.random() * 0.07 });
-        }
         // Folie: Kleber löst sich mit einem feinen Ratschen, Knittern je nach Tempo
         const v = z.folie;
         if (v > 0.01 && !ton.folie) {
@@ -4380,7 +4444,7 @@
         let html = '';
         const a = spiel.anzuender;
         const sg = smooth(450, 900, a.T);
-        const takt = a.stufe > 0 && a.stufe < 5 ? (a.heizt ? ' · heizt' : ' · Pause') : '';
+        const takt = a.stufe > 0 ? (a.heizt ? ' · heizt' : ' · Pause') : '';
         html += `<div class="kohleAnz spirale"><span class="punkt" style="background:${netzFarbe(sg, 0)}"></span><div><b>Spirale</b><small>${a.stufe ? 'Stufe ' + a.stufe : 'OFF'} · ${Math.round(a.T)} °C${takt}</small></div></div>`;
         liste.forEach((k, n) => {
             const f = k.weltSeiten();
@@ -4496,12 +4560,7 @@
             glutPanelZeichnen();
             karteZeichnen();
         }
-        let glut = 0;
-        for (const k of spielKohlen) if (k.ort !== 'karton') glut += k.kern.bewertung().mittel;
-        tonFrame(dt, {
-            anzuender: spiel.anzuender.heizt, spiraleGlut: smooth(450, 900, spiel.anzuender.T),
-            spiraleRate: spiel.anzuender.rate, glut, folie: doseZustand.zuggeschw,
-        });
+        tonFrame(dt, { folie: doseZustand.zuggeschw });
     }
 
     // ---------------------------------------------------------------------------
@@ -5238,12 +5297,11 @@
         else meldung(`Stufe ${stufe}: Der Regler hält die Spirale bei etwa ${GLUT.stufeT[stufe]} °C.` + (stufe > vorher ? '' : ' Zum Anglühen ganz aufdrehen.'), 3.2, 'regler');
     }
 
-    // Bimetall: auf 5 heizt die Spirale durch, darunter schaltet der Regler um die Solltemperatur
+    // Bimetall: schaltet auf jeder Stufe um die Solltemperatur, mit Schaltdifferenz und Mindesttakt
     function reglerTakt(a, h) {
         a.takt += h;
         let heizt = a.heizt;
         if (a.stufe === 0) heizt = false;
-        else if (a.stufe === 5) heizt = true;
         else if (a.takt >= GLUT.takt) {
             const soll = GLUT.stufeT[a.stufe];
             if (heizt && a.T > soll + GLUT.hysterese) heizt = false;
@@ -5268,7 +5326,7 @@
             a.T += (ziel - a.T) * (1 - Math.exp(-h / (a.heizt ? GLUT.spiraleAn : GLUT.spiraleAus)));
             for (const k of spielKohlen) if (k.ort !== 'karton') k.kern.schritt(h, k.ort === 'spirale' ? a.T : GLUT.umgebung);
         }
-        if (schaltet && spiel.tempo <= 5) geraeusch.relais(a.heizt);
+        if (schaltet) geraeusch.relais(a.heizt);
         a.rate = dt > 0 ? (a.T - alt) / dt : 0;
         const sg = smooth(450, 900, a.T);
         glutfarbe(sg, M.spirale.emissive);
