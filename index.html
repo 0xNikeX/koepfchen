@@ -5863,6 +5863,7 @@
     const TB_MASKE = (1 << 15) - 1;
     // Spitze an der Kopfwand: löst den Tabak vom Rand (wird vom Stecher pro Teilschritt gesetzt, Maße in cm)
     const RL = { aktiv: false, r: 0, a: 0, y: 0, v: 0 };
+    const TRAG = 12;                         // so viele Schritte gilt ein Teilchen nach dem letzten Aufliegen als mitgetragen
     const tb = {
         n: 0, aktiv: 0,
         x: new Float32Array(TB.max), y: new Float32Array(TB.max), z: new Float32Array(TB.max),
@@ -5876,6 +5877,7 @@
         ank: new Float32Array(TB.max * 3),     // Anker im Stecher-System (m)
         traeg: new Uint8Array(TB.max),         // liegt in diesem Schritt auf etwas
         gezogen: new Uint8Array(TB.max),       // hängt in diesem Schritt an der Spitze
+        getragen: new Uint8Array(TB.max),      // liegt auf Gabel oder Ladung und fährt mit (zählt herunter, in Schritten)
         mitzug: new Uint8Array(TB.max), mitzugNeu: new Uint8Array(TB.max),   // von einem solchen Büschel mitgenommen
         abgestreift: new Float32Array(TB.max), // Sekunden, seit es von der Gabel ging (zählt so lange nicht als Tabak im Kopf)
         r2x: new Float32Array(TB.max), r2y: new Float32Array(TB.max), r2z: new Float32Array(TB.max), ruhe2: new Float32Array(TB.max),
@@ -5973,7 +5975,7 @@
 
     function tbWach(i) {
         if (tb.st[i] === 2) {
-            tb.st[i] = 1; tb.ruhe[i] = 0; tb.ruhe2[i] = 0;
+            tb.st[i] = 1; tb.ruhe[i] = 0; tb.ruhe2[i] = 0; tb.getragen[i] = 0;
             tb.ax[i] = tb.rx[i] = tb.r2x[i] = tb.x[i]; tb.ay[i] = tb.ry[i] = tb.r2y[i] = tb.y[i]; tb.az[i] = tb.rz[i] = tb.r2z[i] = tb.z[i];
         }
     }
@@ -6039,7 +6041,7 @@
             if (s === 3) {
                 tbAnkerWelt(i, _ta);
                 // die klebrige Ladung reißt nur ab, wenn sie weit aus ihrer Lage gedrängt wird (an Kante oder Wand hängen geblieben)
-                const dx = tb.x[i] - _ta.x, dy = tb.y[i] - _ta.y, dz = tb.z[i] - _ta.z, lim = (W.druck ? 3.5 : 2.2) * tb.rad[i];
+                const dx = tb.x[i] - _ta.x, dy = tb.y[i] - _ta.y, dz = tb.z[i] - _ta.z, lim = (W.druck && !W.schwebt ? 3.5 : 2.2) * tb.rad[i];
                 if (dx * dx + dy * dy + dz * dz > lim * lim) tbLoesen(i);
             }
             const vx = (tb.x[i] - tb.ax[i]) / h, vy = (tb.y[i] - tb.ay[i]) / h, vz = (tb.z[i] - tb.az[i]) / h;
@@ -6057,12 +6059,12 @@
                 else {
                     tb.rx[i] += ex * 0.02; tb.ry[i] += ey * 0.02; tb.rz[i] += ez * 0.02;
                     tb.ruhe[i] += h;
-                    if (tb.ruhe[i] > TB.schlafZeit) { tb.st[i] = 2; tb.vx[i] = tb.vy[i] = tb.vz[i] = 0; tb.gezogen[i] = tb.mitzug[i] = 0; }
+                    if (tb.ruhe[i] > TB.schlafZeit && !tb.getragen[i]) { tb.st[i] = 2; tb.vx[i] = tb.vy[i] = tb.vz[i] = 0; tb.gezogen[i] = tb.mitzug[i] = 0; }
                 }
                 // Nachzügler: wer eingeklemmt hin und her zittert, aber binnen 1,5 s keine 2 mm vorankommt, schläft auch
                 const fx = tb.x[i] - tb.r2x[i], fy = tb.y[i] - tb.r2y[i], fz = tb.z[i] - tb.r2z[i];
                 if (fx * fx + fy * fy + fz * fz > 4e-6) { tb.r2x[i] = tb.x[i]; tb.r2y[i] = tb.y[i]; tb.r2z[i] = tb.z[i]; tb.ruhe2[i] = 0; }
-                else if ((tb.ruhe2[i] += h) > 1.5 && tb.st[i] === 1) { tb.st[i] = 2; tb.vx[i] = tb.vy[i] = tb.vz[i] = 0; tb.gezogen[i] = tb.mitzug[i] = 0; }
+                else if ((tb.ruhe2[i] += h) > 1.5 && tb.st[i] === 1 && !tb.getragen[i]) { tb.st[i] = 2; tb.vx[i] = tb.vy[i] = tb.vz[i] = 0; tb.gezogen[i] = tb.mitzug[i] = 0; }
                 // Rollen: Flocken drehen sich ein wenig mit
                 const mx = tb.x[i] - tb.ax[i], mz = tb.z[i] - tb.az[i], m = Math.hypot(mx, mz);
                 if (m > 2e-5) tbDrehen(i, -mz / m, 0, mx / m, m / tb.rad[i] * 0.3);
@@ -6133,9 +6135,15 @@
         if (d < 1e-7) { dx = (Math.random() - 0.5) * 1e-5; dy = 1e-5; dz = (Math.random() - 0.5) * 1e-5; d = Math.hypot(dx, dy, dz); }
         const nx = dx / d, ny = dy / d, nz = dz / d;
         if (d < rs) {
+            // gedreht ausgestrichen bleibt liegen, wo es abging: der restliche Klumpen gleitet darüber, statt es mitzuschieben
+            // (ungedreht hält der Klumpen das an der Kante Abgestreifte dagegen auf, sonst flöge es bis in die Mitte)
+            if (Math.abs(W.roll) > 1.0 && ((si === 3 && tb.abgestreift[j] > 0) || (sj === 3 && tb.abgestreift[i] > 0))) return;
             const pen = rs - d;
+            // was oben auf der Ladung (oder auf schon Mitgetragenem) liegt, fährt mit der Gabel mit
+            if (ny > 0.2) { if (si === 1 && (sj === 3 || (sj === 1 && tb.getragen[j]))) tb.getragen[i] = TRAG; }
+            else if (ny < -0.2 && sj === 1 && (si === 3 || tb.getragen[i])) tb.getragen[j] = TRAG;
             // Tabak auf der Gabel drückt auf liegenden Tabak: klebrig auf klebrig, daran streicht er sich aus
-            if (si === 3 ? (sj === 2 || (sj === 1 && tb.abgestreift[j] <= 0)) : (sj === 3 && tb.abgestreift[i] <= 0)) {
+            if (si === 3 ? (sj === 2 || (sj === 1 && tb.abgestreift[j] <= 0 && !tb.getragen[j])) : (sj === 3 && tb.abgestreift[i] <= 0 && !tb.getragen[i])) {
                 const a = si === 3 ? i : j;
                 W.ladungKontakt = true; W.ladungP.set(tb.x[a], tb.y[a], tb.z[a]);
             }
@@ -6205,6 +6213,7 @@
     function tbUmgebung(i, h) {
         const r = tb.rad[i], rc = r / CM, s = tb.st[i];
         tb.gezogen[i] = 0;
+        if (tb.getragen[i]) tb.getragen[i]--;
         // Tisch und Matte
         const mp = matte.position;
         const boden = Math.abs(tb.x[i] - mp.x) < MATTE.b * CM / 2 && Math.abs(tb.z[i] - mp.z) < MATTE.t * CM / 2 ? TISCH_Y + MATTE.oben * CM : TISCH_Y;
@@ -6330,8 +6339,10 @@
             }
             if (tb.st[i] === 2) tbWach(i);
             if (k.haft > 0) tb.gezogen[i] = 2;
+            // liegt oben auf dem Stecher (etwa auf dem Rücken der gedrehten Gabel): fährt mit, ist kein Tabak im Kopf
+            if (ny > 0.25 && tb.st[i] === 1 && W.inHand) tb.getragen[i] = TRAG;
             // volle Gabel liegt auf Tabak im Kopf: klebrig auf klebrig, daran lässt sie sich auch abstreifen
-            if (k.gabel && tb.st[i] === 1 && tb.abgestreift[i] <= 0) W.tabakKontakt = true;
+            else if (k.gabel && tb.st[i] === 1 && tb.abgestreift[i] <= 0 && !tb.getragen[i]) W.tabakKontakt = true;
             // Andrücken: das Werkzeug drückt von oben auf Tabak, der unten aufliegt
             if (k.drueck && ny < -0.5 && tb.traeg[i] && tb.st[i] === 1) {
                 const neu = Math.min(TB.stauMax, tb.stau[i] + pen / r * 0.35);
@@ -6360,6 +6371,20 @@
                 const x = tb.x[i], y = tb.y[i], z = tb.z[i];
                 if (x > k.min[0] - m && x < k.max[0] + m && y > k.min[1] - m && y < k.max[1] + m && z > k.min[2] - m && z < k.max[2] + m &&
                     kolAbstand(k, x, y, z) < tb.rad[i] + m) tbWach(i);
+            }
+        }
+        // wird der Klumpen auf der Gabel angedrückt, gibt der Tabak darunter nach, statt starr gegen ihn zu stemmen
+        if (W.inHand && W.druck && !W.schwebt && W.last > 0) {
+            let x0 = Infinity, y0 = Infinity, z0 = Infinity, x1 = -Infinity, y1 = -Infinity, z1 = -Infinity;
+            for (let i = 0; i < tb.n; i++) {
+                if (tb.st[i] !== 3) continue;
+                x0 = Math.min(x0, tb.x[i]); x1 = Math.max(x1, tb.x[i]); y0 = Math.min(y0, tb.y[i]); y1 = Math.max(y1, tb.y[i]); z0 = Math.min(z0, tb.z[i]); z1 = Math.max(z1, tb.z[i]);
+            }
+            const m = 2.2 * TB.r;
+            for (let i = 0; i < tb.n; i++) {
+                if (tb.st[i] !== 2) continue;
+                const x = tb.x[i], y = tb.y[i], z = tb.z[i];
+                if (x > x0 - m && x < x1 + m && y > y0 - m && y < y1 + m && z > z0 - m && z < z1 + m) tbWach(i);
             }
         }
         if (RL.aktiv && RL.v > 0.003) {
@@ -6419,7 +6444,7 @@
     }
 
     // Abstand zum nächsten freien Teilchen (für den Zeigerstrahl), konservativ
-    function tbAbstand(px, py, pz) {
+    function tbAbstand(px, py, pz, ohneGetragen) {
         const b = tb.box, m = 2.5 * TB.r;
         if (b[0] > b[3]) return 1;
         const ox = Math.max(b[0] - m - px, 0, px - b[3] - m), oy = Math.max(b[1] - m - py, 0, py - b[4] - m), oz = Math.max(b[2] - m - pz, 0, pz - b[5] - m);
@@ -6430,7 +6455,7 @@
         for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) for (let dz = -1; dz <= 1; dz++) {
             for (let j = tb.kz[tbHash(cx + dx, cy + dy, cz + dz)]; j !== -1; j = tb.nx[j]) {
                 const s = tb.st[j];
-                if (s !== 1 && s !== 2) continue;
+                if ((s !== 1 && s !== 2) || (ohneGetragen && s === 1 && tb.getragen[j])) continue;
                 const d = Math.hypot(px - tb.x[j], py - tb.y[j], pz - tb.z[j]) - tb.rad[j];
                 if (d < best) best = d;
             }
@@ -6647,6 +6672,10 @@
         kanteKontakt: false, kanteP: new THREE.Vector3(), kanteN: new THREE.Vector3(), tabakKontakt: false,
         roll: 0, rollTaste: 0, abfall: 0,                         // Gabel um die eigene Achse gedreht (Q/E)
         ladungKontakt: false, ladungP: new THREE.Vector3(),       // der Tabak auf der Gabel drückt gegen Ton oder Tabak
+        glattY: null,                                             // Andrückhöhe beim Abstreifen, geglättet
+        unten: 0,                                                 // so weit reicht die Ladung unter die Spitze (cm, geglättet)
+        sanft: 0,                                                 // Sekunden ruhiges Anheben nach dem Loslassen
+        schwebt: false,                                           // volle Gabel gedrückt, aber neben dem Kopf: die Hand trägt sie nur
     };
     const TU = {
         inHand: false, druck: false, pos: new THREE.Vector3(), ziel: new THREE.Vector3(), q: new THREE.Quaternion(),
@@ -7029,7 +7058,8 @@
         let t = 0;
         for (let k = 0; k < 260; k++) {
             const x = _ro.x + _rd.x * t, y = _ro.y + _rd.y * t, z = _ro.z + _rd.z * t;
-            const d = festAbstand(x, y, z, true), dt = tbAbstand(x, y, z);
+            // mit voller Gabel zielt der Zeiger durch das, was auf ihr mitfährt, auf den Tabak darunter
+            const d = festAbstand(x, y, z, true), dt = tbAbstand(x, y, z, W.last > 0);
             const m = Math.min(d, dt);
             if (m < 0.0003) {
                 const p = new THREE.Vector3(x, y, z);
@@ -7110,7 +7140,7 @@
         let neig;
         const abstreifen = W.ende === 'gabel' && W.druck && !W.leerAngesetzt && W.art === 'kopf';
         // gedreht und angedrückt hält man die Gabel flacher, damit der Klumpen darunter im Kopf bleibt
-        if (W.ende === 'gabel') neig = W.druck ? (abstreifen ? (Math.abs(W.roll) > 1.0 ? 14 : 26) : 40) : 22;
+        if (W.ende === 'gabel') neig = W.druck && !W.schwebt ? (abstreifen ? (Math.abs(W.roll) > 1.0 ? 14 : 26) : 40) : 22;
         else neig = (W.druck ? 52 : 40) + randNah * 14;      // an der Wand steiler, damit die Spitze hinunterkommt
         // steckt die Spitze in Dose oder Kopf, hält die Hand den Stecher so steil, dass der Griff über den Rand geht
         neig = Math.max(neig, randFreiNeigung(tip, hor, KB.dosePos, DOSE.r - 0.1, DOSE.rand + 0.05));
@@ -7131,11 +7161,22 @@
         return out.setFromRotationMatrix(_km);
     }
 
-    // wie weit der Tabakklumpen bei gedrehter Gabel unter die Zinken reicht (cm)
-    function klumpenUnten() {
+    // Wie tief reicht der Tabak auf der Gabel unter die Spitze (cm)? Aus den Teilchen, die noch dran sind, in der
+    // jetzigen Haltung: gedreht hängt der Klumpen unten, ist er schon halb ausgestrichen, nur noch wenig.
+    const _ku = new THREE.Vector3();
+    function klumpenTiefe() {
         if (W.ende !== 'gabel' || W.last === 0) return 0;
-        return 1.45 * (1 - Math.cos(W.roll)) / 2 + 0.5 * Math.abs(Math.sin(W.roll));
+        let tief = 0;
+        for (let i = 0; i < tb.n; i++) {
+            if (tb.st[i] !== 3) continue;
+            const k = i * 3;
+            _ku.set(tb.ank[k], tb.ank[k + 1], tb.ank[k + 2]).applyQuaternion(W.q);
+            tief = Math.max(tief, (tb.rad[i] - _ku.y) / CM);
+        }
+        return tief;
     }
+    // geglättet (einmal je Bild nachgeführt), damit die Hand nicht bei jedem abgehenden Krümel nachfasst
+    function klumpenUnten() { return W.unten; }
 
     // Mindestneigung (Grad), damit der Stecher von der Spitze aus in Richtung hor über einen Rand (Halbmesser rIn, Oberkante oben, cm) kommt
     function randFreiNeigung(tip, hor, mitte, rIn, oben) {
@@ -7186,7 +7227,7 @@
 
     function druckStart() {
         if (!W.inHand || W.uebergang) return false;
-        W.druck = true; W.extra = 0; W.maxTiefe = 0; W.weg = 0; W.gesperrt = false;
+        W.druck = true; W.extra = 0; W.maxTiefe = 0; W.weg = 0; W.gesperrt = false; W.schwebt = false;
         W.leerAngesetzt = W.last === 0;
         KB.drueckStart = KB.drueckt;
         if (W.ende === 'gabel' && W.last > 0 && W.art === 'dose') {
@@ -7198,7 +7239,7 @@
 
     function druckEnde() {
         if (!W.druck) return;
-        W.druck = false; W.ausziehen = W.gesperrt;
+        W.druck = false; W.ausziehen = W.gesperrt; W.sanft = 0.3; W.schwebt = false;
         if (W.ende !== 'gabel') return;
         if (W.art === 'dose' && W.maxTiefe > 0.25) gabelFuellen();
         // nur eine leer angesetzte Gabel hebt Tabak an; nach dem Abstreifen bleibt liegen, was abgestreift wurde
@@ -7277,12 +7318,14 @@
             const k = 1 - Math.exp(-h * 22);
             const z = _kv.copy(W.tipZiel).sub(W.tip).multiplyScalar(k);
             // nicht gedrückt: erst hoch, dann seitlich (sonst schleift die Spitze durch Tabak und Ränder)
-            if (!W.druck) {
+            if (!W.druck || W.schwebt) {
                 const unter = (W.tipZiel.y - W.tip.y) / CM;
                 if (unter > 0.05) { const f = clamp(1 - unter / 0.5, 0.03, 1); z.x *= f; z.z *= f; }
                 if (W.ausziehen && unter < 0.35) { W.ausziehen = false; W.gesperrt = false; }
             }
-            const vmax = 0.9 * h, l = z.length();
+            // gleich nach dem Loslassen hebt die Hand ruhig an, statt die Gabel hochzureißen
+            if (W.sanft > 0) W.sanft -= h;
+            const vmax = (W.sanft > 0 ? 0.3 : 0.9) * h, l = z.length();
             if (l > vmax) z.multiplyScalar(vmax / l);
             W.tip.add(z);
             // die Dosenwand ist dünn: unterhalb des Rands bleibt die Spitze auf ihrer Seite
@@ -7341,7 +7384,7 @@
         stecherAchsen(W.q, _wx, _wy, _wz);
         const o = W.ursprung, v = W.v;
         const spitzeAktiv = W.inHand && W.ende === 'spitze' && W.druck;
-        const drueckt = W.inHand && W.druck && W.ende === 'gabel' && W.extra > 0.05 && W.art !== 'dose';
+        const drueckt = W.inHand && W.druck && !W.schwebt && W.ende === 'gabel' && W.extra > 0.05 && W.art !== 'dose';
         if (!KOL.length) {
             KOL.push({ typ: 'box', gabel: true, c: [0, 0, 0], ex: [0, 0, 0], ey: [0, 0, 0], ez: [0, 0, 0], hx: 1.42 * CM, hy: 0.05 * CM, hz: 0.66 * CM, rund: 0.015 * CM, min: [0, 0, 0], max: [0, 0, 0], v: [0, 0, 0], reib: 0.8, reib0: 0.8, haft: 0, drueck: false });
             KOL.push({ typ: 'kapsel', gabel: false, a: [0, 0, 0], b: [0, 0, 0], ra: 0.3 * CM, rb: 0.3 * CM, ll: 1, min: [0, 0, 0], max: [0, 0, 0], v: [0, 0, 0], reib: 0.5, reib0: 0.5, haft: 0, drueck: false, x0: 2.8, x1: 9.6 });
@@ -7363,7 +7406,7 @@
             c.haft = spitzeAktiv ? [0, 0, 0.6, 0.9][n] : 0;      // die Spitze hakt sich in die Fasern und zieht ein Büschel mit
         }
         // nur beim Arbeiten nimmt das Werkzeug Tabak über die Reibung mit; beim Herausziehen gleitet es
-        for (const c of KOL) { c.v[0] = v.x; c.v[1] = v.y; c.v[2] = v.z; c.reib = W.druck ? c.reib0 : c.reib0 * 0.25; }
+        for (const c of KOL) { c.v[0] = v.x; c.v[1] = v.y; c.v[2] = v.z; c.reib = W.druck && !W.schwebt ? c.reib0 : c.reib0 * 0.25; }
         // beim Abstreifen gleitet das Abgestreifte von den glatten Zinken, statt mitgezogen zu werden
         if (W.druck && W.ende === 'gabel' && !W.leerAngesetzt && W.art === 'kopf') KOL[0].reib = 0.1;
         tb.kol = KOL;
@@ -7378,22 +7421,36 @@
         const t = zeiger.drin || W.testTreffer ? arbeitsTreffer() : null;
         W.treffer = t;
         if (!t) return;
-        const p = t.p;
-        // gedrückt aus Kopf oder Dose hinausgezogen: die Hand hebt den Stecher an, statt ihn durch den Rand zu schleifen
+        const p = t.p, kp = KB.kopfPos;
+        const voll = W.ende === 'gabel' && W.last > 0 && !W.leerAngesetzt;
+        // gedrückt aus Kopf oder Dose hinausgezogen: die Hand hebt den Stecher an, statt ihn durch den Rand zu schleifen.
+        // Eine volle Gabel bleibt dabei gedrückt und schwebt nur über den Rand; zurück über dem Kopf streicht sie weiter.
         if (W.druck && (W.art === 'kopf' || W.art === 'dose')) {
-            const c = W.art === 'kopf' ? KB.kopfPos : KB.dosePos;
-            if (Math.hypot(p.x - c.x, p.z - c.z) > (W.art === 'kopf' ? 4.6 : 5.4) * CM) druckEnde();
-        }
+            const c = W.art === 'kopf' ? kp : KB.dosePos;
+            if (Math.hypot(p.x - c.x, p.z - c.z) > (W.art === 'kopf' ? 4.6 : 5.4) * CM) {
+                if (voll && W.art === 'kopf') { W.art = 'matte'; W.sanft = 0.3; }
+                else druckEnde();
+            }
+        } else if (W.druck && voll && t.art === 'kopf' && Math.hypot(p.x - kp.x, p.z - kp.z) < 4.3 * CM) W.art = 'kopf';
+        W.schwebt = W.druck && voll && W.art !== 'kopf' && W.art !== 'dose';
         if (!W.druck) W.art = t.art;
         const ziel = _kv.copy(p);
         // gedreht hängt der Klumpen unter den Zinken: so viel höher halten, beim Andrücken bleiben 5 mm zum Ausstreichen
         const unten = klumpenUnten();
         const vollImKopf = W.druck && W.art === 'kopf' && W.ende === 'gabel' && !W.leerAngesetzt;
-        if (!W.druck) ziel.y += ((W.last > 0 ? 1.7 : 1.1) + unten) * CM;
-        else if (vollImKopf && Math.abs(W.roll) > 1.0 && ausstreichZiel(p, ziel)) {
-            // gedrehte Gabel: der Klumpen liegt unten und wird dort ausgestrichen, wo man hinzeigt
-        } else if (vollImKopf && kantenZiel(p, ziel)) {
-            // volle Gabel am Rand: liegt quer über der Innenkante, die Spitze knapp im Kopf
+        const traegt = !W.druck || W.schwebt;
+        let glatt = false;
+        if (traegt) ziel.y += ((W.last > 0 ? 1.7 : 1.1) + unten) * CM;
+        else if (vollImKopf && (Math.abs(W.roll) > 1.0 ? ausstreichZiel(p, ziel) : kantenZiel(p, ziel))) {
+            // gedreht: der Klumpen liegt unten und wird dort ausgestrichen, wo man hinzeigt;
+            // ungedreht: die Gabel liegt quer über der Innenkante, die Spitze knapp im Kopf.
+            // Die Höhe folgt der Tabakoberfläche weich, sonst zappelt die Gabel über jedem Krümel;
+            // beim Ansetzen senkt die Hand sie von der jetzigen Höhe aus ab.
+            // (kleine Unebenheiten langsam, große Höhenunterschiede zügig, sonst setzt sie zu träge auf)
+            if (W.glattY === null) W.glattY = W.tip.y;
+            const dg = ziel.y - W.glattY;
+            W.glattY += dg * (0.18 + 0.32 * smooth(0.3 * CM, 1.0 * CM, Math.abs(dg)));
+            ziel.y = W.glattY; glatt = true;
         } else {
             let tiefe;
             if (W.art === 'dose') tiefe = W.ende === 'gabel' ? 1.6 : 1.2;
@@ -7401,14 +7458,15 @@
             else tiefe = 0.08;
             ziel.y -= (tiefe + W.extra) * CM;
         }
+        if (!glatt) W.glattY = null;
         if (W.dreh > 0) ziel.y += 2.0 * CM;
-        if (!W.druck) {
+        if (traegt) {
             ziel.y = Math.max(ziel.y, reiseHoehe(W.tip, ziel));
             // eine volle Gabel trägt man zwischen Dose und Kopf auf Randhöhe, nicht dicht über der Matte
             if (W.last > 0) {
                 const kp = KB.kopfPos, dp = KB.dosePos;
                 const rd = Math.hypot(ziel.x - dp.x, ziel.z - dp.z) / CM, rb = Math.hypot(ziel.x - kp.x, ziel.z - kp.z) / CM;
-                if (rd > DOSE.r && rb > 4.4 && Math.min(rd, rb) < 14) ziel.y = Math.max(ziel.y, Math.max(dp.y + DOSE.rand * CM, kp.y + KOPF.hoehe * CM) + 0.9 * CM);
+                if (rd > DOSE.r && rb > 4.4 && Math.min(rd, rb) < 14) ziel.y = Math.max(ziel.y, Math.max(dp.y + DOSE.rand * CM, kp.y + KOPF.hoehe * CM) + (0.9 + klumpenUnten()) * CM);
             }
         }
         W.tipZiel.copy(ziel);
@@ -7432,44 +7490,95 @@
         let yt = KOPF.hoehe - (3.72 - rt) * Math.tan(26 * Math.PI / 180) - 0.15 - W.extra;
         ziel.set(kp.x + kx / kr * rt * CM, kp.y + yt * CM, kp.z + kz / kr * rt * CM);
         // ist der Kopf dort schon voll, legt sie sich auf den Tabak, statt ihn über den Rand zu schieben
-        const oben = tabakOben(ziel.x, ziel.z, 0.7 * CM);
+        const oben = tabakFlaeche(ziel.x, ziel.z, 0.8 * CM);
         if (oben > ziel.y + 0.12 * CM) ziel.y = oben - 0.12 * CM - W.extra * CM;
         return true;
     }
 
     // Gedrehte Gabel (Tabak unten): die Klumpenmitte – knapp 1 cm hinter der Spitze – kommt dorthin, wo man hinzeigt,
-    // in den Ring zwischen Kamin und Wand, und wird 8 mm tief auf Ton oder Tabak gedrückt. Zieht man, streicht er sich aus.
+    // in den Ring zwischen Kamin und Wand, und wird 5 mm tief auf Ton oder Tabak gedrückt. Zieht man, streicht er sich aus.
     function ausstreichZiel(p, ziel) {
         const kp = KB.kopfPos, kx = (p.x - kp.x) / CM, kz = (p.z - kp.z) / CM, kr = Math.hypot(kx, kz);
         if (kr > 4.8) return false;
         const ex = kr > 1e-3 ? kx / kr : 1, ez = kr > 1e-3 ? kz / kr : 0;
-        const rc = clamp(kr, 2.0, 3.0);
-        const cx = kp.x + ex * rc * CM, cz = kp.z + ez * rc * CM;
-        const oben = Math.max(tabakOben(cx, cz, 0.35 * CM), kp.y + bodenHoehe(rc) * CM);
+        // Die Klumpenmitte folgt dem Zeiger. Zeigt man auf Wand oder Rand, bleibt sie an der Wand und streicht dort aus;
+        // erst weiter hinaus gleitet sie über den Rand (bei 4,6 cm hebt die Hand die Gabel dann ganz ab). Gedrückt wird
+        // auf den Tabak (oder Ton) im Kopf; über Wand und Rand hebt die Gabel sich selbst (klumpenFreiheit).
+        const rc = kr <= 3.0 ? Math.max(kr, 2.0) : kr <= 4.15 ? 3.0 + (kr - 3.0) * 0.4 : Math.min(3.46 + (kr - 4.15) * 1.42, 4.3);
+        const rb = Math.min(rc, 3.45);
+        const cx = kp.x + ex * rb * CM, cz = kp.z + ez * rb * CM;
+        // (was auf der Gabel mitfährt, etwa Krümel auf ihrem Rücken, zählt nicht: sonst höbe sie sich daran endlos hoch)
+        const oben = Math.max(tabakFlaeche(cx, cz, 0.8 * CM, true), kp.y + bodenHoehe(rb) * CM);
         // Klumpenmitte: 0,85 cm die Zinken entlang, dazu durch die Drehung etwas nach außen versetzt
         const neig = 14 * Math.PI / 180, vor = 0.85 * Math.cos(neig) + 0.65 * Math.sin(neig);
         const rt = rc - vor;
-        ziel.set(kp.x + ex * rt * CM, oben + (klumpenUnten() - 0.8 - 0.85 * Math.sin(neig) - W.extra) * CM, kp.z + ez * rt * CM);
+        // 5 mm tief andrücken; an der Wand aber nicht in einen Haufen, der schon über die Kante steht – das quetscht ihn
+        // nur auf den Rand hinaus
+        const ueber = clamp((oben - kp.y) / CM - (KOPF.hoehe - 0.4), 0, 0.6) / 0.6 * smooth(2.8, 3.4, rb);
+        const tief = 0.5 - 0.35 * ueber;
+        // die Zinken selbst bleiben über dem Tabak: ist der Klumpen fast ausgestrichen, pflügten sie sonst durch den
+        // Kopf und schöben den Tabak über den Rand
+        const sx = kp.x + ex * rt * CM, sz = kp.z + ez * rt * CM, obenSpitze = tabakFlaeche(sx, sz, 0.6 * CM, true);
+        let y = oben + (Math.max(klumpenUnten() - tief, 0.2) - W.extra) * CM;
+        if (obenSpitze > -Infinity) y = Math.max(y, obenSpitze + (0.1 - W.extra) * CM);
+        ziel.set(sx, y, sz);
+        ziel.y += klumpenFreiheit(ziel);
         return true;
     }
 
-    // höchste Oberkante des liegenden Tabaks im Umkreis (Welt, m), sonst -Infinity; gerade Abgestreiftes zählt noch nicht
-    function tabakOben(x, z, umkreis) {
-        let y = -Infinity;
+    // Gedrehte Gabel: um wie viel muss die Hand sie über `ziel` (Spitze) anheben, damit kein Stück des Klumpens im Ton
+    // steckt? So gleitet er an der Wand hinauf und über den Rand, statt in die Kante gedrückt und dabei nach außen
+    // abgerissen zu werden. Etwas eindrücken darf er sich (gut 1 mm, weniger als die halbe Wanddicke), daran streicht
+    // er sich aus.
+    const _kf = new THREE.Vector3();
+    function klumpenFreiheit(ziel) {
+        const kp = KB.kopfPos;
+        let heben = 0;
+        for (let i = 0; i < tb.n; i++) {
+            if (tb.st[i] !== 3) continue;
+            const k = i * 3;
+            _kf.set(tb.ank[k], tb.ank[k + 1], tb.ank[k + 2]).applyQuaternion(W.q).add(ziel);
+            const r = Math.hypot(_kf.x - kp.x, _kf.z - kp.z) / CM, y = (_kf.y - kp.y) / CM + heben;
+            const frei = tb.rad[i] / CM - 0.12;
+            if (r > 4.9 || kopfSdf(r, y) >= frei) continue;
+            let dy = 0.1;
+            while (dy < 3 && kopfSdf(r, y + dy) < frei) dy += 0.1;
+            if (kopfSdf(r, y + dy - 0.05) >= frei) dy -= 0.05;
+            heben += dy;
+        }
+        return heben * CM;
+    }
+
+    // Oberkante des liegenden Tabaks im Umkreis, weich gemittelt: die oberste Lage zählt, nahe Teilchen mehr als ferne.
+    // Anders als das harte Maximum springt sie nicht, wenn ein einzelner Krümel in den Kreis rutscht.
+    // ohneGetragen: was gerade auf Gabel oder Ladung liegt und mitfährt, zählt nicht mit.
+    function tabakFlaeche(x, z, umkreis, ohneGetragen) {
         const u2 = umkreis * umkreis;
+        let max = -Infinity;
         for (let i = 0; i < tb.n; i++) {
             const s = tb.st[i];
-            if ((s !== 1 && s !== 2) || tb.abgestreift[i] > 0) continue;
+            if ((s !== 1 && s !== 2) || tb.abgestreift[i] > 0 || (ohneGetragen && s === 1 && tb.getragen[i])) continue;
             const dx = tb.x[i] - x, dz = tb.z[i] - z;
-            if (dx * dx + dz * dz < u2) y = Math.max(y, tb.y[i] + tb.rad[i]);
+            if (dx * dx + dz * dz < u2) max = Math.max(max, tb.y[i] + tb.rad[i]);
         }
-        return y;
+        if (max === -Infinity) return max;
+        let sw = 0, sy = 0;
+        for (let i = 0; i < tb.n; i++) {
+            const s = tb.st[i];
+            if ((s !== 1 && s !== 2) || tb.abgestreift[i] > 0 || (ohneGetragen && s === 1 && tb.getragen[i])) continue;
+            const dx = tb.x[i] - x, dz = tb.z[i] - z, d2 = dx * dx + dz * dz;
+            if (d2 >= u2) continue;
+            const top = tb.y[i] + tb.rad[i];
+            const w = Math.exp(-2 * d2 / u2) * Math.exp((top - max) / (0.15 * CM));
+            sw += w; sy += w * top;
+        }
+        return sy / sw;
     }
 
     // Ohne Druck hebt die Hand den Stecher über Dosen- und Kopfrand und über den Tabak im Kopf, statt hindurchzuschleifen.
     // Abgetastet wird die Strecke von der Spitze zum Ziel; geliefert wird die nötige Höhe der Spitze (Welt, m).
     function reiseHoehe(von, nach) {
-        const kp = KB.kopfPos, dp = KB.dosePos, luft = 0.9;
+        const kp = KB.kopfPos, dp = KB.dosePos, luft = 0.9 + klumpenUnten();
         const dx = nach.x - von.x, dz = nach.z - von.z, L = Math.hypot(dx, dz);
         const n = Math.min(48, Math.ceil(L / (0.35 * CM)) + 1);
         const kopfOben = Math.max(KOPF.hoehe, KB.stapelTop || 0);
@@ -7500,7 +7609,7 @@
             if (W.rollTaste) W.roll = clamp(W.roll + W.rollTaste * 3.2 * dt, -Math.PI, Math.PI);
             else if (W.last === 0 && !W.druck && W.roll !== 0) W.roll = Math.abs(W.roll) < 4 * dt ? 0 : W.roll - Math.sign(W.roll) * 4 * dt;
             // kopfüber hält der klebrige Klumpen fast ganz, nur ab und zu löst sich unten ein Stück
-            if (W.last > 0 && !W.druck && Math.abs(W.roll) > 2.0) {
+            if (W.last > 0 && (!W.druck || W.schwebt) && Math.abs(W.roll) > 2.0) {
                 W.abfall += dt * 1.5 * smooth(2.0, 2.8, Math.abs(W.roll));
                 while (W.abfall >= 1 && W.last > 0) {
                     W.abfall -= 1;
@@ -7572,7 +7681,11 @@
         for (let i = 0; i < tb.n; i++) {
             if (tb.st[i] !== 3) continue;
             // beim Ausstreichen (gedrehte Gabel) geht nur ab, was über dem Kopf liegt; was über den Rand hinaushängt, bleibt dran
-            if ((lp || gedreht) && Math.hypot(tb.x[i] - kp0.x, tb.z[i] - kp0.z) > 3.55 * CM) continue;
+            const ri = Math.hypot(tb.x[i] - kp0.x, tb.z[i] - kp0.z) / CM;
+            if ((lp || gedreht) && ri > 3.55) continue;
+            // an der Wand nur, solange dort noch Platz unter der Kante ist: sonst steht es gleich über den Rand
+            // (zieht man die gedrehte Gabel über den Rand, bleibt dran, was nicht mehr in den Kopf passt)
+            if (gedreht && ri > 3.0 && (tb.y[i] - kp0.y) / CM > KOPF.hoehe - 0.15) continue;
             if (lp) {
                 const dx = tb.x[i] - lp.x, dy = tb.y[i] - lp.y, dz = tb.z[i] - lp.z; liste.push([i, dx * dx + dy * dy + dz * dz]);
             }
@@ -7589,7 +7702,14 @@
         for (const [i] of liste) {
             if (n-- <= 0) break;
             tbLoesen(i);
-            if (!W.kanteKontakt) { tb.vx[i] = W.v.x * 0.2; tb.vy[i] = -0.02; tb.vz[i] = W.v.z * 0.2; continue; }   // bleibt, wo er ausgestrichen wird
+            if (!W.kanteKontakt) {
+                // bleibt, wo er ausgestrichen wird: geht etwas mit der Gabel mit, aber nicht nach außen zum Rand hin
+                let vx = W.v.x * 0.2, vz = W.v.z * 0.2;
+                const rx = tb.x[i] - kp.x, rz = tb.z[i] - kp.z, rl = Math.hypot(rx, rz) || 1, vr = (vx * rx + vz * rz) / rl;
+                if (vr > 0) { vx -= vr * rx / rl; vz -= vr * rz / rl; }
+                tb.vx[i] = vx; tb.vy[i] = -0.02; tb.vz[i] = vz;
+                continue;
+            }
             // was noch über der Kante hängt, schiebt sie kräftiger hinüber
             const ueber = Math.hypot(tb.x[i] - kp.x, tb.z[i] - kp.z) > 3.55 * CM;
             const v = ueber ? 0.18 : 0.06;
@@ -7685,6 +7805,7 @@
     function kopfbauFrame(dt) {
         if (!tb.fl) return;
         kopf.getWorldPosition(KB.kopfPos); dose.getWorldPosition(KB.dosePos);
+        if (W.inHand) { const u = klumpenTiefe(); W.unten += (u - W.unten) * (u > W.unten ? 0.35 : 0.08); } else W.unten = 0;
         if (W.inHand && !W.uebergang) zielAusZeiger();
         if (TU.inHand) tuchFrame(dt);
         let wach = W.inHand || !!W.uebergang;
@@ -7734,7 +7855,7 @@
             if (rl < 3.72 && yl > 6.7 && yl < 10.5) {
                 if (rl < 1.02 && yl > 7.95) { ueberLoch++; continue; }
                 imKopf++; stau += tb.stau[i]; mol += tb.mol[i];
-                oben = Math.max(oben, yl + tb.rad[i] / CM);
+                if (!(s === 1 && tb.getragen[i])) oben = Math.max(oben, yl + tb.rad[i] / CM);
                 // steht an der Wand über die Kante: da drückt später der HMD-Rand drauf, und es sieht unsauber aus
                 if (rl > 3.45 && yl + tb.rad[i] / CM > KOPF.hoehe + 0.02) amRand++;
                 const b = Math.floor((rl - kb.rIn) / (kb.rOut - kb.rIn) * kb.B);
