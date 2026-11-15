@@ -136,6 +136,7 @@
         #karte li.jetzt { color: var(--ink); }
         #karte li.jetzt::before { border-color: var(--ember); box-shadow: 0 0 0 3px rgba(233,162,95,.16); }
         #karte li small { display: block; color: var(--ink-3); font-size: 11.5px; }
+        #karte li .wahl { color: var(--ink-3); font-size: 11px; }
         #karte .tipp { margin-top: 10px; padding-top: 9px; border-top: 1px solid var(--line); color: var(--ink-3); font-size: 12px; }
         #karte .weiter { margin-top: 9px; background: none; border: 0; padding: 0; color: var(--ember); cursor: pointer; font-size: 12.5px; }
         #karte .weiter:hover { text-decoration: underline; }
@@ -179,6 +180,19 @@
 
         /* Kopfbau */
         #kopfPanel { position: fixed; right: 18px; top: 64px; z-index: 10; width: 272px; padding: 12px 14px 12px; display: none; }
+        #zugPanel { position: fixed; right: 18px; top: 64px; z-index: 10; width: 250px; padding: 12px 14px 12px; display: none; }
+        #zugPanel.da { display: block; }
+        #zugPanel h3 { margin: 0 0 9px; font: 600 10.5px/1 var(--sans); letter-spacing: .8px; text-transform: uppercase; color: var(--ink-3); }
+        #zugPanel .zeile { display: grid; grid-template-columns: 44px 1fr 62px; align-items: center; gap: 8px; margin: 0 0 7px; font-size: 11.5px; color: var(--ink-2); }
+        #zugPanel .zeile b { font-weight: 500; color: var(--ink); text-align: right; font-variant-numeric: tabular-nums; }
+        #zugPanel .balken { height: 7px; border-radius: 4px; background: rgba(255,255,255,.07); overflow: hidden; }
+        #zugPanel .balken i { display: block; height: 100%; width: 0; border-radius: 4px; background: linear-gradient(90deg, rgba(233,162,95,.55), rgba(255,206,150,.9)); transition: width .12s linear; }
+        #zugPanel .balken i.heiss { background: linear-gradient(90deg, rgba(233,120,60,.7), rgba(255,90,40,.95)); }
+        #zugPanel .balken.rauch i { background: linear-gradient(90deg, rgba(200,206,212,.35), rgba(236,240,244,.85)); }
+        #zugPanel .werte { margin: 9px 0 4px; font-size: 11.5px; color: var(--ink-3); }
+        #zugPanel .werte b { color: var(--ink-2); font-weight: 500; }
+        #zugPanel .zuege { font-size: 11px; color: var(--ink-3); min-height: 15px; }
+        #zugPanel .ablegen { width: 100%; margin-top: 10px; }
         #kopfPanel.da { display: block; }
         #kopfPanel h3 { margin: 0 0 7px; font: 600 10.5px/1 var(--sans); letter-spacing: .8px; text-transform: uppercase; color: var(--ink-3); }
         #kopfPanel .setups { display: flex; gap: 3px; margin-bottom: 10px; }
@@ -225,7 +239,7 @@
 <div id="loader">
     <div class="box">
         <h1>Köpfchen bauen</h1>
-        <div class="sub">Shisha-Simulator · Etappe 3: Kopf bauen</div>
+        <div class="sub">Shisha-Simulator · Etappe 5: Anrauchen</div>
         <div class="bar"><i></i></div>
         <div class="step">lädt …</div>
         <button class="go" type="button">Loslegen</button>
@@ -233,7 +247,7 @@
     </div>
 </div>
 
-<div id="brand"><b>Köpfchen bauen</b><span>Etappe 3 · Kohle, Dose, Kopf bauen</span></div>
+<div id="brand"><b>Köpfchen bauen</b><span>Etappe 5 · Anrauchen</span></div>
 <div id="fps"></div>
 
 <div id="knoepfe">
@@ -295,13 +309,22 @@
         <button class="btn fertig" type="button" data-a="fertig">Kopf ist fertig</button>
         <div class="blick">Blick: <button type="button" data-b="dose">Dose</button><button type="button" data-b="kopf">Kopf</button><button type="button" data-b="beide">beides</button></div>
     </div>
+    <div id="zugPanel" class="panel">
+        <h3>Anrauchen</h3>
+        <div class="zeile zug"><span>Zug</span><div class="balken"><i></i></div><b>–</b></div>
+        <div class="zeile lunge"><span>Lunge</span><div class="balken"><i></i></div><b>0,0 l</b></div>
+        <div class="zeile bowl"><span>Bowl</span><div class="balken rauch"><i></i></div><b>klar</b></div>
+        <div class="werte"></div>
+        <div class="zuege"></div>
+        <button class="btn ablegen" type="button">Mundstück ablegen (Esc)</button>
+    </div>
 </div>
 <div id="tipp"></div>
 <div id="meldungen"></div>
 <div id="abschluss"><div class="panel"><div class="inhalt"></div><button class="btn" type="button">Weiter umsehen</button></div></div>
 
 <div id="info" class="panel"><b></b><p></p></div>
-<div id="hinweis">Klicken = zugreifen · Kohle ziehen = umsetzen · Ziehen auf leerer Fläche dreht · rechts schieben · Rad zoomen, am Regler stellt es die Stufe · Z Zeitraffer · M Ton · Esc legt die Zange weg</div>
+<div id="hinweis">Klicken = zugreifen · Kohle ziehen = umsetzen · R legt sie schräg · Ziehen auf leerer Fläche dreht · rechts schieben · Rad zoomen, am Regler stellt es die Stufe · Z Zeitraffer · M Ton · Esc legt die Zange weg</div>
 
 <script type="importmap">
     {
@@ -368,6 +391,7 @@
     renderer.toneMappingExposure = einst.hell;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.localClippingEnabled = true;          // Wasser im Bowl wird an einer Ebene auf Pegelhöhe abgeschnitten
     $('#stage').appendChild(renderer.domElement);
     const maxAniso = renderer.capabilities.getMaxAnisotropy();
     const anisoFuer = (n = Q0.aniso) => Math.min(n, maxAniso);
@@ -1669,6 +1693,25 @@
         return { map: alsTextur(res.col, W, H, { srgb: true, name: 'tuch' }), normal: alsTextur(normalAusHoehe(res.hf, W, H, 1.6, true, true), W, H, { name: 'tuch_n' }) };
     }
 
+    // Kleine Wellen auf dem Wasser (kachelbar): überlagerte Kreiswellen und feines Rauschen, nur als Normal-Map
+    function texWellen() {
+        const W = 256, H = 256;
+        const zentren = [[0.23, 0.31, 9], [0.71, 0.64, 7], [0.48, 0.86, 11], [0.86, 0.17, 8]];
+        const res = malen(W, H, (x, y, o) => {
+            const u = (x + 0.5) / W, v = (y + 0.5) / H;
+            let h = 0;
+            for (const [cx, cy, k] of zentren) {
+                let dx = Math.abs(u - cx), dy = Math.abs(v - cy);
+                dx = Math.min(dx, 1 - dx); dy = Math.min(dy, 1 - dy);
+                const d = Math.hypot(dx, dy);
+                h += Math.sin(d * TAU * k) * Math.exp(-d * 3.5) * 0.5;
+            }
+            h += N.fbm2(u * 8, v * 8, 3, 8, 8) * 0.6;
+            o.h = h; o.rough = 0.05; o.metal = 0; o.extra = 0;
+        }, ['h']);
+        return alsTextur(normalAusHoehe(res.hf, W, H, 2.2, true, true), W, H, { name: 'wellen_n' });
+    }
+
     // ---------------------------------------------------------------------------
     // Materialien
 
@@ -1727,6 +1770,21 @@
         M.glasMatt = new THREE.MeshPhysicalMaterial({
             color: '#f4f6f6', metalness: 0, roughness: 0.62, transmission: 0.9, thickness: 0.006, ior: 1.47,
             attenuationColor: new THREE.Color('#e8f2ee'), attenuationDistance: 0.3, side: THREE.DoubleSide,
+        });
+
+        // PET der Wasserflasche: dünn und klar, nur Spiegelungen und ein Hauch Grau; der Deckel blau, ohne Aufdruck
+        M.pet = new THREE.MeshPhysicalMaterial({
+            color: '#eef4f5', roughness: 0.04, metalness: 0, transparent: true, opacity: 0.16, depthWrite: false,
+            specularIntensity: 1, clearcoat: 1, clearcoatRoughness: 0.03, side: THREE.DoubleSide,
+        });
+        M.deckelBlau = new THREE.MeshPhysicalMaterial({ color: '#2f6fb3', roughness: 0.42, clearcoat: 0.3, clearcoatRoughness: 0.5 });
+        // fließendes und verschüttetes Wasser
+        M.strahl = new THREE.MeshPhysicalMaterial({
+            color: '#e3f1f4', roughness: 0.03, metalness: 0, transparent: true, opacity: 0.55, depthWrite: false, specularIntensity: 1,
+        });
+        M.pfuetze = new THREE.MeshPhysicalMaterial({
+            color: '#9fb4b8', roughness: 0.02, metalness: 0, transparent: true, opacity: 0.38, depthWrite: false, specularIntensity: 1,
+            clearcoat: 1, clearcoatRoughness: 0.02, polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -3,
         });
 
         // Silikon (Schlauch, Dichtung): weich, matt, leicht durchscheinender Schimmer
@@ -2177,7 +2235,7 @@
         const tep = new RoundedBoxGeometry(2.0, 0.012, 1.4, 2, 0.004);
         const tuv = tep.attributes.uv, tp = tep.attributes.position;
         for (let i = 0; i < tuv.count; i++) tuv.setXY(i, tp.getX(i) / 2.0 + 0.5, -tp.getZ(i) / 1.4 + 0.5);
-        const teppich = mesh(tep, M.teppich, { schatten: false });
+        const teppich = mesh(tep, M.teppich, { schatten: false, name: 'teppich' });
         teppich.position.set(-0.05, 0.006, 0.05);
         raum.add(teppich);
     }
@@ -2346,6 +2404,79 @@
         m.customDistanceMaterial = new THREE.MeshDistanceMaterial({ alphaHash: true, opacity: deckkraft });
     }
 
+    // ---------------------------------------------------------------------------
+    // Wasser im Bowl. Der Hohlraum beginnt über dem massiven Glasfuß (3,45 cm) und folgt innen der Außenkontur
+    // mit 4,5 mm Glas. Das Tauchrohr endet bei 9,6 cm; 2-3 cm Wasser darüber sind richtig.
+
+    const BOWL_WASSER = { boden: 3.45, wand: 0.45, tauchEnde: 9.6, hals: 28.6, schritt: 0.02 };
+    // Innenradius (cm) auf Höhe h (cm), nur oberhalb des Fußes
+    function bowlInnenR(h) {
+        const p = BOWL;
+        if (h <= 3.34) return 9.0 - BOWL_WASSER.wand;
+        for (let i = 1; i < p.length; i++) {
+            const a = p[i - 1], b = p[i];
+            if (a[1] < 3.3 || b[1] < h) continue;
+            const t = clamp((h - a[1]) / Math.max(1e-6, b[1] - a[1]), 0, 1);
+            return lerp(a[0], b[0], t) - BOWL_WASSER.wand;
+        }
+        return p[p.length - 2][0] - BOWL_WASSER.wand;
+    }
+    // Volumentabelle V(h) in cm³; der Boden ist zur Wand hin leicht ausgerundet
+    const BOWL_VOL = (() => {
+        const W = BOWL_WASSER, n = Math.ceil((W.hals - W.boden) / W.schritt) + 1;
+        const v = new Float32Array(n);
+        let s = 0;
+        for (let i = 1; i < n; i++) {
+            const h = W.boden + (i - 0.5) * W.schritt;
+            const r = bowlInnenR(h) - 0.35 * Math.max(0, 1 - (h - W.boden) / 0.35) ** 2;
+            s += Math.PI * r * r * W.schritt;
+            v[i] = s;
+        }
+        return v;
+    })();
+    function bowlVolumen(h) {
+        const W = BOWL_WASSER, x = (h - W.boden) / W.schritt;
+        if (x <= 0) return 0;
+        const i = Math.min(BOWL_VOL.length - 2, Math.floor(x));
+        return lerp(BOWL_VOL[i], BOWL_VOL[i + 1], clamp(x - i, 0, 1));
+    }
+    function bowlPegel(v) {
+        const W = BOWL_WASSER, t = BOWL_VOL;
+        if (v <= 0) return W.boden;
+        let lo = 0, hi = t.length - 1;
+        if (v >= t[hi]) return W.hals;
+        while (hi - lo > 1) { const m = (lo + hi) >> 1; if (t[m] <= v) lo = m; else hi = m; }
+        return W.boden + (lo + (v - t[lo]) / Math.max(1e-9, t[hi] - t[lo])) * W.schritt;
+    }
+
+    // Wasserkörper: Innenprofil bis knapp unter den Hals, oben von einer Ebene auf Pegelhöhe abgeschnitten, dazu die
+    // Oberfläche als Scheibe. Durch das satinierte Glas sieht man ihn nur verschwommen, von oben durch den Hals klar.
+    function wasserBauen() {
+        const prof = [[0, BOWL_WASSER.boden + 0.01, 'c']];
+        for (let h = BOWL_WASSER.boden + 0.01; h <= 27.0; h += h < 4 ? 0.07 : 0.35) {
+            const r = bowlInnenR(h) - 0.35 * Math.max(0, 1 - (h - BOWL_WASSER.boden) / 0.35) ** 2 - 0.01;
+            prof.push([Math.max(0.01, r), h]);
+        }
+        const ebene = new THREE.Plane(new THREE.Vector3(0, -1, 0), 0);
+        const koerperMat = new THREE.MeshPhysicalMaterial({
+            color: '#7fa6b2', roughness: 0.18, metalness: 0, emissive: new THREE.Color('#1d3338'), emissiveIntensity: 1,
+            specularIntensity: 0.6, clippingPlanes: [ebene],
+        });
+        const koerper = mesh(lathe(prof, { segs: 96 }), koerperMat, { schatten: false, empfang: false, name: 'wasser' });
+        const flaecheMat = new THREE.MeshPhysicalMaterial({
+            color: '#3f5f68', roughness: 0.035, metalness: 0, specularIntensity: 1, clearcoat: 1, clearcoatRoughness: 0.02,
+            normalMap: T.wellen, normalScale: new THREE.Vector2(0.15, 0.15),
+        });
+        const kreis = new THREE.CircleGeometry(1, 64);
+        kreis.rotateX(-Math.PI / 2);
+        const flaeche = mesh(kreis, flaecheMat, { schatten: false, empfang: false, name: 'wasserflaeche' });
+        const g = new THREE.Group();
+        g.name = 'wasserGruppe';
+        g.add(koerper, flaeche);
+        g.visible = false;
+        return { gruppe: g, koerper, flaeche, ebene, pegel: BOWL_WASSER.boden };
+    }
+
     function shishaBauen() {
         const g = new THREE.Group();
         g.name = 'shisha';
@@ -2361,19 +2492,24 @@
         glasSchatten(bowl, 0.55);
         g.add(bowl);
 
+        // Rauchsäule: Tauchrohr, Manschette, Korpus mit Schlauchanschluss, Säule, Teller, Kopfanschluss. Eigene Gruppe mit
+        // demselben Ursprung wie die Shisha, damit sie sich zum Wassereinfüllen abnehmen lässt.
+        const saeule = new THREE.Group();
+        saeule.name = 'saeule';
+        g.add(saeule);
         // Tauchrohr (im Foto verdeckt, Ende auf ~9,6 cm)
         const tauch = mesh(lathe([[0.66, 9.6, 'c'], [0.82, 9.64], [0.82, 31.8, 'c'], [0.66, 31.8, 'c'], [0.66, 9.6, 'c']], { segs: 40 }), M.stahlMatt);
-        g.add(tauch);
+        saeule.add(tauch);
 
         for (const p of [MANSCHETTE, KORPUS, SAEULE, ANSCHLUSS]) {
-            g.add(mesh(lathe(verfeinern(p, 3), { segs: 128 }), M.stahl));
+            saeule.add(mesh(lathe(verfeinern(p, 3), { segs: 128 }), M.stahl));
         }
         const teller = mesh(lathe(verfeinern(TELLER, 2), { segs: 180 }), M.teller, { name: 'teller' });
-        g.add(teller);
+        saeule.add(teller);
         // O-Ringe unter dem Teller
         for (const h of [58.02, 58.3]) {
             const o = mesh(new THREE.TorusGeometry(1.19 * CM, 0.075 * CM, 10, 48), M.oRing);
-            o.rotation.x = Math.PI / 2; o.position.y = h * CM; g.add(o);
+            o.rotation.x = Math.PI / 2; o.position.y = h * CM; saeule.add(o);
         }
 
         const port = new THREE.Group();
@@ -2383,9 +2519,14 @@
         port.add(dunkel);
         port.position.copy(SHISHA.portBasis);
         port.rotation.z = 50 * Math.PI / 180;
-        g.add(port);
+        saeule.add(port);
+
+        const wasser = wasserBauen();
+        g.add(wasser.gruppe);
 
         g.userData.bowl = bowl;
+        g.userData.saeule = saeule;
+        g.userData.wasser = wasser;
         return g;
     }
 
@@ -2642,6 +2783,7 @@
     ];
     function schlauchAdapterBauen() {
         const g = new THREE.Group();
+        g.name = 'schlauchAdapter';
         g.add(mesh(lathe(SCHLAUCH_ADAPTER, { segs: 56 }), M.stahl));
         for (const s of [0.8, 1.5]) {
             const o = mesh(new THREE.TorusGeometry(0.565 * CM, 0.05 * CM, 8, 40), M.oRing);
@@ -2682,6 +2824,9 @@
             this.kollider = [];
             this.r = SCHLAUCH.ra;
             this.kontakt = new Uint8Array(punkte.length);
+            this.biege = 0.12;           // Biegesteifigkeit (Anteil je Iteration)
+            this.selbst = false;         // Schlauch stößt an sich selbst (Abschnitt gegen Abschnitt)
+            this.haften = 0;             // Haftreibung: unter diesem Weg je Schritt (m) bleibt ein aufliegender Knoten stehen
         }
         schritt(dt, iter = 14) {
             const g = -9.81 * dt * dt;
@@ -2701,9 +2846,16 @@
                 for (let i = 0; i < n - 1; i++) this.abstand(i, i + 1, this.l[i], 1, d);
                 for (let i = 0; i < n - 2; i++) {
                     const starr = this.steif.has(i);
-                    this.abstand(i, i + 2, (this.l[i] + this.l[i + 1]) * (starr ? 1 : 0.985), starr ? 1 : 0.12, d);
+                    this.abstand(i, i + 2, (this.l[i] + this.l[i + 1]) * (starr ? 1 : 0.985), starr ? 1 : this.biege, d);
                 }
+                if (this.selbst && k % 3 === 0) this.selbstKollision();
                 for (let i = 0; i < n; i++) if (!this.fix.has(i) && this.kollision(this.p[i])) this.kontakt[i] = 1;
+            }
+            // Haftreibung: was aufliegt und nur noch kriecht, bleibt liegen
+            if (this.haften) for (let i = 0; i < n; i++) {
+                if (!this.kontakt[i] || this.fix.has(i)) continue;
+                const p = this.p[i], a = this.a[i];
+                if ((p.x - a.x) ** 2 + (p.z - a.z) ** 2 < this.haften * this.haften) { p.x = a.x; p.z = a.z; }
             }
         }
         abstand(i, j, soll, k, d) {
@@ -2716,6 +2868,44 @@
             const wi = fi ? 0 : fj ? 1 : 0.5, wj = fj ? 0 : fi ? 1 : 0.5;
             pi.addScaledVector(d, diff * wi);
             pj.addScaledVector(d, -diff * wj);
+        }
+        // Abschnitte, die sich näher kommen als ein Schlauchdurchmesser, auseinanderschieben (Nachbarn ausgenommen)
+        selbstKollision() {
+            const p = this.p, n = p.length, d = 2 * this.r, lmax = Math.max(...this.l);
+            const grob = (lmax + d) * (lmax + d);
+            for (let i = 0; i < n - 1; i++) {
+                const a0 = p[i], a1 = p[i + 1];
+                const mx = (a0.x + a1.x) / 2, my = (a0.y + a1.y) / 2, mz = (a0.z + a1.z) / 2;
+                for (let j = i + 3; j < n - 1; j++) {
+                    const b0 = p[j], b1 = p[j + 1];
+                    const ex = (b0.x + b1.x) / 2 - mx, ey = (b0.y + b1.y) / 2 - my, ez = (b0.z + b1.z) / 2 - mz;
+                    if (ex * ex + ey * ey + ez * ez > grob) continue;
+                    // nächste Punkte der beiden Strecken
+                    const ux = a1.x - a0.x, uy = a1.y - a0.y, uz = a1.z - a0.z;
+                    const vx = b1.x - b0.x, vy = b1.y - b0.y, vz = b1.z - b0.z;
+                    const wx = a0.x - b0.x, wy = a0.y - b0.y, wz = a0.z - b0.z;
+                    const A = ux * ux + uy * uy + uz * uz, B = ux * vx + uy * vy + uz * vz, C = vx * vx + vy * vy + vz * vz;
+                    const D = ux * wx + uy * wy + uz * wz, E = vx * wx + vy * wy + vz * wz;
+                    const N = A * C - B * B;
+                    let s = N > 1e-12 ? clamp((B * E - C * D) / N, 0, 1) : 0;
+                    let t = C > 1e-12 ? clamp((B * s + E) / C, 0, 1) : 0;
+                    s = A > 1e-12 ? clamp((B * t - D) / A, 0, 1) : 0;
+                    const qx = wx + ux * s - vx * t, qy = wy + uy * s - vy * t, qz = wz + uz * s - vz * t;
+                    const l2 = qx * qx + qy * qy + qz * qz;
+                    if (l2 >= d * d || l2 < 1e-14) continue;
+                    const l = Math.sqrt(l2), k = (d - l) / l;
+                    // auf die vier Enden verteilen, feste Knoten bewegen sich nicht
+                    const w = [[i, 1 - s, 1], [i + 1, s, 1], [j, 1 - t, -1], [j + 1, t, -1]];
+                    let sum = 0;
+                    for (const [m, g] of w) if (!this.fix.has(m)) sum += g * g;
+                    if (sum < 1e-9) continue;
+                    for (const [m, g, sg] of w) {
+                        if (this.fix.has(m)) continue;
+                        const f = sg * k * g / sum * 0.5;
+                        p[m].x += qx * f; p[m].y += qy * f; p[m].z += qz * f;
+                    }
+                }
+            }
         }
         // liefert true, wenn der Punkt auf etwas aufliegt (für die Reibung)
         kollision(p) {
@@ -2913,6 +3103,83 @@
         tabak.visible = false;
         g.add(tabak);
         g.userData = { deckel, folie, lasche, tabak };
+        return g;
+    }
+
+    // ---------------------------------------------------------------------------
+    // Wasserflasche 1,5 l aus PET, ohne Etikett: Petaloid-Boden, vier Griffrillen, Schulter, Hals mit Tragring und
+    // Gewinde, blauer Schraubdeckel mit Riffelrand. Ursprung = Mitte der Standfläche.
+
+    const FLASCHE = { r: 4.5, hoehe: 29.68, mund: 29.68, mundR: 1.08, halsR: 1.4, wand: 0.035, fuell: 1500 };
+    const FLASCHE_DECKEL = { unten: 28.28, oben: 30.36, mitte: 29.32, halb: 1.04 };
+    const FLASCHE_AUSSEN = (() => {
+        const p = [[0, 0.42, 'c'], [0.8, 0.4], [1.6, 0.3], [2.3, 0.14], [2.9, 0.03], [3.3, 0.0], [3.75, 0.08], [4.1, 0.3], [4.35, 0.75],
+            [4.47, 1.3], [4.5, 1.9]];
+        for (const h of [7.6, 9.2, 10.8, 12.4]) p.push([4.5, h - 0.3], [4.4, h - 0.12], [4.26, h], [4.4, h + 0.12], [4.5, h + 0.3]);
+        p.push([4.5, 21.0], [4.46, 21.8], [4.32, 22.6], [4.04, 23.5], [3.62, 24.4], [3.1, 25.3], [2.55, 26.1], [2.04, 26.85], [1.66, 27.45],
+            [1.44, 27.85], [1.4, 28.0, 'c'], [1.8, 28.05, 'c'], [1.82, 28.2], [1.8, 28.33, 'c'], [1.4, 28.38, 'c'], [1.4, 28.6]);
+        for (let k = 0; k < 4; k++) { const h = 28.7 + k * 0.24; p.push([1.48, h], [1.4, h + 0.12]); }
+        p.push([1.4, 29.5], [1.36, 29.62], [1.28, 29.68, 'c'], [FLASCHE.mundR, 29.68, 'c'], [FLASCHE.mundR, 29.1, 'c']);
+        return p;
+    })();
+    // Innenradius auf Höhe h (cm), für Wasserstand und Ausfluss (die Rillen zählen nicht)
+    function flascheInnenR(h) {
+        if (h < 0.45) return 0;
+        if (h > 27.85) return FLASCHE.mundR;
+        let r = 0;
+        for (let i = 1; i < FLASCHE_AUSSEN.length; i++) {
+            const a = FLASCHE_AUSSEN[i - 1], b = FLASCHE_AUSSEN[i];
+            if (b[1] < a[1] || h < a[1] || h > b[1]) continue;
+            r = Math.max(r, lerp(a[0], b[0], (h - a[1]) / Math.max(1e-6, b[1] - a[1])));
+        }
+        if (h > 7.2 && h < 12.8) r = Math.max(r, FLASCHE.r);
+        return Math.max(FLASCHE.mundR, r - FLASCHE.wand);
+    }
+    // Scheiben längs der Achse (Höhe, Radius) für die Wasserrechnung
+    const FLASCHE_SCHEIBEN = (() => {
+        const l = [];
+        for (let h = 0.5; h < FLASCHE.mund - 0.05; h += 0.25) l.push([h + 0.125, flascheInnenR(h + 0.125)]);
+        return l;
+    })();
+
+    function flascheBauen() {
+        const g = new THREE.Group();
+        g.name = 'flasche';
+        const huelle = mesh(lathe(FLASCHE_AUSSEN, { segs: 72, knick: 60 }), M.pet, { name: 'flaschenHuelle' });
+        huelle.renderOrder = 3;
+        huelle.castShadow = false;
+        g.add(huelle);
+        // Wasser: Innenprofil als geschlossener Körper, abgeschnitten an einer waagrechten Ebene (Welt) auf Spiegelhöhe
+        const innen = [[0, 0.46, 'c']];
+        for (let h = 0.46; h <= FLASCHE.mund - 0.12; h += h < 2 ? 0.12 : h > 26 ? 0.2 : 0.5) innen.push([flascheInnenR(h) - 0.005, h]);
+        innen.push([FLASCHE.mundR - 0.01, FLASCHE.mund - 0.1], [0, FLASCHE.mund - 0.1, 'c']);
+        const ebene = new THREE.Plane(new THREE.Vector3(0, -1, 0), 0);
+        const wmat = new THREE.MeshPhysicalMaterial({
+            color: '#cfe3e8', roughness: 0.05, metalness: 0, transparent: true, opacity: 0.32, depthWrite: false,
+            specularIntensity: 1, side: THREE.DoubleSide, clippingPlanes: [ebene],
+        });
+        const wasser = mesh(lathe(innen, { segs: 56 }), wmat, { schatten: false, empfang: false, name: 'flaschenWasser' });
+        wasser.renderOrder = 2;
+        g.add(wasser);
+        // Deckel mit 60 Riffeln am Rand
+        const dp = [[0, 30.36, 'c'], [1.48, 30.36], [1.56, 30.3], [1.6, 30.16, 'c'], [1.6, 28.48, 'c'], [1.55, 28.33], [1.47, 28.28, 'c'], [1.41, 28.32, 'c']];
+        const dg = lathe(dp, { segs: 120 });
+        const pos = dg.attributes.position;
+        for (let i = 0; i < pos.count; i++) {
+            const x = pos.getX(i), y = pos.getY(i) / CM, z = pos.getZ(i), r = Math.hypot(x, z);
+            if (y < 28.6 || y > 30.08 || r < 1.55 * CM) continue;
+            const k = 1 - 0.035 * Math.max(0, Math.cos(Math.atan2(x, z) * 60));
+            pos.setX(i, x * k); pos.setZ(i, z * k);
+        }
+        dg.computeVertexNormals();
+        // Deckel um die eigene Mitte, damit er sich beim Abschrauben um sich selbst dreht
+        dg.translate(0, -FLASCHE_DECKEL.mitte * CM, 0);
+        const deckel = new THREE.Group();
+        deckel.name = 'flaschenDeckel';
+        deckel.add(mesh(dg, M.deckelBlau));
+        deckel.position.y = FLASCHE_DECKEL.mitte * CM;
+        g.add(deckel);
+        g.userData = { huelle, wasser, ebene, deckel };
         return g;
     }
 
@@ -3405,6 +3672,7 @@
         // Schlauch lose aufgerollt, Mundstück daneben
         const pts = schlauchSpiralPunkte();
         schlauchLose = schlauchMesh(pts);
+        schlauchLose.name = 'schlauchLose';
         scene.add(schlauchLose);
         adapterLose = schlauchAdapterBauen();
         const t0 = pts[1].clone().sub(pts[0]).normalize();
@@ -3423,6 +3691,8 @@
         tischObjekte.push(shisha, matte, kopf, dichtung, hmd, dose, karton, fliese, anzuender, zange, schlauchLose, adapterLose, mundstueck, kabel);
         kopfbauAufbauen();
         tischObjekte.push(stecher, tuch);
+        aufbauAufbauen();
+        rauchenAufbauen();
     }
 
     function schlauchSpiralPunkte() {
@@ -3685,7 +3955,7 @@
             case 'dichtung': return dichtung;
             case 'hmd': return hmd;
             case 'mundstueck': return mundstueck;
-            case 'schlauch': return montiert ? schlauchMontiert : schlauchLose;
+            case 'schlauch': return SL.roehre ? SL.roehre.mesh : montiert ? schlauchMontiert : schlauchLose;
             case 'dose': return dose;
             case 'matte': return matte;
             case 'kohle': return spielKohlen.length ? spielKohlen[0].mesh : karton;
@@ -4082,6 +4352,8 @@
         }
         schritt(dt, spiraleT) {
             const T = this.T, dT = this.dT, tu4 = (GLUT.umgebung + 273.15) ** 4;
+            // Zug am Schlauch: mehr Luft facht die Glut an (kühlt außen aber auch etwas mehr)
+            const zug = this.zug || 0;
             for (let i = 0; i < 27; i++) {
                 let q = 0;
                 const ti = T[i];
@@ -4090,9 +4362,9 @@
                 if (this.kontakt[i] > 0) q += GLUT.kontakt * this.kontakt[i] * (spiraleT - ti) * (spiraleT < ti ? 0.2 : 1);
                 const luft = GLUT_LUFT[i] * (1 - 0.55 * this.asche[i]);
                 const glimm = smooth(GLUT.zuend, GLUT.voll, ti) * Math.min(1, this.stoff[i] * 4);
-                q += GLUT.leistung * glimm * luft;
+                q += GLUT.leistung * glimm * luft * (1 + 1.6 * zug);
                 const tk = ti + 273.15;
-                q -= GLUT_LUFT[i] * (GLUT.konv * (ti - GLUT.umgebung) + GLUT.strahl * (tk * tk * tk * tk - tu4));
+                q -= GLUT_LUFT[i] * (GLUT.konv * (ti - GLUT.umgebung) * (1 + 0.5 * zug) + GLUT.strahl * (tk * tk * tk * tk - tu4));
                 dT[i] = q;
             }
             for (let i = 0; i < 27; i++) {
@@ -4320,7 +4592,157 @@
             if (!ton.ctx) return;
             for (let i = 0; i < 24; i++) rauschStoss({ t: Math.random() * 0.55, dauer: 0.008 + Math.random() * 0.025, typ: 'highpass', f: 1800 + Math.random() * 4000, pegel: 0.05 + Math.random() * 0.14 });
         },
+        // Gummimanschette rutscht über den Bowlhals: kurzes Quietschen, beim Lösen ein dumpfer Plopp
+        gummi(staerke = 1) {
+            if (!ton.ctx) return;
+            for (let i = 0; i < 5; i++) rauschStoss({ t: i * 0.035 + Math.random() * 0.02, dauer: 0.03, f: 620 + Math.random() * 380, q: 9, pegel: 0.05 * staerke });
+            sinusTon({ t: 0.2, f: 210, f2: 120, dauer: 0.08, pegel: 0.09 * staerke });
+            rauschStoss({ t: 0.2, dauer: 0.06, typ: 'lowpass', f: 500, pegel: 0.08 * staerke });
+        },
+        // Tauchrohr taucht ins Wasser: Schwall und ein paar Blasen
+        platsch(staerke = 1) {
+            if (!ton.ctx) return;
+            rauschStoss({ dauer: 0.22, typ: 'lowpass', f: 1300, pegel: 0.16 * staerke, an: 0.01 });
+            rauschStoss({ t: 0.02, dauer: 0.12, f: 2600, q: 1.2, pegel: 0.05 * staerke });
+            for (let i = 0; i < 4; i++) { const f = 500 + Math.random() * 700; sinusTon({ t: 0.06 + i * 0.05 + Math.random() * 0.03, f, f2: f * 1.8, dauer: 0.04, pegel: 0.025 * staerke }); }
+        },
+        // PET-Flasche anheben oder abstellen: hohler Stoß, die dünne Wand knistert
+        flasche(staerke = 1) {
+            if (!ton.ctx) return;
+            rauschStoss({ dauer: 0.05, f: 420, q: 2, pegel: 0.16 * staerke });
+            sinusTon({ f: 165, f2: 120, dauer: 0.08, pegel: 0.07 * staerke });
+            for (let i = 0; i < 4; i++) rauschStoss({ t: 0.02 + Math.random() * 0.12, dauer: 0.008 + Math.random() * 0.015, typ: 'highpass', f: 3000 + Math.random() * 3000, pegel: 0.04 * staerke });
+        },
+        // Schraubdeckel aufdrehen: der Sicherungsring bricht Steg für Steg
+        deckelDrehen() {
+            if (!ton.ctx) return;
+            for (let i = 0; i < 9; i++) rauschStoss({ t: 0.04 + i * 0.045 + Math.random() * 0.015, dauer: 0.006, typ: 'highpass', f: 2600 + Math.random() * 900, pegel: 0.07 + Math.random() * 0.05, an: 0.0005 });
+            rauschStoss({ dauer: 0.48, f: 1700, q: 0.8, pegel: 0.018 });
+        },
+        // Silikon schiebt sich auf Edelstahl oder Ton
+        silikon(staerke = 1) {
+            if (!ton.ctx) return;
+            rauschStoss({ dauer: 0.07, f: 1150, q: 5, pegel: 0.045 * staerke });
+            rauschStoss({ t: 0.05, dauer: 0.04, typ: 'lowpass', f: 380, pegel: 0.07 * staerke });
+        },
+        // Schlauchadapter rastet im Anschluss ein
+        einrasten(staerke = 1) {
+            if (!ton.ctx) return;
+            rauschStoss({ dauer: 0.008, typ: 'highpass', f: 2800, pegel: 0.16 * staerke, an: 0.0005 });
+            sinusTon({ f: 2480, dauer: 0.07, pegel: 0.03 * staerke });
+            rauschStoss({ t: 0.004, dauer: 0.04, typ: 'lowpass', f: 700, pegel: 0.08 * staerke });
+        },
+        // eine Blase aus dem Tauchrohr: Eigenton nach Minnaert (Radius in cm), steigt beim Ablösen kurz an
+        blase(rCm = 0.35, staerke = 1) {
+            if (!ton.ctx) return;
+            const f = 3.26 / (rCm * 0.01) * (0.9 + Math.random() * 0.2);
+            sinusTon({ t: Math.random() * 0.02, f, f2: f * (1.25 + Math.random() * 0.3), dauer: 0.035 + rCm * 0.05, pegel: (0.016 + 0.03 * staerke) * (0.7 + Math.random() * 0.6) });
+            if (Math.random() < 0.35) rauschStoss({ t: 0.02 + Math.random() * 0.03, dauer: 0.03, typ: 'lowpass', f: 420, pegel: 0.04 * staerke });
+        },
+        // Ausatmen: Atem durch die Lippen, schwillt an und läuft aus
+        ausatmen(dauer = 1.8, staerke = 1) {
+            if (!ton.ctx) return;
+            const ctx = ton.ctx, t0 = ctx.currentTime + 0.45;
+            const src = ctx.createBufferSource(); src.buffer = ton.rauschen; src.loop = true;
+            const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 900; bp.Q.value = 0.5;
+            const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2400;
+            const g = ctx.createGain(), p = 0.045 * (0.45 + 0.55 * staerke);
+            g.gain.setValueAtTime(0, t0);
+            g.gain.linearRampToValueAtTime(p, t0 + 0.22);
+            g.gain.setValueAtTime(p * 0.85, t0 + dauer * 0.6);
+            g.gain.linearRampToValueAtTime(0, t0 + dauer);
+            bp.frequency.setValueAtTime(950, t0); bp.frequency.linearRampToValueAtTime(640, t0 + dauer);
+            src.connect(bp); bp.connect(lp); lp.connect(g); g.connect(ton.trocken);
+            src.start(t0, Math.random()); src.stop(t0 + dauer + 0.1);
+        },
+        // Edelstahl-HMD auf den Tonrand gesetzt: heller Klang, kurz gedämpft
+        hmd(staerke = 1) {
+            if (!ton.ctx) return;
+            rauschStoss({ dauer: 0.01, typ: 'highpass', f: 2600, pegel: 0.12 * staerke, an: 0.0005 });
+            sinusTon({ f: 1730, dauer: 0.22, pegel: 0.03 * staerke });
+            sinusTon({ f: 2910, dauer: 0.14, pegel: 0.018 * staerke });
+            sinusTon({ f: 4460, dauer: 0.08, pegel: 0.01 * staerke });
+        },
     };
+
+    // Ziehen: Luft zischt leise durch Kopf und Schlauch, im Bowl rumpelt und blubbert es, der Luftraum über dem Wasser
+    // klingt mit (Helmholtz), die Kohlen knistern. Die einzelnen Blasen kommen aus dem Rauchen (geraeusch.blase).
+    function tonZiehen(Q, luftLiter = 0.6) {
+        if (!ton.ctx) return;
+        const ctx = ton.ctx, jetzt = ctx.currentTime;
+        let z = ton.ziehen;
+        if (!z && Q > 0.05) {
+            const neu = (f, typ, q) => {
+                const src = ctx.createBufferSource(); src.buffer = ton.rauschen; src.loop = true; src.playbackRate.value = 0.85 + Math.random() * 0.3;
+                const fl = ctx.createBiquadFilter(); fl.type = typ; fl.frequency.value = f; fl.Q.value = q;
+                const v = ctx.createGain(); v.gain.value = 0;
+                src.connect(fl); fl.connect(v); v.connect(ton.trocken); src.start(jetzt, Math.random());
+                return { src, fl, v };
+            };
+            z = ton.ziehen = { rumpeln: neu(170, 'lowpass', 0.8), hohl: neu(320, 'bandpass', 6), luft: neu(2100, 'bandpass', 0.7), knistern: 0 };
+        }
+        if (!z) return;
+        const st = Math.min(1, Q / 1.6), an = Q > 0.05;
+        const f = 54.6 * Math.sqrt(22.9e-4 / (Math.max(0.06, luftLiter) * 1e-3 * 0.106));
+        const wackeln = 0.75 + 0.25 * Math.sin(jetzt * 31) * Math.sin(jetzt * 7.3);
+        z.rumpeln.v.gain.setTargetAtTime(an ? 0.07 * st * wackeln : 0, jetzt, 0.06);
+        z.hohl.fl.frequency.setTargetAtTime(f, jetzt, 0.1);
+        z.hohl.v.gain.setTargetAtTime(an ? 0.03 * st : 0, jetzt, 0.08);
+        z.luft.v.gain.setTargetAtTime(an ? 0.008 + 0.01 * st : 0, jetzt, 0.1);
+        if (!an) return;
+        z.knistern += st * (0.6 + Math.random()) * 0.12;
+        while (z.knistern > 1) {
+            z.knistern -= 1;
+            rauschStoss({ t: Math.random() * 0.02, dauer: 0.004 + Math.random() * 0.006, typ: 'highpass', f: 3200 + Math.random() * 3000, pegel: 0.025 + Math.random() * 0.035, an: 0.0004 });
+        }
+    }
+
+    // Gießen: Wasser trifft Wasser im Bowl und regt die Luft darüber an (Helmholtz: je voller, desto höher), dazu
+    // Plätschern und Tropfen; daneben klatscht es aufs Holz oder rinnt am Glas. Läuft der Flaschenmund unter Wasser,
+    // gluckert die Luft hinein.
+    function tonGiessen(fluss, pegel = 0, treffer = '', rein = 0) {
+        if (!ton.ctx) return;
+        const ctx = ton.ctx, jetzt = ctx.currentTime;
+        let g = ton.giessen;
+        if (!g && fluss > 0.5) {
+            const neu = (f, typ, q) => {
+                const src = ctx.createBufferSource(); src.buffer = ton.rauschen; src.loop = true; src.playbackRate.value = 0.9 + Math.random() * 0.2;
+                const fl = ctx.createBiquadFilter(); fl.type = typ; fl.frequency.value = f; fl.Q.value = q;
+                const v = ctx.createGain(); v.gain.value = 0;
+                src.connect(fl); fl.connect(v); v.connect(ton.trocken); src.start(jetzt, Math.random());
+                return { src, fl, v };
+            };
+            g = ton.giessen = { hohl: neu(260, 'bandpass', 9), rausch: neu(2400, 'bandpass', 0.7), tropfen: 0, glucks: 0 };
+        }
+        if (!g) return;
+        const an = fluss > 0.5;
+        const imBowl = treffer === 'bowl' ? rein : 0;
+        // Luftraum zwischen Wasser und Hals (cm³), Hals Ø 5,4 cm, 6 cm lang plus Mündungskorrektur
+        const luft = Math.max(60, bowlVolumen(22.6) - bowlVolumen(pegel));
+        const f = 54.6 * Math.sqrt(22.9e-4 / (luft * 1e-6 * 0.106));
+        const st = Math.min(1, fluss / 70);
+        g.hohl.fl.frequency.setTargetAtTime(f, jetzt, 0.05);
+        g.hohl.v.gain.setTargetAtTime(an ? 0.06 * st * imBowl : 0, jetzt, 0.05);
+        g.rausch.fl.frequency.setTargetAtTime(treffer === 'tisch' ? 1500 : treffer === 'glas' ? 3400 : 2200 + f, jetzt, 0.08);
+        g.rausch.v.gain.setTargetAtTime(an ? 0.02 + 0.035 * st : 0, jetzt, 0.05);
+        if (!an) return;
+        // einzelne Tropfen und Blasen
+        g.tropfen += fluss * 0.0009 * (0.6 + Math.random());
+        while (g.tropfen > 1) {
+            g.tropfen -= 1;
+            const fr = (treffer === 'bowl' ? f * 2.5 : 900) * (0.7 + Math.random() * 0.8);
+            sinusTon({ t: Math.random() * 0.02, f: fr, f2: fr * (1.3 + Math.random() * 0.5), dauer: 0.025 + Math.random() * 0.03, pegel: 0.012 + Math.random() * 0.012 });
+        }
+        // Glucksen: die Luftblase schnappt in den Flaschenhals
+        if (FL.glucks > 0) {
+            const k = Math.floor(FL.glucks);
+            if (k !== g.glucks) {
+                g.glucks = k;
+                sinusTon({ f: 150 + Math.random() * 40, f2: 280 + Math.random() * 60, dauer: 0.07, pegel: 0.06 });
+                rauschStoss({ dauer: 0.05, typ: 'lowpass', f: 600, pegel: 0.05 });
+            }
+        }
+    }
 
     // laufende Geräusche, einmal pro Frame. Spirale und Glut sind in echt stumm, deshalb nur die Folie.
     function tonFrame(dt, z) {
@@ -4363,10 +4785,10 @@
         { kurz: 'Aufbau', titel: 'Zusammenbauen', etappe: 4 },
         { kurz: 'Hitze', titel: 'HMD und Kohlen', etappe: 4 },
         { kurz: 'Rauchen', titel: 'Anrauchen', etappe: 5 },
-        { kurz: 'Ringe', titel: 'Ausblasen und Ringe', etappe: 5 },
-        { kurz: 'Session', titel: 'Kohle abklopfen', etappe: 5 },
+        { kurz: 'Ringe', titel: 'Ausblasen und Ringe', etappe: 6 },
+        { kurz: 'Session', titel: 'Kohle abklopfen', etappe: 6 },
     ];
-    const ETAPPE = 3;
+    const ETAPPE = 5;
 
     const spiel = {
         laeuft: false,
@@ -4406,6 +4828,7 @@
     }
 
     function tempoSetzen(t) {
+        if (t > 1 && RA.inHand) { meldung('Mit dem Mundstück am Mund läuft die Zeit normal.', 2, 'tempo'); t = 1; }
         spiel.tempo = t;
         document.querySelectorAll('#tempo button').forEach((b) => b.classList.toggle('an', +b.dataset.t === t));
     }
@@ -4425,10 +4848,12 @@
             b.className = [phaseOffen(i) ? 'offen' : 'zu', spiel.fertig.has(i) ? 'fertig' : '', spiel.ansicht === i ? 'aktiv' : ''].join(' ');
             b.title = phaseOffen(i) ? p.titel : `${p.titel} – kommt in Etappe ${p.etappe}`;
             if (phaseOffen(i)) b.addEventListener('click', () => {
-                const erstmals = i === 2 && !KB.gesehen;
+                const erstmals = i === 2 ? !KB.gesehen : i >= 3 && i <= 5 ? !AB.gesehen[i - 3] : i === 6 ? !RA.gesehen : false;
                 if (i === 2) KB.gesehen = true;
+                if (i >= 3 && i <= 5) AB.gesehen[i - 3] = true;
+                if (i === 6) RA.gesehen = true;
                 spiel.ansicht = i; phasenLeiste(); karteZeichnen();
-                if (erstmals) fliegeZu(...SPIEL_BLICK[2]);
+                if (erstmals && SPIEL_BLICK[i]) fliegeZu(...(i === 6 ? SPIEL_BLICK[5] : SPIEL_BLICK[i]));
             });
             el.appendChild(b);
         });
@@ -4508,6 +4933,18 @@
         } else if (i === 2) {
             text = 'Erst die Molasse vom Dosenboden unterrühren, dann den klebrigen Tabak mit der Gabel am Rand in den Kopf abstreifen und mit der Spitze locker zurechtrücken.';
             schritte = schritteKopf(); tipp = tippKopf();
+        } else if (i === 3) {
+            text = 'Rauchsäule abnehmen und den Bowl aus der Flasche füllen, bis das Tauchrohr 2–3 cm im Wasser steht. Der Hals ist eng: langsam kippen.';
+            schritte = schritteWasser(); tipp = tippWasser();
+        } else if (i === 4) {
+            text = 'Säule rein, Schlauch und Mundstück dran, Kopfdichtung auf, dann den fertigen Kopf aufsetzen. Was nicht dicht sitzt, zieht Nebenluft.';
+            schritte = schritteAufbau(); tipp = tippAufbau();
+        } else if (i === 5) {
+            text = 'HMD auf den Kopf, dann mit der Zange drei durchgeglühte Kohlen hinein: flach am Rand verteilt für volle Hitze, schräg an die Wand gelehnt für weniger.';
+            schritte = schritteHitze(); tipp = tippHitze();
+        } else if (i === 6) {
+            text = 'Den Kopf unter dem HMD vorheizen lassen, dann am Mundstück ruhig ziehen und ausatmen, bis dichter Rauch kommt. Wer zu kräftig zieht, lässt die Kohle aufflammen und verbrennt den Tabak.';
+            schritte = schritteRauchen(); tipp = tippRauchen();
         }
         $('#karte p').textContent = text;
         ol.innerHTML = '';
@@ -4515,6 +4952,7 @@
             const li = document.createElement('li');
             li.className = s.ok ? 'ok' : (s.jetzt ? 'jetzt' : '');
             li.textContent = s.text;
+            if (s.wahl) { const w = document.createElement('span'); w.className = 'wahl'; w.textContent = ' (optional)'; li.appendChild(w); }
             if (s.sub) { const sm = document.createElement('small'); sm.textContent = s.sub; li.appendChild(sm); }
             ol.appendChild(li);
         }
@@ -4526,10 +4964,20 @@
         let andere = -1, label = '';
         if (i === 0 && !spiel.fertig.has(1) && spiel.anzuender.an && kohlenAufSpirale().length >= 3) { andere = 1; label = 'Inzwischen: Dose öffnen →'; }
         else if (i !== 2 && spiel.fertig.has(1) && !spiel.fertig.has(2)) { andere = 2; label = i === 0 ? 'Inzwischen: Kopf bauen →' : 'Weiter: Kopf bauen →'; }
+        else if (i !== 3 && spiel.fertig.has(2) && !spiel.fertig.has(3)) { andere = 3; label = i === 0 ? 'Inzwischen: Wasser einfüllen →' : 'Weiter: Wasser einfüllen →'; }
+        else if (i !== 4 && spiel.fertig.has(3) && !spiel.fertig.has(4)) { andere = 4; label = 'Weiter: Zusammenbauen →'; }
+        else if (i !== 5 && spiel.fertig.has(4) && !spiel.fertig.has(5) && spiel.fertig.has(0)) { andere = 5; label = 'Weiter: HMD und Kohlen →'; }
+        else if (i !== 6 && spiel.fertig.has(5) && !spiel.fertig.has(6)) { andere = 6; label = 'Weiter: Anrauchen →'; }
         else if (i !== 0 && !spiel.fertig.has(0)) { andere = 0; label = 'Zurück zur Kohle →'; }
         w.style.display = andere >= 0 ? '' : 'none';
         w.textContent = label;
-        w.onclick = () => { spiel.ansicht = andere; phasenLeiste(); karteZeichnen(); fliegeZu(...SPIEL_BLICK[andere]); };
+        w.onclick = () => {
+            if (andere >= 3 && andere <= 5) AB.gesehen[andere - 3] = true;
+            if (andere === 6) RA.gesehen = true;
+            spiel.ansicht = andere; phasenLeiste(); karteZeichnen();
+            // fürs Anrauchen erst einmal auf den Kopf schauen, gesessen wird mit dem Mundstück
+            fliegeZu(...(andere === 6 ? SPIEL_BLICK[5] : SPIEL_BLICK[andere]));
+        };
         kopfPanelZeichnen();
     }
 
@@ -4552,12 +5000,16 @@
         const sg = smooth(450, 900, a.T);
         const takt = a.stufe > 0 ? (a.heizt ? ' · heizt' : ' · Pause') : '';
         html += `<div class="kohleAnz spirale"><span class="punkt" style="background:${netzFarbe(sg, 0)}"></span><div><b>Spirale</b><small>${a.stufe ? 'Stufe ' + a.stufe : 'OFF'} · ${Math.round(a.T)} °C${takt}</small></div></div>`;
+        if (AB.hmd === 'drauf' || hmdKohlen().length) {
+            const hg = smooth(80, 420, AB.hmdT);
+            html += `<div class="kohleAnz spirale"><span class="punkt" style="background:${netzFarbe(hg * 0.55, 0)}"></span><div><b>HMD</b><small>${Math.round(AB.hmdT)} °C · Kopf ${Math.round(AB.kopfT)} °C</small></div></div>`;
+        }
         liste.forEach((k, n) => {
             const f = k.weltSeiten();
             const zellen = [null, f.oben, null, null, f.links, f.vorne, f.rechts, f.hinten, null, f.unten, null, null];
             const netz = zellen.map((z) => z ? `<i style="background:${netzFarbe(z.glut, z.asche)}"></i>` : '<i class="leer"></i>').join('');
             const b = k.kern.bewertung();
-            let ort = { spirale: 'Rost', zange: 'in der Zange', fliese: 'Fliese' }[k.ort] || '';
+            let ort = { spirale: 'Rost', zange: 'in der Zange', fliese: 'Fliese', hmd: k.schraeg ? 'im HMD, schräg' : 'im HMD' }[k.ort] || '';
             if (k.ort === 'spirale' && k.deckung < 0.45) ort = 'liegt schlecht auf';
             html += `<div class="kohleAnz"><div class="netz">${netz}</div><div><b>Kohle ${n + 1}</b><small>${ort} · Glut ${Math.round(b.mittel * 100)} %</small>`
                 + `<div class="balken"><i style="width:${Math.round(b.min * 100)}%"></i></div><small>Asche ${Math.round(b.asche * 100)} %</small></div></div>`;
@@ -4573,6 +5025,7 @@
         for (const k of auf) {
             const b = k.kern.bewertung();
             k.durch = b.min >= 0.6 && b.asche >= 0.1;
+            if (k.durch) k.warDurch = true;
         }
         if (spiel.fertig.has(0) || auf.length < 3 || !auf.every((k) => k.durch)) return;
         let wert = 100;
@@ -4586,6 +5039,20 @@
         const gleich = Math.min(...auf.map((k) => k.kern.bewertung().min));
         if (gleich > 0.72) notizen.push('gleichmäßig durchgeglüht');
         phaseAbschliessen(0, clamp(wert, 30, 100), notizen);
+    }
+
+    // Kohlen wandern in den HMD, bevor Phase 1 von selbst fertig war: dann zählt, wie weit sie waren
+    function kohlePhaseNachtragen() {
+        if (spiel.fertig.has(0)) return;
+        const ks = spielKohlen.filter((k) => k.ort === 'hmd');
+        let wert = 100;
+        const notizen = [];
+        const roh = ks.filter((k) => !k.durchBeimAuflegen).length;
+        if (roh) { wert -= 15 * roh; notizen.push(`${roh} Kohle${roh > 1 ? 'n' : ''} vor dem Durchglühen vom Rost genommen`); }
+        const nichtGewendet = ks.filter((k) => !k.gutGewendet).length;
+        if (nichtGewendet) { wert -= 10 * nichtGewendet; notizen.push(`${nichtGewendet} nicht gewendet`); }
+        if (!roh && !nichtGewendet) notizen.push('durchgeglüht');
+        phaseAbschliessen(0, clamp(wert, 20, 100), notizen);
     }
 
     function phaseAbschliessen(i, wert, notizen) {
@@ -4607,12 +5074,17 @@
         const anz = spiel.punkte.filter(Boolean).length;
         const k = spiel.kopf;
         const kopfZeile = k ? `<p>Gebaut: <b>${SETUPS[k.setup].name}</b> (${hoeheText(k.hoeheMm)}), Ziel war ${SETUPS[k.ziel].name}.</p>` : '';
-        el.querySelector('.inhalt').innerHTML = `<h2>Kohle glüht, Kopf ist gebaut</h2>
+        const hmdZeile = `<p>Wasser: Tauchrohr ${zahl(tauchTiefe())} cm eingetaucht · HMD ${Math.round(AB.hmdT)} °C${hmdKohlen().some((x) => x.schraeg) ? ', Kohlen teils schräg' : ''}.</p>`;
+        const zz = RA.zuege;
+        const rauchZeile = zz.length ? `<p>Angeraucht mit ${zz.length} ${zz.length === 1 ? 'Zug' : 'Zügen'} (${zz.map((z) => z.klasse).join(', ')}) · Tabak oben bis ${Math.round(RA.tMax)} °C.</p>` : '';
+        el.querySelector('.inhalt').innerHTML = `<h2>Angeraucht</h2>
     <p>Zwischenstand für den Köpfchen-Score nach ${mmss(spiel.zeit)} Spielzeit.</p>
     ${kopfZeile}
+    ${hmdZeile}
+    ${rauchZeile}
     <table>${zeilen}</table>
     <div class="summe">Ø ${Math.round(summe / Math.max(1, anz))} Punkte</div>
-    <p class="klein">Etappe 4 bringt Wasser, Aufbau und HMD. Die Kohlen glühen so lange weiter auf dem Anzünder.</p>`;
+    <p class="klein">Etappe 6 bringt Ausblasen und Ringe und das Abklopfen der Kohle. Bis dahin glüht die Kohle weiter.</p>`;
         el.classList.add('da');
     }
 
@@ -4623,6 +5095,11 @@
         [new THREE.Vector3(0.36, TISCH_Y + 0.045, 0.03), new THREE.Vector3(0.2, 0.84, 0.6), 36, 1.6],
         [new THREE.Vector3(0.2, TISCH_Y + 0.07, 0.11), new THREE.Vector3(0.11, 0.75, 0.47), 36, 1.4],
         [new THREE.Vector3(0.08, TISCH_Y + 0.06, 0.13), new THREE.Vector3(0.08, TISCH_Y + 0.38, 0.4), 36, 1.2],
+        [new THREE.Vector3(-0.31, TISCH_Y + 0.22, -0.1), new THREE.Vector3(-0.05, TISCH_Y + 0.56, 0.5), 36, 1.3],
+        [new THREE.Vector3(-0.15, TISCH_Y + 0.33, 0.06), new THREE.Vector3(0.2, TISCH_Y + 0.75, 1.27), 36, 1.3],
+        [new THREE.Vector3(-0.02, TISCH_Y + 0.4, -0.02), new THREE.Vector3(0.15, TISCH_Y + 1.2, 1.0), 36, 1.3],
+        // gesessen vor dem Tisch, Augen gut 1,1 m hoch: Kopf, Säule und Bowl im Blick
+        [new THREE.Vector3(-0.36, TISCH_Y + 0.46, -0.12), new THREE.Vector3(-0.18, TISCH_Y + 0.73, 0.86), 44, 1.3],
     ];
 
     function spielStart() {
@@ -4653,6 +5130,8 @@
         handFrame(dt);
         doseFrame(dt);
         kopfbauFrame(dt);
+        aufbauFrame(dt);
+        rauchenFrame(dt);
         kohlePhasePruefen();
         // Hinweise zur rechten Zeit
         const auf = kohlenAufSpirale();
@@ -4678,13 +5157,13 @@
     // ---------------------------------------------------------------------------
     // Zeiger, Hervorhebung, Zange, Kohlen auf dem Anzünder
 
-    const zeiger = { ndc: new THREE.Vector2(), x: 0, y: 0, drin: false, unten: null, ziehen: null, shift: false, kohleDruck: null, kopfbau: false };
+    const zeiger = { ndc: new THREE.Vector2(), x: 0, y: 0, drin: false, unten: null, ziehen: null, shift: false, kohleDruck: null, kopfbau: false, flasche: false, rauchen: false };
     const strahl = new THREE.Raycaster();
     const OBEN = new THREE.Vector3(0, 1, 0);
     const _v = new THREE.Vector3(), _v2 = new THREE.Vector3(), _q = new THREE.Quaternion(), _m = new THREE.Matrix4();
     let tischEbene, hand, glutLicht;
     const H = {
-        inHand: false, kohle: null, ablauf: null, danach: null, ziel: null, treffer: null,
+        inHand: false, kohle: null, ablauf: null, danach: null, ziel: null, treffer: null, schraeg: false,
         zielPos: new THREE.Vector3(), zielQ: new THREE.Quaternion(), geführt: false,
         leuchtZiel: null, leuchtListe: [], ruhe: null,
     };
@@ -4741,7 +5220,13 @@
         }
         sync(zeit) {
             const u = this.mesh.material.userData.u;
-            for (let i = 0; i < 27; i++) { u.uKg.value[i] = this.kern.glut(i); u.uKa.value[i] = this.kern.asche[i]; }
+            // beim Ziehen leuchtet die Glut sofort heller auf
+            const z = this.kern.zug || 0;
+            for (let i = 0; i < 27; i++) {
+                const g = this.kern.glut(i);
+                u.uKg.value[i] = z > 0 ? Math.min(1, g * (1 + 0.45 * z) + (g > 0.05 ? 0.05 * z : 0)) : g;
+                u.uKa.value[i] = this.kern.asche[i];
+            }
             u.uZeit.value = zeit;
         }
     }
@@ -4776,7 +5261,7 @@
         H.leuchtZiel = obj;
         if (!obj) return;
         const meshes = [];
-        obj.traverse((o) => { if (o.isMesh && !o.isInstancedMesh && o.material !== leuchtMat) meshes.push(o); });
+        obj.traverse((o) => { if (o.isMesh && !o.isInstancedMesh && o.material !== leuchtMat && !(o.material.clippingPlanes && o.material.clippingPlanes.length)) meshes.push(o); });
         for (const o of meshes) {
             const m = new THREE.Mesh(o.geometry, leuchtMat);
             m.raycast = () => {};
@@ -4818,6 +5303,21 @@
             zeiger.unten = [e.clientX, e.clientY];
             zeiger.shift = e.shiftKey;
             zeiger.ndc.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+            // Mundstück am Mund: gedrückt halten zieht
+            if (RA.inHand) {
+                if (rauchenDruck(e)) zeiger.rauchen = true;
+                zeiger.unten = null;
+                e.stopPropagation();
+                el.setPointerCapture(e.pointerId);
+                return;
+            }
+            // Flasche in der Hand: Drücken und nach oben ziehen kippt sie
+            if (FL.inHand && flascheDruck(e)) {
+                zeiger.flasche = true; zeiger.unten = null;
+                e.stopPropagation();
+                el.setPointerCapture(e.pointerId);
+                return;
+            }
             // Stecher oder Küchenpapier in der Hand: Drücken arbeitet, statt die Kamera zu drehen
             if ((W.inHand || TU.inHand) && kopfbauDruck(e)) {
                 zeiger.kopfbau = true; zeiger.unten = null;
@@ -4839,6 +5339,8 @@
             }
         }, true);
         addEventListener('pointermove', (e) => {
+            if (zeiger.rauchen) rauchenZiehen(e);
+            if (zeiger.flasche) flascheZiehen(e);
             if (zeiger.ziehen) doseZiehen(e);
             const kd = zeiger.kohleDruck;
             if (kd && !kd.los && Math.hypot(e.clientX - kd.x0, e.clientY - kd.y0) > 6) {
@@ -4847,6 +5349,8 @@
             }
         });
         addEventListener('pointerup', (e) => {
+            if (zeiger.rauchen) { zeiger.rauchen = false; zeiger.unten = null; rauchenLoslassen(); return; }
+            if (zeiger.flasche) { zeiger.flasche = false; zeiger.unten = null; flascheLoslassen(); return; }
             if (zeiger.kopfbau) { zeiger.kopfbau = false; zeiger.unten = null; kopfbauLoslassen(); return; }
             if (zeiger.ziehen) { zeiger.ziehen = false; doseLoslassen(e); zeiger.unten = null; return; }
             const kd = zeiger.kohleDruck;
@@ -4869,20 +5373,26 @@
         });
         addEventListener('keydown', (e) => {
             if (e.target && e.target.tagName === 'INPUT') return;
+            if (e.key === ' ' && RA.inHand) { e.preventDefault(); if (!e.repeat) rauchenTaste(true); return; }
             if (e.key === 'Escape') {
-                if (W.inHand) stecherAblegen();
+                if (RA.inHand) mundstueckAblegen();
+                else if (FL.inHand) flascheAbstellen();
+                else if (W.inHand) stecherAblegen();
                 else if (TU.inHand) tuchAblegen();
                 else if (H.inHand && !H.ablauf) zangeHinlegen(null);
             }
             if ((e.key === 'f' || e.key === 'F') && W.inHand) stecherDrehen();
+            // R: Kohle schräg (hochkant an die HMD-Wand gelehnt) oder flach ablegen
+            if ((e.key === 'r' || e.key === 'R') && H.kohle) { H.schraeg = !H.schraeg; meldung(H.schraeg ? 'Kohle wird schräg an die Wand gelehnt.' : 'Kohle wird flach gelegt.', 1.8, 'schraeg'); }
             // Q/E halten: Gabel um die eigene Achse drehen, damit der Tabak zum Ausstreichen nach unten kommt
             if ((e.key === 'q' || e.key === 'Q') && W.inHand) W.rollTaste = -1;
             if ((e.key === 'e' || e.key === 'E') && W.inHand) W.rollTaste = 1;
         });
         addEventListener('keyup', (e) => {
             if ('qQeE'.includes(e.key)) W.rollTaste = 0;
+            if (e.key === ' ' && (RA.inHand || RA.taste)) { e.preventDefault(); rauchenTaste(false); }
         });
-        addEventListener('blur', () => { W.rollTaste = 0; });
+        addEventListener('blur', () => { W.rollTaste = 0; rauchenTaste(false); });
         // Mausrad über dem Regler dreht ihn eine Raste weiter, statt zu zoomen
         let radSumme = 0, radZeit = 0;
         addEventListener('wheel', (e) => {
@@ -4919,6 +5429,8 @@
         if (istIn(o, anzuender.userData.knopf)) return { art: 'knopf', obj: anzuender.userData.dreh };
         if (stecher && istIn(o, stecher)) return { art: 'stecher', obj: stecher };
         if (tuch && istIn(o, tuch)) return { art: 'tuch', obj: tuch };
+        const az = aufbauZuordnen(o);
+        if (az) return az;
         if (istIn(o, anzuender)) return { art: 'anzuender', obj: anzuender.userData.spirale };
         if (istIn(o, zange)) return { art: 'zange', obj: zange };
         if (istIn(o, karton)) return { art: 'karton', obj: karton };
@@ -4952,8 +5464,11 @@
             return { tipp: `Regler ${stufeName(st)} → ${stufeName(ziel)}` + (runter ? '' : ' · Umschalt+Klick: zurück · Mausrad dreht'), tun: () => knopfDrehen(runter ? -1 : 1) };
         }
         if (H.ablauf) return null;
+        const ra = rauchenAktion(z);
+        if (ra) return ra;
         if (z.art === 'stecher' || z.art === 'tuch') {
             if (H.kohle) return { tipp: 'Erst die Kohle ablegen', tun: null };
+            if (AB.kopf !== 'matte') return { tipp: 'Der Kopf sitzt schon auf der Shisha', tun: null };
             if (z.art === 'tuch') return { tipp: 'Küchenpapier nehmen', tun: tuchNehmen };
             return spiel.fertig.has(1) ? { tipp: 'Stecher nehmen (Gabel und Spitze)', tun: stecherNehmen } : { tipp: 'Stecher: erst die Dose öffnen', tun: null };
         }
@@ -4961,12 +5476,22 @@
         const platz = kohlenAufSpirale().length + spielKohlen.filter((k) => k.ort === 'zange').length < 3;
         const dz = doseAktion(z);
         if (dz) return dz;
+        if (!H.kohle) {
+            const aa = aufbauAktion(z);
+            if (aa) return aa;
+        }
         if (!H.inHand) {
             if (z.art === 'zange') return { tipp: 'Zange nehmen', tun: zangeNehmen };
             if (z.art === 'kartonKohle' || z.art === 'kohle') return { tipp: 'Kohle nur mit der Zange anfassen', tun: null };
             return null;
         }
         if (H.kohle) {
+            if (z.art === 'hmd' || (z.art === 'kohle' && z.kohle.ort === 'hmd') || (z.art === 'kopf' && AB.hmd === 'drauf')) {
+                if (AB.hmd !== 'drauf') return { tipp: 'Erst den HMD auf den Kopf setzen', tun: null };
+                if (hmdKohlen().length >= 3) return { tipp: 'Im HMD liegen schon drei Kohlen', tun: null };
+                if (hmdKohlen().length === 2 && hmdKohlen().some((x) => x.schraeg)) return { tipp: 'Neben der schrägen Kohle ist kein Platz mehr', tun: null };
+                return { tipp: H.schraeg ? 'Schräg an die Wand lehnen · R: flach' : 'In den HMD legen · R: schräg anlehnen', tun: () => kohleAblegen('hmd', z.punkt) };
+            }
             if (z.art === 'anzuender' || (z.art === 'kohle' && z.kohle.ort === 'spirale')) {
                 if (kohlenAufSpirale().length >= 3) return { tipp: 'Auf dem Rost ist kein Platz mehr', tun: null };
                 return { tipp: 'Auf den Rost legen', tun: () => kohleAblegen('spirale', z.punkt) };
@@ -4984,6 +5509,11 @@
             return { tipp: 'Kohle greifen', tun: () => kohleGreifen(z.obj, true) };
         }
         if (z.art === 'kohle') {
+            // sind die Kohlen durch, geht es ans Umsetzen in den HMD: Klick nimmt auf, Umschalt+Klick wendet noch
+            if (spiel.fertig.has(0) && z.kohle.ort === 'spirale') {
+                if (zeiger.shift) return { tipp: 'Kohle wenden', tun: () => kohleWenden(z.kohle) };
+                return { tipp: 'Kohle aufnehmen · Umschalt+Klick: wenden', tun: () => kohleGreifen(z.kohle.mesh, false) };
+            }
             if (zeiger.shift || z.kohle.ort !== 'spirale') return { tipp: 'Kohle aufnehmen', tun: () => kohleGreifen(z.kohle.mesh, false) };
             return { tipp: 'Klick: wenden · Ziehen: umsetzen', tun: () => kohleWenden(z.kohle) };
         }
@@ -4993,6 +5523,8 @@
 
     function klick() {
         if (!spiel.laeuft || studio.an) return;
+        if (RA.inHand) return;
+        if (FL.inHand) { flascheAbstellen(); return; }
         const z = zielBestimmen();
         const a = aktionFuer(z);
         if (a && a.tun) a.tun();
@@ -5044,10 +5576,10 @@
     function handFrame(dt) {
         ablaufFrame(dt);
         // Ziel unter dem Zeiger
-        const kb = W.inHand || TU.inHand;
+        const kb = W.inHand || TU.inHand || FL.inHand || RA.inHand;
         const z = zeiger.drin && !zeiger.ziehen && !studio.an && !kb ? zielBestimmen() : null;
         H.treffer = z;
-        const a = !zeiger.ziehen ? (kb ? kopfbauTipp() : aktionFuer(z)) : null;
+        const a = !zeiger.ziehen ? (RA.inHand ? rauchenTipp() : FL.inHand ? flascheTipp() : kb ? kopfbauTipp() : aktionFuer(z)) : null;
         const tipp = $('#tipp');
         if (a && zeiger.drin && !studio.an) {
             tipp.textContent = a.tipp;
@@ -5056,7 +5588,7 @@
             tipp.classList.toggle('nein', !a.tun);
         } else tipp.style.display = 'none';
         const zeigeAuf = a && a.tun && z ? (z.art === 'deckel' || z.art === 'lasche' || z.art === 'folie' || (z.art === 'kohle' && !H.kohle) ? 'grab' : 'pointer') : '';
-        if (!zeiger.ziehen) renderer.domElement.style.cursor = kb ? 'crosshair' : zeiger.kohleDruck ? 'grabbing' : zeigeAuf;
+        if (!zeiger.ziehen) renderer.domElement.style.cursor = RA.inHand ? 'default' : FL.inHand ? (FL.druck ? 'grabbing' : 'grab') : kb ? 'crosshair' : zeiger.kohleDruck ? 'grabbing' : zeigeAuf;
         leuchten(kb ? null : a && a.tun && z.obj && !(H.inHand && (z.art === 'tisch')) ? z.obj : (!H.inHand ? doseHinweis() : null));
         leuchtMat.uniforms.uStaerke.value = 0.5 + 0.18 * Math.sin(performance.now() * 0.006);
 
@@ -5080,6 +5612,7 @@
     function zangeNehmen() {
         if (W.inHand) stecherAblegen();
         if (TU.inHand) tuchAblegen();
+        if (FL.inHand) flascheAbstellen();
         const { koerper } = zange.userData;
         koerper.updateMatrixWorld(true);
         koerper.matrixWorld.decompose(hand.position, hand.quaternion, _v);
@@ -5213,6 +5746,7 @@
                     }
                     zange.userData.koerper.attach(k.mesh);
                     k.ort = 'zange';
+                    k.unterwegs = 0;
                     k.kern.auflegen(-1, 0, 0);
                     H.kohle = k;
                 },
@@ -5292,35 +5826,50 @@
 
     function kohleAblegen(wo, punkt) {
         const k = H.kohle;
-        let zielWelt;
-        if (wo === 'spirale') zielWelt = anzuender.localToWorld(platzAufSpirale(punkt, k));
+        let zielWelt, lage = null;
+        if (wo === 'hmd') {
+            // im HMD: Ruhelage aus Boden, Lochkranz und Wand; schräg lehnt sie hochkant an der Wand
+            lage = hmdKohleLage(punkt, k, H.schraeg);
+            if (!lage) { meldung(H.schraeg ? 'Schräg angelehnt passt sie nicht mehr hinein: R legt sie flach.' : 'Da ist kein Platz mehr: mit Abstand zu den anderen Kohlen ablegen.', 3); return; }
+            hmd.updateMatrixWorld(true);
+            zielWelt = hmd.localToWorld(lage.p.clone());
+        } else if (wo === 'spirale') zielWelt = anzuender.localToWorld(platzAufSpirale(punkt, k));
         else zielWelt = new THREE.Vector3(punkt.x, fliese.position.y + 0.005 + KOHLE_HALB, punkt.z);
         const ruhe = zangeRuhSpalt();
         const qEnd = new THREE.Quaternion();
+        // in den HMD von oben hinein (die Wand ist 3,3 cm hoch)
+        const anflug = wo === 'hmd' ? 4.2 : 1.4;
         ablauf([
-            zuGreifpunkt(zielWelt.clone().add(new THREE.Vector3(0, 1.4 * CM, 0)), 0.24),
-            zuGreifpunkt(zielWelt.clone().add(new THREE.Vector3(0, 0.12 * CM, 0)), 0.14),
+            zuGreifpunkt(zielWelt.clone().add(new THREE.Vector3(0, anflug * CM, 0)), wo === 'hmd' ? 0.3 : 0.24),
+            zuGreifpunkt(zielWelt.clone().add(new THREE.Vector3(0, 0.12 * CM, 0)), wo === 'hmd' ? 0.2 : 0.14),
             (() => {
                 const p0 = new THREE.Vector3(), q0 = new THREE.Quaternion();
+                // für die dritte Kohle schiebt die Zange die beiden anderen zusammen
+                const schub = lage ? lage.schieben.map((sc) => ({ sc, p0: sc.k.mesh.position.clone(), q0: sc.k.mesh.quaternion.clone() })) : [];
                 return {
-                    dauer: 0.12,
+                    dauer: schub.length ? 0.4 : wo === 'hmd' && H.schraeg ? 0.2 : 0.12,
                     start: () => {
                         scene.attach(k.mesh);
                         p0.copy(k.mesh.position); q0.copy(k.mesh.quaternion);
-                        qEnd.copy(aufrichten(q0.clone()));
+                        if (lage) qEnd.copy(hmd.getWorldQuaternion(new THREE.Quaternion()).multiply(lage.q));
+                        else qEnd.copy(aufrichten(q0.clone()));
+                        for (const b of schub) { b.p0.copy(b.sc.k.mesh.position); b.q0.copy(b.sc.k.mesh.quaternion); }
+                        if (schub.length) geraeusch.klack(0.35, false);
                     },
                     lauf: (t) => {
                         zangeSpalt(zange, lerp(2.62, ruhe, t));
                         k.mesh.position.lerpVectors(p0, zielWelt, t);
                         k.mesh.quaternion.slerpQuaternions(q0, qEnd, t);
+                        for (const b of schub) { b.sc.k.mesh.position.lerpVectors(b.p0, b.sc.p, t); b.sc.k.mesh.quaternion.slerpQuaternions(b.q0, b.sc.q, t); }
                     },
                     ende: () => {
                         H.kohle = null;
                         k.ort = wo;
                         k.mesh.updateMatrixWorld(true);
                         if (wo === 'spirale') { k.deckung = deckungAufSpirale(k); k.aufgelegt(k.deckung); if (k.deckung < 0.45) meldung('Die Kohle liegt kaum über der Heizspirale. Mit der Zange anfassen und weiter nach innen ziehen.', 4); }
+                        else if (wo === 'hmd') kohleImHmd(k, lage);
                         else k.kern.auflegen(-1, 0, 0);
-                        geraeusch.klack(0.8, wo === 'spirale');
+                        geraeusch.klack(0.8, wo !== 'fliese');
                         if (wo === 'spirale' && kohlenAufSpirale().length === 3 && !spiel.anzuender.an) meldung('Drei Kohlen liegen. Jetzt den Regler auf 5 drehen.');
                     },
                 };
@@ -5469,7 +6018,14 @@
             if (reglerTakt(a, h)) schaltet = true;
             const ziel = a.heizt ? GLUT.spiraleMax : GLUT.umgebung;
             a.T += (ziel - a.T) * (1 - Math.exp(-h / (a.heizt ? GLUT.spiraleAn : GLUT.spiraleAus)));
-            for (const k of spielKohlen) if (k.ort !== 'karton') k.kern.schritt(h, k.ort === 'spirale' ? a.T : GLUT.umgebung);
+            for (const k of spielKohlen) {
+                if (k.ort === 'karton') continue;
+                k.kern.zug = k.ort === 'hmd' ? RA.kohleZug : 0;
+                k.kern.schritt(h, k.ort === 'spirale' ? a.T : k.ort === 'hmd' ? AB.hmdT : GLUT.umgebung);
+                if (k.ort === 'zange') k.unterwegs = (k.unterwegs || 0) + h;
+            }
+            hmdWaerme(h);
+            rauchenWaerme(h);
         }
         if (schaltet) geraeusch.relais(a.heizt);
         a.rate = dt > 0 ? (a.T - alt) / dt : 0;
@@ -5479,10 +6035,15 @@
         glutfarbe(sg * 0.8, M.stahlAngelaufen.emissive);
         M.stahlAngelaufen.emissiveIntensity = sg * sg * 1.6;     // Rostringe liegen auf den Windungen
         M.lampeRot.emissiveIntensity = a.heizt ? 3 : 0;      // die Lampe hängt hinter dem Bimetall
-        let summe = 0;
+        let summe = 0, imHmd = 0;
         const zeit = performance.now() / 1000;
-        for (const k of spielKohlen) { k.sync(zeit); summe += k.kern.bewertung().mittel; }
+        for (const k of spielKohlen) {
+            k.sync(zeit);
+            const m = k.kern.bewertung().mittel;
+            if (k.ort === 'hmd') imHmd += m; else summe += m;
+        }
         glutLicht.intensity = 0.45 * sg * sg + 0.1 * summe;
+        if (AB.licht) AB.licht.intensity = 0.16 * imHmd;
     }
 
     // ---------------------------------------------------------------------------
@@ -5885,6 +6446,7 @@
         frei: [],
         kz: new Int32Array(TB_MASKE + 1), nx: new Int32Array(TB.max),
         kol: [],                               // Werkzeug-Kollider (Welt), vom Kopfbau je Schritt gesetzt
+        festKol: [],                           // feste Kollider (HMD-Platte, Teller der Shisha), vom Aufbau gesetzt
         box: new Float32Array(6),
         verlust: { kamin: 0, boden: 0, tuch: 0 }, zurueck: 0,
         fl: null,                              // Flocken-Instanzen
@@ -6262,11 +6824,12 @@
                 tb.zurueck++; KB.doseEntnommen -= TB.vol * 2; tbWeg(i); return;
             }
         }
-        // Werkzeuge
+        // Werkzeuge, HMD-Platte und Teller
         for (const k of tb.kol) {
             if (s === 3 && k.gabel) continue;
             tbWerkzeug(i, k, h);
         }
+        for (const k of tb.festKol) tbWerkzeug(i, k, h);
         // Spitze an der Wand entlanggeführt: was zwischen ihr und der Glasur steckt, wird nach innen gelöst
         if (RL.aktiv && s === 1) {
             const kp = KB.kopfPos, lx = (tb.x[i] - kp.x) / CM, lz = (tb.z[i] - kp.z) / CM, rl = Math.hypot(lx, lz), yl = (tb.y[i] - kp.y) / CM;
@@ -6286,6 +6849,21 @@
     const _tw = { nx: 0, ny: 0, nz: 0 };
     function kolAbstand(k, px, py, pz) {
         let d;
+        if (k.typ === 'scheibe') {
+            // waagrechte Scheibe: Radius R, halbe Dicke hy, Mitte c
+            const ox = px - k.c[0], oy = py - k.c[1], oz = pz - k.c[2];
+            const rr = Math.sqrt(ox * ox + oz * oz) || 1e-9;
+            const qr = rr - k.R, qy = Math.abs(oy) - k.hy, sy = oy < 0 ? -1 : 1;
+            if (qr > 0 && qy > 0) {
+                d = Math.sqrt(qr * qr + qy * qy);
+                _tw.nx = qr / d * ox / rr; _tw.ny = qy / d * sy; _tw.nz = qr / d * oz / rr;
+            } else if (qr > qy) {
+                d = qr; _tw.nx = ox / rr; _tw.ny = 0; _tw.nz = oz / rr;
+            } else {
+                d = qy; _tw.nx = 0; _tw.ny = sy; _tw.nz = 0;
+            }
+            return d;
+        }
         if (k.typ === 'kapsel') {
             const ex = k.b[0] - k.a[0], ey = k.b[1] - k.a[1], ez = k.b[2] - k.a[2];
             const t = clamp(((px - k.a[0]) * ex + (py - k.a[1]) * ey + (pz - k.a[2]) * ez) / k.ll, 0, 1);
@@ -6340,12 +6918,12 @@
             if (tb.st[i] === 2) tbWach(i);
             if (k.haft > 0) tb.gezogen[i] = 2;
             // liegt oben auf dem Stecher (etwa auf dem Rücken der gedrehten Gabel): fährt mit, ist kein Tabak im Kopf
-            if (ny > 0.25 && tb.st[i] === 1 && W.inHand) tb.getragen[i] = TRAG;
+            if (ny > 0.25 && tb.st[i] === 1 && W.inHand && !k.fest) tb.getragen[i] = TRAG;
             // volle Gabel liegt auf Tabak im Kopf: klebrig auf klebrig, daran lässt sie sich auch abstreifen
             else if (k.gabel && tb.st[i] === 1 && tb.abgestreift[i] <= 0 && !tb.getragen[i]) W.tabakKontakt = true;
             // Andrücken: das Werkzeug drückt von oben auf Tabak, der unten aufliegt
             if (k.drueck && ny < -0.5 && tb.traeg[i] && tb.st[i] === 1) {
-                const neu = Math.min(TB.stauMax, tb.stau[i] + pen / r * 0.35);
+                const neu = Math.min(k.stauMax || TB.stauMax, tb.stau[i] + pen / r * 0.35);
                 if (neu > tb.stau[i]) { KB.drueckt += neu - tb.stau[i]; tb.stau[i] = neu; tb.rad[i] = tb.r0[i] * (1 - 0.32 * neu); }
             }
         } else if (k.haft > 0 && d < m && tb.st[i] === 1) {
@@ -6419,6 +6997,7 @@
         const mp = matte.position;
         const boden = Math.abs(tb.x[i] - mp.x) < MATTE.b * CM / 2 && Math.abs(tb.z[i] - mp.z) < MATTE.t * CM / 2 ? TISCH_Y + MATTE.oben * CM : TISCH_Y;
         if (tb.y[i] - r < boden + 0.0004) return true;
+        for (const k of tb.festKol) if (kolAbstand(k, tb.x[i], tb.y[i], tb.z[i]) < r * 1.4) return true;
         const cx = Math.floor(tb.x[i] / c), cy = Math.floor(tb.y[i] / c), cz = Math.floor(tb.z[i] / c);
         for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 0; dy++) for (let dz = -1; dz <= 1; dz++) {
             for (let j = tb.kz[tbHash(cx + dx, cy + dy, cz + dz)]; j !== -1; j = tb.nx[j]) {
@@ -7191,6 +7770,8 @@
 
     function stecherNehmen() {
         if (!spiel.fertig.has(1)) { meldung('Erst die Dose öffnen, dann den Tabak.', 2.6); return; }
+        if (AB.kopf !== 'matte') { meldung('Der Kopf sitzt schon auf der Shisha.', 2.4); return; }
+        if (FL.inHand) flascheAbstellen();
         if (H.inHand) { H.danach = null; zangeHinlegen(null); H.danach = () => stecherNehmen(); return; }
         if (TU.inHand) tuchAblegen();
         W.inHand = true; W.gelegt = false; W.ende = 'gabel'; W.druck = false; W.extra = 0; W.ausziehen = false; W.roll = 0; W.rollTaste = 0;
@@ -7726,7 +8307,9 @@
     // Küchenpapier: aufnehmen, über den Rand wischen, ablegen
 
     function tuchNehmen() {
+        if (AB.kopf !== 'matte') { meldung('Der Kopf sitzt schon auf der Shisha.', 2.4); return; }
         if (H.inHand) { H.danach = null; zangeHinlegen(null); H.danach = () => tuchNehmen(); return; }
+        if (FL.inHand) flascheAbstellen();
         if (W.inHand) stecherAblegen();
         TU.inHand = true; TU.druck = false;
         TU.pos.copy(tuch.position); TU.q.copy(tuch.quaternion);
@@ -7954,7 +8537,7 @@
     function tippKopf() {
         const s = KB.stat || kopfStatistik(), z = SETUPS[KB.ziel];
         if (!spiel.fertig.has(1)) return 'Der Tabak ist noch versiegelt: erst die Dose öffnen (Phase 2).';
-        if (spiel.fertig.has(2)) return 'Kopf ist fertig. Er wartet auf der Matte, bis HMD und Kohle kommen.';
+        if (spiel.fertig.has(2)) return AB.kopf === 'matte' ? 'Kopf ist fertig. Er wartet auf der Matte, bis er auf die Shisha kommt (Phase 5).' : 'Kopf ist fertig und sitzt auf der Shisha.';
         if (!W.inHand && !KB.genommen) return 'Der Stecher liegt rechts auf der Matte: Gabel auf der einen, Spitze auf der anderen Seite.';
         if (KB.ruehr < 1 && !s.imKopf) return 'Molasse setzt sich unten in der Dose ab. Gabel eintauchen (Taste gedrückt halten) und ein paar Runden rühren, bis alles glänzt.';
         if (W.inHand && W.ende === 'gabel' && W.last > 0) return 'Der klebrige Tabak fällt nicht von selbst: Gabel auf den Rand legen und gedrückt daran entlangziehen. Oder wie mit dem Buttermesser: mit Q/E die Gabel drehen, bis der Tabak unten ist, und ihn gedrückt am Rand oder auf dem Tabak ausstreichen.';
@@ -7972,9 +8555,11 @@
     function hinweisSetzen() {
         const el = $('#hinweis');
         if (!el) return;
-        if (W.inHand) el.textContent = `${W.ende === 'gabel' ? 'Gabel' : 'Spitze'} vorn · gedrückt halten = eintauchen, abstreifen, schieben · loslassen = anheben · Rad beim Drücken = Druck${W.ende === 'gabel' ? ' · Q/E dreht die Gabel um ihre Achse' : ''} · F wendet den Stecher · Esc legt ihn ab`;
+        if (RA.inHand) el.textContent = 'Mundstück am Mund · gedrückt halten oder Leertaste = ziehen · beim Ziehen nach oben = kräftiger, nach unten = sanfter · loslassen = ausatmen · Esc legt es ab';
+        else if (FL.inHand) el.textContent = 'Flasche · über den Bowlhals führen · gedrückt halten und nach oben ziehen = kippen und gießen · loslassen richtet sie auf · Klick daneben oder Esc stellt sie ab';
+        else if (W.inHand) el.textContent = `${W.ende === 'gabel' ? 'Gabel' : 'Spitze'} vorn · gedrückt halten = eintauchen, abstreifen, schieben · loslassen = anheben · Rad beim Drücken = Druck${W.ende === 'gabel' ? ' · Q/E dreht die Gabel um ihre Achse' : ''} · F wendet den Stecher · Esc legt ihn ab`;
         else if (TU.inHand) el.textContent = 'Küchenpapier · gedrückt halten und über den Rand wischen · Esc legt es weg';
-        else el.textContent = 'Klicken = zugreifen · Kohle ziehen = umsetzen · Ziehen auf leerer Fläche dreht · rechts schieben · Rad zoomen, am Regler stellt es die Stufe · Z Zeitraffer · M Ton · Esc legt ab';
+        else el.textContent = 'Klicken = zugreifen · Kohle ziehen = umsetzen · R legt sie schräg · Ziehen auf leerer Fläche dreht · rechts schieben · Rad zoomen, am Regler stellt es die Stufe · Z Zeitraffer · M Ton · Esc legt ab';
     }
 
     function kopfPanelZeichnen() {
@@ -8090,6 +8675,2263 @@
         if (t.art === 'matte') return { tipp: W.last > 0 ? 'Hier nicht abstreifen' : 'Gedrückt halten: Krümel aufnehmen', tun: () => {} };
         return null;
     }
+    // ---------------------------------------------------------------------------
+    // Etappe 4: Wasser einfüllen, Zusammenbauen, HMD und Kohlen.
+    // Die Rauchsäule wird abgenommen und auf den Teppich gelegt. Das Wasser kommt aus einer 1,5-l-Flasche: ihr
+    // Wasserspiegel bleibt beim Kippen waagrecht, ab dem Moment, in dem er den Mund erreicht, läuft es (erst über die
+    // Lippe, dann gluckernd). Der Strahl fliegt ballistisch; was in den Bowlhals trifft, hebt den Pegel, der Rest wird
+    // zur Pfütze. Dann Säule einsetzen, Schlauch und Mundstück, Kopfdichtung, den gebauten Kopf samt Tabak, den HMD
+    // und mit der Zange die drei glühenden Kohlen, flach oder schräg an die Wand gelehnt.
+
+    const AB = {
+        saeule: 'drin',                  // drin, liegt, unterwegs
+        wasserMl: 0, verschuettet: 0, pegel: BOWL_WASSER.boden, wellen: 0, zuViel: false,
+        eingesetztMit: null,             // Pegel beim letzten Einsetzen der Säule (cm)
+        schlauch: 'lose', mund: 'lose', dichtung: 'lose', kopf: 'matte', hmd: 'tisch',
+        liegeP: new THREE.Vector3(), liegeQ: new THREE.Quaternion(),
+        hmdT: GLUT.umgebung, kopfT: GLUT.umgebung,
+        kopfVerlust: 0, gesehen: [false, false, false],
+        pfuetzen: [], pfuetzenGruppe: null,
+        takt: 0,
+    };
+    const FL = {
+        inHand: false, ml: FLASCHE.fuell, offen: false, uebergang: null,
+        ruheP: new THREE.Vector3(), ruheQ: new THREE.Quaternion(),
+        ursprung: new THREE.Vector3(), achse: new THREE.Vector3(0, 1, 0), q: new THREE.Quaternion(),
+        mund: new THREE.Vector3(), austritt: new THREE.Vector3(), seite: new THREE.Vector3(1, 0, 0),
+        kipp: 0, kippZiel: 0, druck: false, y0: 0, x0: 0, kippStart: 0, quer: 0,
+        ziel: new THREE.Vector3(), zielGlatt: new THREE.Vector3(), zielOk: false, spiegel: 0,
+        fluss: 0, glucks: 0, weite: 0, treffer: '', rein: 0, randAnteil: 0, spritz: 0,
+        v0: 0, v0h: 0, v0y: 0, testZiel: null, nahBowl: false, nahHals: false, hub: 0, kisten: [],
+        strahl: null, strahlPunkte: [],
+    };
+    const _a = new THREE.Vector3(), _a2 = new THREE.Vector3(), _a3 = new THREE.Vector3(), _aq = new THREE.Quaternion(), _am = new THREE.Matrix4();
+    const G_ERDE = 9.81;
+
+    // Welt-Achse des Bowls und Höhe der Halsöffnung
+    function bowlAchse(out) { return out.set(shisha.position.x, TISCH_Y, shisha.position.z); }
+    const HALS_Y = () => TISCH_Y + BOWL_WASSER.hals * CM;
+    const HALS_INNEN = BOWL_WASSER.hals > 0 ? bowlInnenR(BOWL_WASSER.hals - 0.1) : 2.6;   // cm
+    const HALS_AUSSEN = 3.12;
+
+    // ---------------------------------------------------------------------------
+    // Röhre mit fester Teilung, deren Mittellinie sich jedes Bild ändern darf (Wasserstrahl, Schlauch)
+
+    class Roehre {
+        constructor(n, ringe, mat, name) {
+            this.n = n; this.ringe = ringe;
+            const v = n * (ringe + 1);
+            this.pos = new Float32Array(v * 3); this.nor = new Float32Array(v * 3);
+            const uv = new Float32Array(v * 2), idx = [];
+            for (let i = 0; i < n; i++) for (let j = 0; j <= ringe; j++) { uv[(i * (ringe + 1) + j) * 2] = i / (n - 1); uv[(i * (ringe + 1) + j) * 2 + 1] = j / ringe; }
+            for (let i = 0; i < n - 1; i++) for (let j = 0; j < ringe; j++) {
+                const a = i * (ringe + 1) + j, b = a + ringe + 1;
+                idx.push(a, b, a + 1, b, b + 1, a + 1);
+            }
+            const g = new THREE.BufferGeometry();
+            g.setAttribute('position', new THREE.BufferAttribute(this.pos, 3));
+            g.setAttribute('normal', new THREE.BufferAttribute(this.nor, 3));
+            g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+            g.setIndex(idx);
+            this.geo = g;
+            this.mesh = mesh(g, mat, { name });
+            this.mesh.frustumCulled = false;
+            this.T = new THREE.Vector3(); this.N = new THREE.Vector3(); this.B = new THREE.Vector3();
+        }
+        // p: Liste von n Punkten, r: Radius (Zahl oder Funktion des Index)
+        setze(p, r) {
+            const n = this.n, R = this.ringe, T = this.T, N = this.N, B = this.B;
+            for (let i = 0; i < n; i++) {
+                T.subVectors(p[Math.min(n - 1, i + 1)], p[Math.max(0, i - 1)]);
+                if (T.lengthSq() < 1e-14) T.set(0, -1, 0);
+                T.normalize();
+                if (i === 0) {
+                    N.set(Math.abs(T.y) < 0.9 ? 0 : 1, Math.abs(T.y) < 0.9 ? 1 : 0, 0);
+                }
+                N.addScaledVector(T, -N.dot(T));
+                if (N.lengthSq() < 1e-10) N.set(T.z, 0, -T.x);
+                N.normalize();
+                B.crossVectors(T, N);
+                const ri = typeof r === 'function' ? r(i) : r;
+                for (let j = 0; j <= R; j++) {
+                    const w = j / R * TAU, c = Math.cos(w), s = Math.sin(w);
+                    const nx = c * N.x + s * B.x, ny = c * N.y + s * B.y, nz = c * N.z + s * B.z;
+                    const k = (i * (R + 1) + j) * 3;
+                    this.pos[k] = p[i].x + nx * ri; this.pos[k + 1] = p[i].y + ny * ri; this.pos[k + 2] = p[i].z + nz * ri;
+                    this.nor[k] = nx; this.nor[k + 1] = ny; this.nor[k + 2] = nz;
+                }
+            }
+            this.geo.attributes.position.needsUpdate = true;
+            this.geo.attributes.normal.needsUpdate = true;
+            // Hüllen neu, sonst trifft der Zeigerstrahl die alte Lage
+            if (this.treffbar) { this.geo.boundingBox = null; this.geo.computeBoundingSphere(); }
+        }
+    }
+
+    // ---------------------------------------------------------------------------
+    // Aufbau
+
+    function aufbauAufbauen() {
+        const w = shisha.userData.wasser;
+        scene.add(w.gruppe);              // Wasser bleibt in Weltkoordinaten (Ebene für den Schnitt)
+        w.gruppe.position.copy(shisha.position);
+        w.gruppe.quaternion.copy(shisha.quaternion);
+        // Flasche hinten zwischen Shisha und HMD, Deckel zu
+        flasche = flascheBauen();
+        FL.ruheP.set(-0.19, TISCH_Y, -0.245);
+        FL.ruheQ.setFromAxisAngle(OBEN, 0.4);
+        flasche.position.copy(FL.ruheP); flasche.quaternion.copy(FL.ruheQ);
+        scene.add(flasche);
+        FL.ursprung.copy(FL.ruheP); FL.q.copy(FL.ruheQ);
+        // Wasserstrahl: 24 Punkte längs der Wurfparabel, 10 Teilungen im Querschnitt
+        FL.strahl = new Roehre(24, 10, M.strahl, 'strahl');
+        FL.strahl.mesh.renderOrder = 4;
+        FL.strahl.mesh.castShadow = false;
+        FL.strahl.mesh.visible = false;
+        FL.strahl.mesh.raycast = () => {};
+        scene.add(FL.strahl.mesh);
+        for (let i = 0; i < 24; i++) FL.strahlPunkte.push(new THREE.Vector3());
+        AB.pfuetzenGruppe = new THREE.Group();
+        AB.pfuetzenGruppe.name = 'pfuetzen';
+        scene.add(AB.pfuetzenGruppe);
+        liegeLageBerechnen();
+        flascheWasserZeigen();
+        wasserZeigen();
+        tischObjekte.push(flasche);
+        // Glut im HMD: warmes Licht aus den Fenstern
+        AB.licht = new THREE.PointLight('#ff7a2e', 0, 0, 2);
+        AB.licht.position.set(0, 1.8 * CM, 0);
+        hmd.add(AB.licht);
+    }
+
+    // ---------------------------------------------------------------------------
+    // Rauchsäule: auf dem Teppich vor dem Tisch liegt sie auf dem Tauchrohrende und dem Tellerrand
+
+    function liegeLageBerechnen() {
+        const boden = 0.012;
+        const a = Math.atan((13.23 - 0.82) / (60.33 - 9.6));
+        const D = new THREE.Vector3(Math.cos(a), Math.sin(a), 0);          // Achse: Tauchrohr -> Teller
+        const n = new THREE.Vector3(-Math.sin(a), Math.cos(a), 0);         // senkrecht dazu, nach oben
+        // lokales -x (Schlauchanschluss) zeigt nach oben, damit er nicht auf dem Teppich liegt
+        const X = n.clone().negate(), Z = new THREE.Vector3().crossVectors(X, D);
+        _am.makeBasis(X, D, Z);
+        AB.liegeQ.setFromRotationMatrix(_am);
+        const ende = new THREE.Vector3(-0.8, boden, 0.52);                  // tiefster Punkt am Tauchrohrende
+        AB.liegeP.copy(ende).addScaledVector(n, 0.82 * CM).addScaledVector(D, -9.6 * CM);
+    }
+
+    function saeuleObj() { return shisha.userData.saeule; }
+    function saeuleFrei() { return AB.dichtung === 'lose' && AB.kopf === 'matte' && AB.hmd === 'tisch' && AB.schlauch === 'lose'; }
+
+    function saeuleAbnehmen() {
+        if (AB.saeule !== 'drin' || H.ablauf) return;
+        if (!saeuleFrei()) { meldung('Mit Schlauch, Dichtung oder Kopf drauf bleibt die Säule stecken.', 2.8); return; }
+        if (!handFrei(() => saeuleAbnehmen())) return;
+        const s = saeuleObj();
+        AB.saeule = 'unterwegs';
+        scene.attach(s);
+        tischObjekte.push(s);              // losgelöst trifft der Zeigerstrahl sie nicht mehr über die Shisha
+        const p0 = s.position.clone(), q0 = s.quaternion.clone();
+        const hoch = p0.clone(); hoch.y += 0.22;
+        const vor = new THREE.Vector3(lerp(p0.x, AB.liegeP.x, 0.5), 0.55, lerp(p0.z, AB.liegeP.z, 0.55));
+        const qMitte = q0.clone().slerp(AB.liegeQ, 0.45);
+        geraeusch.gummi(0.8);
+        ablauf([
+            { dauer: 0.7, lauf: (t) => { s.position.lerpVectors(p0, hoch, t); s.quaternion.copy(q0).multiply(_aq.setFromAxisAngle(OBEN, t * 0.5)); } },
+            { dauer: 0.75, lauf: (t) => { s.position.lerpVectors(hoch, vor, t); s.quaternion.copy(q0).multiply(_aq.setFromAxisAngle(OBEN, 0.5)).slerp(qMitte, t); } },
+            {
+                dauer: 0.6,
+                start: () => { qMitte.copy(s.quaternion); vor.copy(s.position); },
+                lauf: (t) => { s.position.lerpVectors(vor, AB.liegeP, t); s.quaternion.copy(qMitte).slerp(AB.liegeQ, t); },
+                ende: () => {
+                    AB.saeule = 'liegt';
+                    geraeusch.ablegen();
+                    meldung('Die Säule liegt auf dem Teppich. Jetzt die Flasche nehmen und Wasser einfüllen.', 3.4, 'aufbau');
+                    aufbauKarte(3);
+                },
+            },
+        ]);
+    }
+
+    function saeuleEinsetzen() {
+        if (AB.saeule !== 'liegt' || H.ablauf) return;
+        if (!handFrei(() => saeuleEinsetzen())) return;
+        const s = saeuleObj();
+        AB.saeule = 'unterwegs';
+        shisha.updateMatrixWorld(true);
+        // Zielpose: wie im Shisha-Ursprung, leicht verdreht anfangen und beim Eindrücken gerade drehen
+        const ziel = new THREE.Vector3(), zq = new THREE.Quaternion();
+        shisha.matrixWorld.decompose(ziel, zq, _a);
+        const ueber = ziel.clone(); ueber.y += 0.21;
+        const q0 = s.quaternion.clone(), p0 = s.position.clone();
+        const qSchraeg = zq.clone().multiply(_aq.setFromAxisAngle(OBEN, 0.35));
+        const mitte = new THREE.Vector3(lerp(p0.x, ueber.x, 0.5), 0.62, lerp(p0.z, ueber.z, 0.5));
+        ablauf([
+            { dauer: 0.7, lauf: (t) => { s.position.lerpVectors(p0, mitte, t); s.quaternion.copy(q0).slerp(qSchraeg, t * 0.6); } },
+            {
+                dauer: 0.6,
+                start: () => { mitte.copy(s.position); q0.copy(s.quaternion); },
+                lauf: (t) => { s.position.lerpVectors(mitte, ueber, t); s.quaternion.copy(q0).slerp(qSchraeg, t); },
+            },
+            {
+                dauer: 0.75,
+                lauf: (t) => {
+                    // senkrecht hinein, das Tauchrohr taucht ein, die Manschette rutscht über den Hals, dabei ein Viertel gedreht
+                    s.position.lerpVectors(ueber, ziel, t);
+                    s.quaternion.copy(zq).multiply(_aq.setFromAxisAngle(OBEN, 0.35 * (1 - t)));
+                    if (t > 0.55 && !AB.eintauch) { AB.eintauch = true; AB.wellen = 1; if (AB.wasserMl > 0) geraeusch.platsch(0.5); }
+                },
+                ende: () => {
+                    shisha.attach(s);
+                    s.position.set(0, 0, 0); s.quaternion.identity();
+                    const i = tischObjekte.indexOf(s);
+                    if (i >= 0) tischObjekte.splice(i, 1);
+                    AB.saeule = 'drin'; AB.eintauch = false;
+                    geraeusch.gummi(1);
+                    AB.eingesetztMit = AB.pegel;
+                    const t = tauchTiefe();
+                    if (AB.wasserMl <= 0) meldung('Säule sitzt, aber der Bowl ist leer.', 3);
+                    else meldung(`Säule sitzt. Das Tauchrohr steht ${t.toFixed(1).replace('.', ',')} cm im Wasser.` + (t < 1.5 ? ' Etwas wenig.' : t > 4 ? ' Ziemlich viel.' : ''), 3.6, 'aufbau');
+                    aufbauKarte(3);
+                },
+            },
+        ]);
+    }
+
+    // ---------------------------------------------------------------------------
+    // Wasser im Bowl
+
+    // Pegel (cm über Tischplatte); mit eingesetzter Säule verdrängt das Rohr ein paar Milliliter
+    function pegelBerechnen() {
+        let v = AB.wasserMl;
+        if (AB.saeule === 'drin' && v > 0) {
+            // Tauchrohrwand (Ringfläche 0,74 cm²) bis zum Pegel: kleine Fixpunktiteration
+            let h = bowlPegel(v);
+            for (let k = 0; k < 3; k++) h = bowlPegel(v + 0.744 * Math.max(0, h - BOWL_WASSER.tauchEnde));
+            return h;
+        }
+        return bowlPegel(v);
+    }
+    function tauchTiefe(pegel = AB.pegel) { return pegel - BOWL_WASSER.tauchEnde; }
+    // Tauchtiefe, die sich mit eingesetzter Säule einstellen würde
+    function tauchTiefeVorschau() {
+        const v = AB.wasserMl;
+        if (v <= 0) return -BOWL_WASSER.tauchEnde;
+        let h = bowlPegel(v);
+        for (let k = 0; k < 3; k++) h = bowlPegel(v + 0.744 * Math.max(0, h - BOWL_WASSER.tauchEnde));
+        return h - BOWL_WASSER.tauchEnde;
+    }
+
+    function wasserZeigen() {
+        const w = shisha.userData.wasser;
+        AB.pegel = pegelBerechnen();
+        const da = AB.wasserMl > 0.5;
+        w.gruppe.visible = da;
+        if (!da) return;
+        const y = TISCH_Y + AB.pegel * CM;
+        w.ebene.constant = y;                          // Normale (0,-1,0): sichtbar bleibt, was unter y liegt
+        const r = Math.max(0.2, bowlInnenR(AB.pegel) - 0.02) * CM;
+        w.flaeche.position.set(0, AB.pegel * CM, 0);
+        w.flaeche.scale.set(r, 1, r);
+    }
+
+    function wasserFrame(dt) {
+        const w = shisha.userData.wasser;
+        if (!w.gruppe.visible && AB.wasserMl <= 0.5) return;
+        wasserZeigen();
+        // Wellen: beim Einschenken und Eintauchen kräftiger, klingen ab
+        AB.wellen = Math.max(0, AB.wellen - dt * 0.6);
+        const m = w.flaeche.material, k = 0.12 + 0.75 * AB.wellen;
+        m.normalScale.set(k, k);
+        if (m.normalMap) {
+            m.normalMap.offset.x = (m.normalMap.offset.x + dt * (0.01 + 0.25 * AB.wellen)) % 1;
+            m.normalMap.rotation = Math.sin(performance.now() * 0.0003) * 0.4;
+        }
+    }
+
+    // ---------------------------------------------------------------------------
+    // Flasche: nehmen, abstellen, Deckel
+
+    let flasche = null;
+
+    function flascheNehmen() {
+        if (FL.inHand || FL.uebergang || H.ablauf) return;
+        if (!handFrei(() => flascheNehmen())) return;
+        FL.inHand = true;
+        FL.hub = 0;
+        FL.kisten = flascheKisten();
+        FL.kipp = 0; FL.kippZiel = 0; FL.druck = false; FL.fluss = 0;
+        // Tipprichtung: die Flasche zeigt sich im Profil, der Boden liegt rechts vom Mund
+        _a.set(1, 0, 0).applyQuaternion(camera.quaternion); _a.y = 0;
+        if (_a.lengthSq() < 1e-6) _a.set(1, 0, 0);
+        FL.seite.copy(_a.normalize()).negate();
+        FL.uebergang = { t: 0, dauer: 0.4, von: flasche.position.clone(), vonQ: flasche.quaternion.clone() };
+        // Zielpunkt zunächst über der Flasche: der Mund bleibt, wo er beim Anheben ist
+        FL.ziel.copy(flasche.position); FL.ziel.y = HALS_Y();
+        FL.zielGlatt.copy(FL.ziel);
+        if (!FL.offen) {
+            // Deckel abdrehen und neben die Flasche legen
+            FL.offen = true;
+            // Deckel abschrauben (gut zwei Umdrehungen, dabei 3 mm hoch) und verkehrt herum neben die Flasche legen
+            const d = flasche.userData.deckel;
+            const ablage = new THREE.Vector3(FL.ruheP.x + 0.075, TISCH_Y + FLASCHE_DECKEL.halb * CM, FL.ruheP.z + 0.035);
+            const p0 = new THREE.Vector3(), q0 = new THREE.Quaternion();
+            d.updateMatrixWorld(true);
+            d.matrixWorld.decompose(p0, q0, _a);
+            scene.attach(d);
+            const qAb = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI);
+            const p1 = p0.clone(); p1.y += 0.3 * CM;
+            geraeusch.deckelDrehen();
+            FL.deckel = { t: 0, d, p0, q0, p1, ablage, qAb };
+        }
+        geraeusch.flasche(0.5);
+        hinweisSetzen();
+        aufbauKarte(3);
+    }
+
+    function flascheAbstellen() {
+        if (!FL.inHand) return;
+        FL.inHand = false; FL.druck = false; FL.kippZiel = 0;
+        FL.uebergang = { t: 0, dauer: 0.55, ablegen: true, von: FL.ursprung.clone(), vonQ: FL.q.clone() };
+        hinweisSetzen();
+    }
+
+    // Grundrisse und Höhen der Dinge auf dem Tisch, über die die Flasche gehoben wird (Welt, m)
+    function flascheKisten() {
+        const l = [], b = new THREE.Box3();
+        const dinge = [matte, dose, karton, anzuender, fliese, stecher, tuch, mundstueck, dichtung, hmd, kopf, schlauchLose, adapterLose];
+        if (!H.inHand) dinge.push(zange);
+        if (SL.roehre) dinge.push(SL.roehre.mesh);
+        if (dose.userData.deckel.parent === scene) dinge.push(dose.userData.deckel);
+        if (flasche.userData.deckel.parent === scene) dinge.push(flasche.userData.deckel);
+        for (const o of dinge) {
+            if (!o || !sichtbar(o) || istIn(o, shisha)) continue;
+            b.setFromObject(o);
+            if (b.isEmpty() || b.max.y > TISCH_Y + 0.3) continue;
+            l.push([b.min.x, b.min.z, b.max.x, b.max.z, b.max.y]);
+        }
+        return l;
+    }
+
+    function flascheUebergang(dt) {
+        const u = FL.uebergang;
+        u.t += dt / u.dauer;
+        const t = smooth(0, 1, u.t);
+        if (u.ablegen) {
+            _a.lerpVectors(u.von, FL.ruheP, t);
+            _a.y += Math.sin(t * Math.PI) * 0.05;
+            flasche.position.copy(_a);
+            flasche.quaternion.copy(u.vonQ).slerp(FL.ruheQ, t);
+            FL.ursprung.copy(flasche.position); FL.q.copy(flasche.quaternion);
+            FL.achse.set(0, 1, 0).applyQuaternion(FL.q);
+            if (u.t >= 1) { FL.uebergang = null; FL.kipp = 0; FL.fluss = 0; geraeusch.flasche(0.9); }
+            return;
+        }
+        // Nehmen: auf Haltehöhe anheben (Mund 4,5 cm über der Halsöffnung), dann übernimmt die Zeigerführung
+        _a.copy(u.von); _a.y += t * Math.max(0.02, HALS_Y() + MUND_FALL - u.von.y - FLASCHE.mund * CM);
+        flasche.position.copy(_a);
+        FL.ursprung.copy(_a); FL.q.copy(u.vonQ);
+        FL.achse.set(0, 1, 0).applyQuaternion(FL.q);
+        if (u.t >= 1) FL.uebergang = null;
+    }
+
+    // ---------------------------------------------------------------------------
+    // Wasserspiegel in der Flasche: Scheiben längs der Achse, jede als Kreisabschnitt unter einer waagrechten Ebene.
+    // o = Bodenmitte (Welt), a = Achse (Einheitsvektor), v = Volumen (ml). Liefert die Spiegelhöhe (Welt-y).
+
+    function flascheSpiegel(v, o, a) {
+        const sinT = Math.sqrt(Math.max(0, 1 - a.y * a.y));
+        const vol = (Y) => {
+            let s = 0;
+            for (const [h, r] of FLASCHE_SCHEIBEN) {
+                const cy = o.y + a.y * h * CM, rr = r * CM;
+                let anteil;
+                if (sinT * rr < 1e-6) anteil = Y >= cy ? 1 : 0;
+                else {
+                    const d = clamp((Y - cy) / (sinT * rr), -1, 1);
+                    anteil = (Math.acos(-d) + d * Math.sqrt(1 - d * d)) / Math.PI;
+                }
+                s += anteil * Math.PI * r * r * 0.25;
+            }
+            return s;
+        };
+        let lo = Infinity, hi = -Infinity;
+        for (const [h, r] of FLASCHE_SCHEIBEN) {
+            const cy = o.y + a.y * h * CM, e = sinT * r * CM;
+            lo = Math.min(lo, cy - e); hi = Math.max(hi, cy + e);
+        }
+        if (v <= 0) return lo - 1e-4;
+        for (let k = 0; k < 26; k++) {
+            const m = (lo + hi) / 2;
+            if (vol(m) < v) lo = m; else hi = m;
+        }
+        return (lo + hi) / 2;
+    }
+
+    function flascheWasserZeigen() {
+        const ud = flasche.userData;
+        ud.wasser.visible = FL.ml > 1;
+        // Ebene in Weltkoordinaten: sichtbar bleibt, was unter dem Spiegel liegt
+        ud.ebene.constant = FL.spiegel || (FL.ursprung.y + 0.0001);
+    }
+
+    // ---------------------------------------------------------------------------
+    // Führen und Gießen
+
+    function flascheDruck(e) {
+        if (!FL.inHand || FL.uebergang) return false;
+        if (!FL.nahBowl && !FL.testZiel) return false;          // weiter weg: Ziehen dreht die Kamera
+        if (AB.saeule !== 'liegt') { meldung('Erst die Rauchsäule abnehmen: so kommt kein Wasser in den Bowl.', 3, 'aufbau'); return true; }
+        FL.druck = true;
+        FL.y0 = e.clientY; FL.x0 = e.clientX;
+        FL.kippStart = FL.kipp;          // weiter von der Bereitschaftsneigung aus, ohne Sprung
+        FL.quer = 0;
+        return true;
+    }
+    function flascheZiehen(e) {
+        if (!FL.druck) return;
+        // nach oben ziehen kippt weiter, seitlich verschiebt den Auftreffpunkt ein wenig
+        FL.kippZiel = clamp(FL.kippStart + (FL.y0 - e.clientY) * 0.32, 0, 168);
+        FL.quer = (e.clientX - FL.x0) * 0.00025;
+    }
+    function flascheLoslassen() {
+        if (!FL.druck) return false;
+        FL.druck = false;                // zurück in die Bereitschaftsneigung (flascheFrame)
+        return true;
+    }
+    // für Tests und Tastatur: Neigung direkt setzen
+    function flascheKippen(grad) { FL.druck = grad > 0; FL.kippZiel = clamp(grad, 0, 168); }
+
+    // Zielpunkt unter dem Zeiger, immer auf der Höhe der Halsöffnung: dorthin soll der Strahl. Der Hals ist nur
+    // 5,4 cm weit, deshalb zieht der Punkt in seiner Nähe sanft zur Mitte. Steckt die Säule, bleibt er außen herum.
+    function flascheZielAusZeiger() {
+        if (FL.druck) return;            // beim Gießen bleibt der Punkt stehen (nur seitlich nachführen)
+        let p = null;
+        const hy = HALS_Y();
+        if (FL.testZiel) p = _a3.copy(FL.testZiel);
+        else if (zeiger.drin) {
+            strahl.setFromCamera(zeiger.ndc, camera);
+            const o = strahl.ray.origin, d = strahl.ray.direction;
+            if (d.y < -1e-4) {
+                const t = (hy - o.y) / d.y;
+                if (t > 0) p = _a3.copy(o).addScaledVector(d, t);
+            }
+        }
+        if (!p) return;
+        bowlAchse(_a2);
+        const dx = p.x - _a2.x, dz = p.z - _a2.z, dr = Math.hypot(dx, dz) / CM;
+        let r = dr;
+        if (AB.saeule === 'liegt') r = dr * lerp(0.5, 1, smooth(2.5, 5, dr));
+        else r = Math.max(dr, 17);
+        const k = dr > 1e-6 ? r / dr : 0;
+        FL.ziel.set(_a2.x + dx * k, hy, _a2.z + dz * k);
+        FL.nahBowl = dr < 20;
+        FL.nahHals = AB.saeule === 'liegt' && r < 9;
+        FL.zielOk = AB.saeule === 'liegt' && r < HALS_INNEN - 0.4;
+        // nicht vom Tisch hinunter
+        FL.ziel.x = clamp(FL.ziel.x, -TISCH.b / 2 + 0.05, TISCH.b / 2 - 0.05);
+        FL.ziel.z = clamp(FL.ziel.z, -TISCH.t / 2 + 0.05, TISCH.t / 2 - 0.05);
+    }
+
+    // Lage der Flasche: der Mund steht 4,5 cm über dem Zielpunkt, um die Strahlweite zurückgesetzt. Gekippt wird um
+    // den Mund, damit der Strahl dort bleibt, wo man hinzeigt. Die Strahlweite kommt aus dem Ausfluss dieses Bildes.
+    const MUND_FALL = 0.045;
+    const _fq = new THREE.Vector3(), _fs = new THREE.Vector3();
+    function flascheLage(dt) {
+        const kippR = FL.kipp * Math.PI / 180, a = FL.achse;
+        FL.q.setFromUnitVectors(OBEN, a);
+        FL.zielGlatt.lerp(FL.ziel, 1 - Math.exp(-dt * 16));
+        const sinT = Math.sin(kippR);
+        // Richtung vom Austritt (tiefster Punkt der Öffnung) zur Mundmitte: senkrecht zur Achse, nach oben
+        _fq.set(0, 1, 0).addScaledVector(a, -a.y);
+        if (_fq.lengthSq() > 1e-8) _fq.normalize(); else _fq.set(0, 0, 0);
+        const setze = (hub) => {
+            FL.weite = FL.v0 > 0 ? strahlWeite(MUND_FALL + hub) : 0;
+            FL.austritt.copy(FL.zielGlatt);
+            FL.austritt.y += MUND_FALL + hub;
+            FL.austritt.addScaledVector(FL.seite, -FL.weite);
+            if (FL.druck) {
+                // seitliches Nachführen quer zur Gießrichtung
+                _fs.crossVectors(OBEN, FL.seite).normalize();
+                FL.austritt.addScaledVector(_fs, FL.quer);
+            }
+            // tiefster Punkt der Mundöffnung = Austritt; der Mund selbst liegt eine Mundbreite darüber
+            FL.mund.copy(FL.austritt).addScaledVector(_fq, FLASCHE.mundR * CM * Math.min(1, sinT * 3));
+            FL.ursprung.copy(FL.mund).addScaledVector(a, -FLASCHE.mund * CM);
+        };
+        // nie in den Tisch, in Dinge darauf oder in den Bowl: so weit anheben wie nötig (Absenken geht gemächlich)
+        const alt = FL.hub;
+        setze(alt);
+        FL.ursprung.y -= alt;
+        const noetig = flascheHub();
+        FL.hub = Math.max(noetig, alt - dt * 0.3);
+        setze(FL.hub);
+        flasche.position.copy(FL.ursprung);
+        flasche.quaternion.copy(FL.q);
+    }
+
+    // Neigung, ab der es bei dieser Füllung aus dem Mund läuft (Grad), als Tabelle über die Füllmenge
+    const KIPP_AUSFLUSS = (() => {
+        const t = [], o = { y: 0 }, a = { y: 1 };
+        for (let ml = 0; ml <= FLASCHE.fuell; ml += 50) {
+            let lo = 0, hi = 175;
+            for (let k = 0; k < 16; k++) {
+                const m = (lo + hi) / 2, w = m * Math.PI / 180;
+                a.y = Math.cos(w);
+                const unten = a.y * FLASCHE.mund * CM - FLASCHE.mundR * CM * Math.sin(w);
+                if (ml > 0 && flascheSpiegel(ml, o, a) > unten) hi = m; else lo = m;
+            }
+            t.push(hi);
+        }
+        return t;
+    })();
+    function kippAusfluss(ml) {
+        const x = clamp(ml / 50, 0, KIPP_AUSFLUSS.length - 1), i = Math.min(KIPP_AUSFLUSS.length - 2, Math.floor(x));
+        return lerp(KIPP_AUSFLUSS[i], KIPP_AUSFLUSS[i + 1], x - i);
+    }
+
+    // Außenhaut des Bowls (cm über dem Tisch): Radius auf Höhe y und Abstand eines Punkts (negativ: im Glas)
+    const BOWL_KONTUR = BOWL.map((q) => [q[0], q[1]]);
+    const BOWL_OBEN = Math.max(...BOWL_KONTUR.map((q) => q[1]));
+    function bowlAussenR(y) {
+        let r = 0;
+        for (let i = 1; i < BOWL_KONTUR.length; i++) {
+            const [r0, y0] = BOWL_KONTUR[i - 1], [r1, y1] = BOWL_KONTUR[i];
+            if (y0 === y1 || (y - y0) * (y - y1) > 0) continue;
+            r = Math.max(r, lerp(r0, r1, (y - y0) / (y1 - y0)));
+        }
+        return r;
+    }
+    function bowlAbstand(d, y) {
+        let best = Infinity;
+        for (let i = 1; i < BOWL_KONTUR.length; i++) {
+            const [r0, y0] = BOWL_KONTUR[i - 1], [r1, y1] = BOWL_KONTUR[i];
+            const ex = r1 - r0, ey = y1 - y0, l2 = ex * ex + ey * ey;
+            const t = l2 > 0 ? clamp(((d - r0) * ex + (y - y0) * ey) / l2, 0, 1) : 0;
+            const qx = d - r0 - ex * t, qy = y - y0 - ey * t;
+            best = Math.min(best, qx * qx + qy * qy);
+        }
+        best = Math.sqrt(best);
+        return y > 0 && y < BOWL_OBEN && d < bowlAussenR(y) ? -best : best;
+    }
+
+    // Proben längs der Flaschenachse: Höhe und Außenradius (cm)
+    const FL_PROBEN = (() => {
+        const l = [];
+        for (let h = 0.4; h <= FLASCHE.mund; h += 1.0) l.push([h, Math.min(FLASCHE.r, flascheInnenR(Math.max(0.5, h)) + FLASCHE.wand + 0.05)]);
+        l.push([FLASCHE.mund - 0.1, FLASCHE.halsR + 0.05]);
+        return l;
+    })();
+
+    // so weit muss die Flasche in ihrer jetzigen Lage angehoben werden (m)
+    function flascheHub() {
+        const o = FL.ursprung, a = FL.achse, sinT = Math.sqrt(Math.max(0, 1 - a.y * a.y));
+        let hub = 0;
+        // Tischplatte (1,5 cm Luft) und Dinge darauf: die Scheiben reichen r·sin(Neigung) unter ihre Mitte
+        for (const [h, rho] of FL_PROBEN) {
+            const x = o.x + a.x * h * CM, y = o.y + a.y * h * CM, z = o.z + a.z * h * CM, r = rho * CM;
+            const unten = y - r * sinT;
+            hub = Math.max(hub, TISCH_Y + 0.015 - unten);
+            for (const k of FL.kisten) {
+                if (x + r < k[0] || x - r > k[2] || z + r < k[1] || z - r > k[3]) continue;
+                hub = Math.max(hub, k[4] + 0.008 - unten);
+            }
+        }
+        // Bowl: jede Probe als Kugel, Abstand zur Außenhaut mindestens ihr Radius (+3 mm)
+        bowlAchse(_a2);
+        const frei = (dy) => {
+            let m = Infinity;
+            for (const [h, rho] of FL_PROBEN) {
+                const x = o.x + a.x * h * CM, z = o.z + a.z * h * CM;
+                const d = Math.hypot(x - _a2.x, z - _a2.z) / CM;
+                if (d > 12.2 + rho) continue;
+                const y = (o.y + a.y * h * CM + dy - TISCH_Y) / CM;
+                if (y - rho > BOWL_OBEN + 0.3) continue;
+                m = Math.min(m, bowlAbstand(d, y) - rho - 0.3);
+            }
+            return m;
+        };
+        if (frei(hub) >= 0) return hub;
+        let lo = hub, hi = hub;
+        for (let k = 0; k < 60 && frei(hi) < 0; k++) { lo = hi; hi += 0.01; }
+        for (let k = 0; k < 7; k++) { const m = (lo + hi) / 2; if (frei(m) >= 0) hi = m; else lo = m; }
+        return hi;
+    }
+
+    // grobe Weite des Strahls bis zur Fallhöhe, aus Austrittsgeschwindigkeit und -richtung
+    function strahlWeite(fall) {
+        const v = FL.v0 || 0, vh = FL.v0h || 0, vy = FL.v0y || 0;
+        if (v <= 0) return 0;
+        const t = (vy + Math.sqrt(vy * vy + 2 * G_ERDE * fall)) / G_ERDE;
+        return vh * t;
+    }
+
+    // Deckel abschrauben (eine halbe Sekunde), dann verkehrt herum neben die Flasche
+    function deckelFrame(dt) {
+        const a = FL.deckel;
+        a.t = Math.min(1, a.t + dt);
+        if (a.t < 0.5) {
+            const u = a.t / 0.5;
+            a.d.position.lerpVectors(a.p0, a.p1, u);
+            a.d.quaternion.copy(a.q0).multiply(_aq.setFromAxisAngle(OBEN, -u * 4.6 * Math.PI));
+        } else {
+            const u = smooth(0.5, 1, a.t);
+            a.d.position.lerpVectors(a.p1, a.ablage, u);
+            a.d.position.y += Math.sin(u * Math.PI) * 0.05;
+            a.d.quaternion.copy(a.q0).slerp(a.qAb, u);
+        }
+        if (a.t >= 1) { FL.deckel = null; geraeusch.deckelAufTisch(); }
+    }
+
+    const _null = { y: 0 };
+    function flascheFrame(dt) {
+        if (FL.deckel) deckelFrame(dt);
+        if (FL.uebergang) flascheUebergang(dt);
+        if (!FL.inHand) {
+            if (!FL.uebergang) { FL.fluss = 0; FL.strahl.mesh.visible = false; }
+            FL.spiegel = flascheSpiegel(FL.ml, FL.ursprung, FL.achse);
+            flascheWasserZeigen();
+            return;
+        }
+        if (FL.uebergang) { FL.spiegel = flascheSpiegel(FL.ml, FL.ursprung, FL.achse); flascheWasserZeigen(); return; }
+        flascheZielAusZeiger();
+        // Gießrichtung folgt der Kamera (Profil: Boden rechts, Mund links), solange nicht gegossen wird
+        if (!FL.druck) {
+            _a.set(1, 0, 0).applyQuaternion(camera.quaternion); _a.y = 0;
+            if (_a.lengthSq() > 1e-6) FL.seite.lerp(_a.normalize().negate(), 1 - Math.exp(-dt * 8)).normalize();
+            // über dem Hals hält man die Flasche schon schräg, knapp bevor es läuft; sonst aufrecht
+            FL.kippZiel = FL.nahHals ? clamp(kippAusfluss(FL.ml) - 14, 0, 50) : 0;
+        }
+        // Neigung folgt dem Ziel, höchstens 200°/s
+        const d = FL.kippZiel - FL.kipp, maxD = 200 * dt;
+        FL.kipp += clamp(d, -maxD, maxD);
+        const kippR = FL.kipp * Math.PI / 180;
+        const a = FL.achse.set(0, Math.cos(kippR), 0).addScaledVector(FL.seite, Math.sin(kippR)).normalize();
+        // Spiegel und Ausfluss hängen nur von Neigung und Füllung ab: zuerst rechnen, dann die Flasche so halten,
+        // dass der Strahl im selben Bild am Ziel ankommt
+        const sinT = Math.sqrt(Math.max(0, 1 - a.y * a.y));
+        const spRel = flascheSpiegel(FL.ml, _null, a);
+        const mundY = a.y * FLASCHE.mund * CM;
+        const unten = mundY - FLASCHE.mundR * CM * sinT, oben = mundY + FLASCHE.mundR * CM * sinT;
+        const ueber = spRel - unten;
+        let q = 0;
+        if (FL.ml > 0.5 && ueber > 0 && a.y < 0.97) {
+            const s = ueber / Math.max(0.2 * CM, oben - unten);
+            // erst läuft es über die Lippe, ist der Mund ganz unter Wasser, gluckert es (Luft muss hinein)
+            q = 95 * Math.pow(Math.min(1, s), 1.6);
+            if (s >= 1) {
+                FL.glucks += dt * (5 + 1.5 * Math.sin(performance.now() * 0.0007));
+                q *= 0.78 + 0.32 * Math.sin(FL.glucks * TAU) * (0.7 + 0.3 * N.n2(FL.glucks * 0.7, 3.3));
+            }
+            q = Math.min(q, FL.ml / dt);
+        }
+        FL.fluss = q;
+        // Austrittsgeschwindigkeit: kleine Druckhöhe, Richtung längs des Halses
+        const u = Math.sqrt(2 * G_ERDE * clamp(ueber, 0, 0.04)) * 0.55 + 0.05;
+        FL.v0 = q > 0.5 ? u : 0;
+        FL.v0h = FL.v0 * sinT;
+        FL.v0y = -FL.v0 * a.y;      // nach unten positiv
+        flascheLage(dt);
+        FL.spiegel = spRel + FL.ursprung.y;
+        FL.ml = Math.max(0, FL.ml - q * dt);
+        strahlRechnen(dt, q);
+        flascheWasserZeigen();
+    }
+
+    // ---------------------------------------------------------------------------
+    // Strahl: Wurfparabel vom Austritt bis zum Hals bzw. Tisch, Verteilung auf Bowl und Pfütze
+
+    function strahlRechnen(dt, q) {
+        const S = FL.strahl;
+        if (q <= 0.5) { S.mesh.visible = false; FL.treffer = ''; FL.rein = 0; return; }
+        const e = FL.austritt, vh = FL.v0h, vy = FL.v0y;
+        _a.copy(FL.seite);                     // Richtung der waagrechten Geschwindigkeit
+        bowlAchse(_a2);
+        const hy = HALS_Y();
+        const fallT = (dy) => dy <= 0 ? 0 : (vy + Math.sqrt(vy * vy + 2 * G_ERDE * dy)) / G_ERDE;
+        const qm3 = q * 1e-6;
+        const rStrahl = (v) => clamp(Math.sqrt(qm3 / (Math.PI * Math.max(0.3, v))), 0.0008, 0.0085);
+        // ohne Hindernis bis auf den Tisch
+        let tPar = fallT(e.y - TISCH_Y - 0.0005), art = 'tisch', rein = 0, innenBis = 0;
+        if (e.y > hy) {
+            const th = fallT(e.y - hy);
+            const px = e.x + _a.x * vh * th, pz = e.z + _a.z * vh * th;
+            const r = Math.hypot(px - _a2.x, pz - _a2.z) / CM;
+            const rs = rStrahl(Math.hypot(vh, vy + G_ERDE * th)) / CM;
+            if (AB.saeule === 'liegt' && r < HALS_AUSSEN + rs) {
+                // innen glatt hinein, auf der Glaskante teilt sich der Strahl
+                rein = clamp((HALS_INNEN - r + rs) / (2 * rs), 0, 1);
+                art = rein > 0.02 ? 'bowl' : 'glas';
+                tPar = th;
+                if (art === 'bowl') innenBis = TISCH_Y + Math.max(AB.pegel, BOWL_WASSER.boden) * CM;
+            } else if (r < 12) art = 'glas';      // außen am Glas: läuft am Bowl hinunter bis zum Fuß
+        }
+        FL.treffer = art; FL.rein = rein;
+        // Punkte: Wurfparabel, im Bowl danach an der Halswand senkrecht bis zum Wasser
+        const n = S.n, nPar = art === 'bowl' ? 16 : n;
+        for (let i = 0; i < nPar; i++) {
+            const t = tPar * i / (nPar - 1);
+            FL.strahlPunkte[i].set(e.x + _a.x * vh * t, e.y - vy * t - 0.5 * G_ERDE * t * t, e.z + _a.z * vh * t);
+        }
+        const vHals = Math.hypot(vh, vy + G_ERDE * tPar);
+        if (art === 'bowl') {
+            const h = FL.strahlPunkte[nPar - 1];
+            for (let i = nPar; i < n; i++) FL.strahlPunkte[i].set(h.x, lerp(h.y, innenBis, (i - nPar + 1) / (n - nPar)), h.z);
+        }
+        const zeit = performance.now() * 0.001;
+        S.setze(FL.strahlPunkte, (i) => {
+            let v;
+            if (i < nPar) { const t = tPar * i / (nPar - 1); v = Math.hypot(vh, vy + G_ERDE * t); }
+            else v = Math.sqrt(vHals * vHals + 2 * G_ERDE * Math.max(0, FL.strahlPunkte[nPar - 1].y - FL.strahlPunkte[i].y));
+            // der Strahl schnürt sich unten ein und zittert leicht
+            return rStrahl(v) * (0.92 + 0.08 * Math.sin(zeit * 41 + i * 1.7)) * (i === 0 ? 0.85 : 1);
+        });
+        S.mesh.visible = true;
+        // Mengen verteilen
+        const menge = q * dt;
+        const ins = art === 'bowl' ? menge * rein : 0;
+        const daneben = menge - ins;
+        if (ins > 0) {
+            AB.wasserMl += ins;
+            AB.wellen = Math.min(1, AB.wellen + dt * 2.5);
+            const voll = bowlVolumen(BOWL_WASSER.hals - 0.05);
+            if (AB.wasserMl > voll) {
+                // randvoll: was mehr kommt, läuft über und am Bowl hinunter
+                pfuetzeDazu(_a2.x + 0.123 * FL.seite.x, _a2.z + 0.123 * FL.seite.z, AB.wasserMl - voll);
+                AB.wasserMl = voll;
+            }
+        }
+        if (daneben > 0) {
+            const ende = FL.strahlPunkte[nPar - 1];
+            if (art === 'glas' || art === 'bowl') {
+                const w = Math.atan2(ende.z - _a2.z, ende.x - _a2.x);
+                pfuetzeDazu(_a2.x + Math.cos(w) * 0.123, _a2.z + Math.sin(w) * 0.123, daneben);
+            } else pfuetzeDazu(ende.x, ende.z, daneben);
+        }
+        FL.spritz = art === 'bowl' ? 1 - rein : 1;
+    }
+
+    // ---------------------------------------------------------------------------
+    // Pfützen: verschüttetes Wasser als dünner Film auf dem Holz (1,5 mm), ausgefranster Rand
+
+    function pfuetzeDazu(x, z, ml) {
+        if (ml <= 0) return;
+        AB.verschuettet += ml;
+        let p = AB.pfuetzen.find((q) => Math.hypot(q.x - x, q.z - z) < Math.max(0.03, q.r * 0.6));
+        if (!p) {
+            if (AB.pfuetzen.length >= 10) p = AB.pfuetzen.reduce((a, b) => (Math.hypot(a.x - x, a.z - z) < Math.hypot(b.x - x, b.z - z) ? a : b));
+            else {
+                const geo = new THREE.CircleGeometry(1, 40);
+                geo.rotateX(-Math.PI / 2);
+                const pos = geo.attributes.position, seed = AB.pfuetzen.length * 7.3 + 1;
+                for (let i = 0; i < pos.count; i++) {
+                    const px = pos.getX(i), pz = pos.getZ(i), r = Math.hypot(px, pz);
+                    if (r < 1e-6) continue;
+                    const w = Math.atan2(pz, px);
+                    const k = 1 + 0.18 * N.n2(Math.cos(w) * 1.6 + seed, Math.sin(w) * 1.6) + 0.07 * N2.n2(Math.cos(w) * 4 + seed, Math.sin(w) * 4);
+                    pos.setX(i, px * k); pos.setZ(i, pz * k);
+                }
+                const m = mesh(geo, M.pfuetze, { schatten: false, empfang: false, name: 'pfuetze' });
+                m.renderOrder = 1;
+                m.raycast = () => {};
+                AB.pfuetzenGruppe.add(m);
+                p = { x, z, ml: 0, r: 0, mesh: m };
+                AB.pfuetzen.push(p);
+            }
+        }
+        // Schwerpunkt wandert ein wenig mit
+        const neu = p.ml + ml;
+        p.x = (p.x * p.ml + x * ml) / neu; p.z = (p.z * p.ml + z * ml) / neu;
+        p.ml = neu;
+        p.r = Math.sqrt(p.ml / (Math.PI * 0.15)) * CM;
+        // auf der Tischplatte, am Bowlfuß etwas höher (der Fuß ist 3 cm hoch, das Wasser liegt aber auf dem Tisch)
+        p.mesh.position.set(p.x, TISCH_Y + 0.0007, p.z);
+        p.mesh.scale.set(p.r, 1, p.r);
+    }
+
+    // ---------------------------------------------------------------------------
+    // Hand frei machen: Zange (ohne Kohle), Stecher, Küchenpapier, Flasche ablegen. Muss die Zange erst hingelegt
+    // werden, läuft die Aktion danach von selbst weiter.
+
+    function handFrei(weiter, ausser = '') {
+        if (H.ablauf) return false;
+        if (W.inHand) stecherAblegen();
+        if (TU.inHand) tuchAblegen();
+        if (FL.inHand && ausser !== 'flasche') flascheAbstellen();
+        if (H.inHand) {
+            if (H.kohle) { meldung('Erst die Kohle ablegen.', 2.2); return false; }
+            H.danach = null;
+            zangeHinlegen(null);
+            H.danach = weiter;
+            return false;
+        }
+        return true;
+    }
+    function handFreiMachen() { if (W.inHand) stecherAblegen(); if (TU.inHand) tuchAblegen(); }
+
+    function aufbauKarte(i) {
+        if (spiel.ansicht !== i) { spiel.ansicht = i; phasenLeiste(); }
+        karteZeichnen();
+        if (!AB.gesehen[i - 3]) { AB.gesehen[i - 3] = true; fliegeZu(...SPIEL_BLICK[i]); }
+    }
+
+    // ---------------------------------------------------------------------------
+    // Tragen: ein Teil von seinem Platz auf die Säule setzen (anheben, hinüber, absenken). opt.mitnehmen bekommt die
+    // alte und neue Weltmatrix, damit der Tabak im Kopf mitfährt.
+
+    const _tm0 = new THREE.Matrix4(), _tm1 = new THREE.Matrix4(), _hp = new THREE.Vector3();
+    function tragen(obj, lokalP, lokalQ, opt = {}) {
+        const s = saeuleObj();
+        s.updateMatrixWorld(true);
+        const zielP = lokalP.clone().applyMatrix4(s.matrixWorld);
+        const zielQ = s.getWorldQuaternion(new THREE.Quaternion()).multiply(lokalQ);
+        scene.attach(obj);
+        const p0 = obj.position.clone(), q0 = obj.quaternion.clone();
+        const reise = Math.max(p0.y, zielP.y) + (opt.ueber ?? 0.06);
+        const hoch = p0.clone(); hoch.y = p0.y + (opt.hub ?? 0.04);
+        const oben0 = new THREE.Vector3(p0.x, reise, p0.z), oben1 = new THREE.Vector3(zielP.x, reise, zielP.z);
+        const setze = (p, q) => {
+            if (opt.mitnehmen) { obj.updateMatrixWorld(true); _tm0.copy(obj.matrixWorld); }
+            obj.position.copy(p); obj.quaternion.copy(q);
+            if (opt.mitnehmen) { obj.updateMatrixWorld(true); opt.mitnehmen(_tm0, obj.matrixWorld); }
+            if (opt.jeBild) opt.jeBild();
+        };
+        const qZw = new THREE.Quaternion();
+        const dauer = opt.dauer ?? 1.4;
+        ablauf([
+            { dauer: dauer * 0.18, lauf: (t) => setze(_a.lerpVectors(p0, hoch, t), q0) },
+            { dauer: dauer * 0.24, lauf: (t) => setze(_a.lerpVectors(hoch, oben0, t), q0) },
+            { dauer: dauer * 0.33, lauf: (t) => setze(_a.lerpVectors(oben0, oben1, t), qZw.copy(q0).slerp(zielQ, t)) },
+            {
+                dauer: dauer * 0.25,
+                lauf: (t) => setze(_a.lerpVectors(oben1, zielP, t), zielQ),
+                ende: () => {
+                    if (opt.mitnehmen) { obj.updateMatrixWorld(true); _tm0.copy(obj.matrixWorld); }
+                    s.attach(obj);
+                    obj.position.copy(lokalP); obj.quaternion.copy(lokalQ);
+                    if (opt.mitnehmen) { obj.updateMatrixWorld(true); opt.mitnehmen(_tm0, obj.matrixWorld); }
+                    if (opt.ende) opt.ende();
+                },
+            },
+        ]);
+    }
+
+    // Tabak starr mit dem Kopf versetzen (Lage, alte Lage, Ruhepunkte und Ausrichtung der Teilchen)
+    const _tq0 = new THREE.Quaternion(), _tq1 = new THREE.Quaternion(), _tqd = new THREE.Quaternion(), _tp0 = new THREE.Vector3(), _tp1 = new THREE.Vector3();
+    function tabakMitnehmen(mAlt, mNeu) {
+        mAlt.decompose(_tp0, _tq0, _a);
+        mNeu.decompose(_tp1, _tq1, _a);
+        _tqd.copy(_tq1).multiply(_tq0.invert());
+        const qx = _tqd.x, qy = _tqd.y, qz = _tqd.z, qw = _tqd.w;
+        const dreh = (x, y, z, out) => {
+            // v' = q v q*, dann verschieben
+            const tx = 2 * (qy * z - qz * y), ty = 2 * (qz * x - qx * z), tz = 2 * (qx * y - qy * x);
+            out[0] = x + qw * tx + qy * tz - qz * ty + _tp1.x;
+            out[1] = y + qw * ty + qz * tx - qx * tz + _tp1.y;
+            out[2] = z + qw * tz + qx * ty - qy * tx + _tp1.z;
+        };
+        const o = [0, 0, 0];
+        const felder = [['x', 'y', 'z'], ['ax', 'ay', 'az'], ['rx', 'ry', 'rz'], ['r2x', 'r2y', 'r2z']];
+        for (let i = 0; i < tb.n; i++) {
+            const s = tb.st[i];
+            if (s !== 1 && s !== 2) continue;
+            // nur was in der Kammer oder auf dem Rand liegt; Krümel auf der Matte bleiben liegen
+            const rl = Math.hypot(tb.x[i] - _tp0.x, tb.z[i] - _tp0.z) / CM, yl = (tb.y[i] - _tp0.y) / CM;
+            if (rl > 4.3 || yl < 5.5 || yl > 11.5) continue;
+            for (const [fx, fy, fz] of felder) {
+                dreh(tb[fx][i] - _tp0.x, tb[fy][i] - _tp0.y, tb[fz][i] - _tp0.z, o);
+                tb[fx][i] = o[0]; tb[fy][i] = o[1]; tb[fz][i] = o[2];
+            }
+            // Ausrichtung des Klümpchens
+            const k = i * 4, ax = tb.q[k], ay = tb.q[k + 1], az = tb.q[k + 2], aw = tb.q[k + 3];
+            tb.q[k] = qw * ax + qx * aw + qy * az - qz * ay;
+            tb.q[k + 1] = qw * ay - qx * az + qy * aw + qz * ax;
+            tb.q[k + 2] = qw * az + qx * ay - qy * ax + qz * aw;
+            tb.q[k + 3] = qw * aw - qx * ax - qy * ay - qz * az;
+            tb.dreck[i] |= 1;
+        }
+        kopf.getWorldPosition(KB.kopfPos);
+        // Nachbarraster neu, sonst findet die Stützprüfung die mitgefahrenen Nachbarn nicht und weckt alles
+        tbGitter();
+    }
+
+    // ---------------------------------------------------------------------------
+    // Kopfdichtung, Kopf, HMD
+
+    const KOPF_AUF = () => (SHISHA.kopfAuflage + DICHTUNG_SITZ) * CM;
+    const HMD_AUF = () => KOPF_AUF() + (KOPF.hoehe - HMD.auflage) * CM;
+
+    function dichtungAufsetzen() {
+        if (AB.dichtung !== 'lose' || AB.saeule !== 'drin' || AB.wasserMl < 50 || H.ablauf) return;
+        if (!handFrei(() => dichtungAufsetzen())) return;
+        AB.dichtung = 'unterwegs';
+        tragen(dichtung, new THREE.Vector3(0, SHISHA.kopfAuflage * CM, 0), new THREE.Quaternion(), {
+            dauer: 1.1, ueber: 0.04,
+            ende: () => { AB.dichtung = 'drauf'; geraeusch.silikon(0.8); aufbauKarte(4); },
+        });
+        aufbauKarte(4);
+    }
+
+    // Gierwinkel des Kopfs in der Welt beibehalten (der Tabak dreht sich so nicht mit)
+    function kopfLokalQ() {
+        const s = saeuleObj();
+        const qs = s.getWorldQuaternion(new THREE.Quaternion());
+        return qs.invert().multiply(kopf.getWorldQuaternion(new THREE.Quaternion()));
+    }
+
+    function kopfAufsetzen() {
+        if (AB.kopf !== 'matte' || AB.dichtung !== 'drauf' || H.ablauf) return;
+        if (!spiel.fertig.has(2)) { meldung('Erst den Kopf fertig bauen.', 2.4); return; }
+        if (!handFrei(() => kopfAufsetzen())) return;
+        AB.kopf = 'unterwegs';
+        const vorher = kopfStatistik().imKopf;
+        tragen(kopf, new THREE.Vector3(0, KOPF_AUF(), 0), kopfLokalQ(), {
+            dauer: 1.8, ueber: 0.05, hub: 0.05, mitnehmen: tabakMitnehmen,
+            ende: () => {
+                AB.kopf = 'drauf';
+                geraeusch.keramik(0.7);
+                geraeusch.silikon(0.5);
+                // kurz nachsehen, ob beim Tragen etwas herausgefallen ist
+                setTimeout(() => { AB.kopfVerlust = Math.max(0, vorher - kopfStatistik().imKopf); }, 800);
+                hmdKolliderSetzen();
+                meldung('Der Kopf sitzt auf der Dichtung. Leicht andrücken, fertig.', 2.8, 'aufbau');
+                aufbauKarte(4);
+            },
+        });
+        aufbauKarte(4);
+    }
+
+    function hmdAufsetzen() {
+        if (AB.hmd !== 'tisch' || AB.kopf !== 'drauf' || H.ablauf) return;
+        if (!handFrei(() => hmdAufsetzen())) return;
+        AB.hmd = 'unterwegs';
+        const s = saeuleObj();
+        const qs = s.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(hmd.getWorldQuaternion(new THREE.Quaternion()));
+        tragen(hmd, new THREE.Vector3(0, HMD_AUF(), 0), qs, {
+            dauer: 1.2, ueber: 0.05, jeBild: hmdPlatteFolgen,
+            ende: () => {
+                AB.hmd = 'drauf';
+                geraeusch.hmd(0.8);
+                hmdKolliderSetzen();
+                aufbauKarte(5);
+            },
+        });
+        aufbauKarte(5);
+    }
+
+    // Der HMD liegt auf dem Kopfrand; seine Bodenplatte (Zentrierlippe 2,5 mm unter der Auflage, außen der Lochkranz
+    // und der Auflagering) drückt auf Tabak, der über den Rand steht (Overpack). Als Kollider eine Scheibe über die ganze
+    // Öffnung, Unterseite 2 mm unter dem Rand und nach oben dick, damit beim Absenken nichts durchrutscht. Dazu der
+    // Teller der Shisha als Auffang für herunterfallende Krümel.
+    function scheibenKollider(c, R, hy) {
+        return { typ: 'scheibe', fest: true, gabel: false, c, R, hy, min: [c[0] - R, c[1] - hy, c[2] - R], max: [c[0] + R, c[1] + hy, c[2] + R], v: [0, 0, 0], reib: 0.6, reib0: 0.6, haft: 0, drueck: false };
+    }
+    function hmdPlatte() {
+        hmd.updateMatrixWorld(true);
+        const p = hmd.localToWorld(new THREE.Vector3(0, 0.8 * CM, 0));
+        const k = scheibenKollider([p.x, p.y, p.z], 3.75 * CM, 1.0 * CM);
+        k.drueck = true; k.hmd = true; k.stauMax = 0.18;       // die Platte liegt auf dem Rand, sie presst nicht
+        return k;
+    }
+    function tabakUnterPlatteWecken(k) {
+        const kp = KB.kopfPos, unten = k.c[1] - k.hy - 0.3 * CM;
+        for (let i = 0; i < tb.n; i++) {
+            if (tb.st[i] !== 2) continue;
+            if (Math.hypot(tb.x[i] - kp.x, tb.z[i] - kp.z) < 3.8 * CM && tb.y[i] + tb.rad[i] > unten) tbWach(i);
+        }
+    }
+    // beim Absenken auf den Kopf: die Platte geht mit und drückt den Tabak, der über den Rand steht, hinunter
+    function hmdPlatteFolgen() {
+        const i = tb.festKol.findIndex((k) => k.hmd);
+        const p = hmd.getWorldPosition(_hp), kp = KB.kopfPos;
+        if (p.y > kp.y + (KOPF.hoehe + 2) * CM || Math.hypot(p.x - kp.x, p.z - kp.z) > 1 * CM) {
+            if (i >= 0) tb.festKol.splice(i, 1);
+            return;
+        }
+        const k = hmdPlatte();
+        if (i >= 0) tb.festKol[i] = k; else tb.festKol.push(k);
+        tabakUnterPlatteWecken(k);
+    }
+    function hmdKolliderSetzen() {
+        tb.festKol.length = 0;
+        const s = saeuleObj();
+        s.updateMatrixWorld(true);
+        if (AB.hmd === 'drauf') {
+            const k = hmdPlatte();
+            tb.festKol.push(k);
+            tabakUnterPlatteWecken(k);
+        }
+        if (AB.kopf === 'drauf') {
+            const t = new THREE.Vector3(0, 59.7 * CM - 0.3 * CM, 0).applyMatrix4(s.matrixWorld);
+            tb.festKol.push(scheibenKollider([t.x, t.y, t.z], 13.2 * CM, 0.3 * CM));
+        }
+    }
+
+    // ---------------------------------------------------------------------------
+    // Schlauch als lebendes Seil: 60 Knoten Silikon, mit Mundstück 8 starre Knoten mehr
+
+    const SL = { seil: null, roehre: null, nS: 60, nM: 8, aktiv: false, ruhig: 0, anim: null, endring: null, mitMund: false, kurve: [] };
+
+    function schlauchLebendig() {
+        if (SL.seil) return;
+        const pts = schlauchSpiralPunkte();
+        // nach Bogenlänge gleichmäßig verteilen
+        const s = [0];
+        for (let i = 1; i < pts.length; i++) s.push(s[i - 1] + pts[i].distanceTo(pts[i - 1]));
+        const L = s[s.length - 1], seg = L / (SL.nS - 1);
+        const knoten = [], laengen = [];
+        let j = 0;
+        for (let k = 0; k < SL.nS; k++) {
+            const z = k * seg;
+            while (j < s.length - 2 && s[j + 1] < z) j++;
+            const t = clamp((z - s[j]) / Math.max(1e-9, s[j + 1] - s[j]), 0, 1);
+            knoten.push(new THREE.Vector3().lerpVectors(pts[j], pts[j + 1], t));
+            if (k < SL.nS - 1) laengen.push(seg);
+        }
+        SL.seil = new Seil(knoten, laengen);
+        SL.seil.kollider = schlauchKolliderAufbau();
+        SL.seil.biege = 0.3;
+        SL.seil.selbst = true;
+        SL.seil.haften = 0.00012;
+        const n = (SL.nS - 1) * 3 + 1;
+        SL.roehre = new Roehre(n, Math.round(14 * Q0.segs), M.silikon, 'schlauchLebend');
+        SL.roehre.treffbar = true;
+        for (let i = 0; i < n; i++) SL.kurve.push(new THREE.Vector3());
+        scene.add(SL.roehre.mesh);
+        tischObjekte.push(SL.roehre.mesh);
+        SL.endring = mesh(new THREE.RingGeometry(SCHLAUCH.ri, SCHLAUCH.ra, 28), M.silikon, { schatten: false, name: 'schlauchEnde' });
+        SL.endring.raycast = () => {};
+        scene.add(SL.endring);
+        schlauchLose.visible = false;
+        schlauchZeichnen();
+    }
+
+    function schlauchKolliderAufbau() {
+        const k = schlauchKollider();
+        if (!FL.inHand) k.push({ typ: 'zyl', x: FL.ruheP.x, z: FL.ruheP.z, y0: TISCH_Y, y1: TISCH_Y + FLASCHE.hoehe * CM, r: FLASCHE.r * CM });
+        if (AB.kopf === 'matte') k.push({ typ: 'zyl', x: kopf.position.x, z: kopf.position.z, y0: TISCH_Y, y1: TISCH_Y + 0.088, r: 0.042 });
+        if (AB.hmd === 'tisch') k.push({ typ: 'zyl', x: hmd.position.x, z: hmd.position.z, y0: TISCH_Y, y1: TISCH_Y + 0.04, r: 0.043 });
+        return k;
+    }
+
+    // Mittellinie: Catmull-Rom durch die Schlauchknoten (ohne Mundstück)
+    function schlauchZeichnen() {
+        const p = SL.seil.p, n = SL.nS, out = SL.kurve;
+        let o = 0;
+        for (let i = 0; i < n - 1; i++) {
+            const p0 = p[Math.max(0, i - 1)], p1 = p[i], p2 = p[i + 1], p3 = p[Math.min(n - 1, i + 2)];
+            for (let k = 0; k < 3; k++) {
+                const t = k / 3, t2 = t * t, t3 = t2 * t;
+                out[o++].set(
+                    0.5 * (2 * p1.x + (-p0.x + p2.x) * t + (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t2 + (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t3),
+                    0.5 * (2 * p1.y + (-p0.y + p2.y) * t + (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t2 + (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t3),
+                    0.5 * (2 * p1.z + (-p0.z + p2.z) * t + (2 * p0.z - 5 * p1.z + 4 * p2.z - p3.z) * t2 + (-p0.z + 3 * p1.z - 3 * p2.z + p3.z) * t3));
+            }
+        }
+        out[o].copy(p[n - 1]);
+        SL.roehre.setze(out, SCHLAUCH.ra);
+        // Adapter am Anfang, Mundstück oder offenes Ende am Schluss
+        _a.subVectors(p[1], p[0]).normalize();
+        adapterLose.quaternion.setFromUnitVectors(OBEN, _a);
+        adapterLose.position.copy(p[0]).addScaledVector(_a, -SCHLAUCH.adapterSitz);
+        _a.subVectors(p[n - 1], p[n - 2]).normalize();
+        if (SL.mitMund) {
+            const spitze = p[p.length - 1];
+            _a2.subVectors(spitze, p[n - 1]).normalize();
+            mundstueck.quaternion.setFromUnitVectors(OBEN, _a2);
+            mundstueck.position.copy(p[n - 1]).addScaledVector(_a2, -2.8 * CM);
+            SL.endring.visible = false;
+        } else {
+            SL.endring.visible = true;
+            SL.endring.position.copy(p[n - 1]);
+            SL.endring.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), _a);
+        }
+    }
+
+    function schlauchFrame(dt) {
+        if (!SL.seil) return;
+        if (SL.anim) SL.anim(dt);
+        if (!SL.aktiv) return;
+        const s = SL.seil;
+        let maxWeg = 0;
+        const vorher = s.p.map((v) => v.clone());
+        const n = dt > 1 / 45 ? 3 : 2;
+        for (let k = 0; k < n; k++) s.schritt(1 / 120, 12);
+        for (let i = 0; i < s.p.length; i++) maxWeg = Math.max(maxWeg, s.p[i].distanceTo(vorher[i]));
+        schlauchZeichnen();
+        SL.ruhig = maxWeg < 0.00004 && !SL.anim ? SL.ruhig + dt : 0;
+        if (SL.ruhig > 1.2) SL.aktiv = false;
+    }
+
+    // Endknoten fest auf eine Lage setzen (Adapterende: Knoten 0 und 1 entlang dir)
+    function schlauchAnfang(pos, dir) {
+        const s = SL.seil;
+        s.p[0].copy(pos); s.a[0].copy(pos);
+        s.p[1].copy(pos).addScaledVector(dir, s.l[0]); s.a[1].copy(s.p[1]);
+    }
+
+    function schlauchAnschliessen() {
+        if (AB.schlauch !== 'lose' || AB.saeule !== 'drin' || AB.wasserMl < 50 || H.ablauf) return;
+        if (!handFrei(() => schlauchAnschliessen())) return;
+        schlauchLebendig();
+        AB.schlauch = 'unterwegs';
+        const s = SL.seil;
+        s.kollider = schlauchKolliderAufbau();
+        s.fix.add(0); s.fix.add(1);
+        shisha.updateMatrixWorld(true);
+        const basis = SHISHA.portBasis.clone().applyMatrix4(saeuleObj().matrixWorld);
+        const dir = SHISHA.portRichtung.clone().applyQuaternion(saeuleObj().getWorldQuaternion(new THREE.Quaternion())).normalize();
+        // Hülse sitzt 1,43 cm tief, der Schlauch beginnt adapterSitz dahinter
+        const ziel = basis.clone().addScaledVector(dir, 1.43 * CM + SCHLAUCH.adapterSitz);
+        const vor = ziel.clone().addScaledVector(dir, 4 * CM);
+        const p0 = s.p[0].clone(), d0 = new THREE.Vector3().subVectors(s.p[1], s.p[0]).normalize();
+        const hoch = p0.clone(); hoch.y += 0.1;
+        const d = new THREE.Vector3();
+        let t = 0;
+        SL.aktiv = true;
+        SL.anim = (dt) => {
+            t += dt;
+            const T = [0.45, 0.75, 0.45];
+            let pos, w;
+            if (t < T[0]) { const u = smooth(0, 1, t / T[0]); pos = _a.lerpVectors(p0, hoch, u); w = u * 0.3; }
+            else if (t < T[0] + T[1]) { const u = smooth(0, 1, (t - T[0]) / T[1]); pos = _a.lerpVectors(hoch, vor, u); pos.y += Math.sin(u * Math.PI) * 0.08; w = 0.3 + 0.7 * u; }
+            else { const u = smooth(0, 1, Math.min(1, (t - T[0] - T[1]) / T[2])); pos = _a.lerpVectors(vor, ziel, u); w = 1; }
+            d.copy(d0).lerp(dir, w).normalize();
+            schlauchAnfang(pos, d);
+            if (t >= T[0] + T[1] + T[2]) {
+                schlauchAnfang(ziel, dir);
+                SL.anim = null;
+                AB.schlauch = 'dran';
+                geraeusch.einrasten(0.9);
+                meldung('Schlauch sitzt im Anschluss.', 2.2, 'aufbau');
+                aufbauKarte(4);
+            }
+        };
+        ablauf([{ dauer: 1.65 }]);        // solange laufen keine anderen Handgriffe
+        aufbauKarte(4);
+    }
+
+    // Das Mundstück bleibt auf dem Tisch liegen: die Hand nimmt das Schlauchende und schiebt es auf den Glaszapfen.
+    function mundstueckAufstecken() {
+        if (AB.mund !== 'lose' || H.ablauf) return;
+        if (!handFrei(() => mundstueckAufstecken())) return;
+        schlauchLebendig();
+        AB.mund = 'unterwegs';
+        const s = SL.seil, n = SL.nS;
+        const d = new THREE.Vector3(0, 1, 0).applyQuaternion(mundstueck.quaternion).normalize();
+        const ziel = mundstueck.position.clone().addScaledVector(d, 2.8 * CM);
+        const vor = ziel.clone().addScaledVector(d, -7 * CM); vor.y += 0.015;
+        const p0 = s.p[n - 1].clone(), hoch = p0.clone();
+        hoch.y += 0.07;
+        s.kollider = schlauchKolliderAufbau();
+        s.fix.add(n - 1);
+        SL.aktiv = true;
+        const T = [0.3, 0.75, 0.35];
+        let t = 0;
+        SL.anim = (dt) => {
+            t += dt;
+            let pos;
+            if (t < T[0]) pos = _a.lerpVectors(p0, hoch, smooth(0, 1, t / T[0]));
+            else if (t < T[0] + T[1]) {
+                const u = smooth(0, 1, (t - T[0]) / T[1]);
+                pos = _a.lerpVectors(hoch, vor, u);
+                pos.y += Math.sin(u * Math.PI) * 0.06;
+            } else pos = _a.lerpVectors(vor, ziel, smooth(0, 1, Math.min(1, (t - T[0] - T[1]) / T[2])));
+            s.p[n - 1].copy(pos); s.a[n - 1].copy(pos);
+            if (t < T[0] + T[1] + T[2]) return;
+            SL.anim = null;
+            // starre Knoten für das Mundstück anhängen, so wie es daliegt
+            const segM = (MUNDSTUECK.laenge - 2.8) * CM / (SL.nM - 1);
+            for (let k = 1; k < SL.nM; k++) {
+                const p = ziel.clone().addScaledVector(d, segM * k);
+                s.p.push(p); s.a.push(p.clone()); s.l.push(segM);
+            }
+            s.kontakt = new Uint8Array(s.p.length);
+            for (let i = n - 1; i < n + SL.nM - 3; i++) s.steif.add(i);
+            s.fix.delete(n - 1);
+            SL.mitMund = true;
+            AB.mund = 'dran';
+            geraeusch.silikon(0.6);
+            aufbauKarte(4);
+        };
+        ablauf([{ dauer: T[0] + T[1] + T[2] + 0.05 }]);
+        aufbauKarte(4);
+    }
+
+    // ---------------------------------------------------------------------------
+    // Kohle im HMD. Boden im Schnitt (cm, HMD-Ursprung = Auflage auf dem Kopfrand): Platte mit Ringen 0,495 und
+    // Buckel 0,585, Lochkranz von r 2,95 (0,45) schräg hoch bis 3,42 (0,75), Wand bei 3,45. Drei Würfel mit 2,6 cm
+    // passen nur eng hinein (zwei nebeneinander, der dritte davor); am Lochkranz kippen sie ein paar Grad.
+
+    const HMD_IN = { wand: 3.45, kranzInnen: 2.95, kranzAussen: 3.42, steig: 0.3 / 0.47, luft: 0.03 };
+    function hmdBoden(r) {
+        const a = Math.abs(r);
+        if (a < 0.46) return 0.585 - (0.585 - 0.495) * a / 0.46;
+        if (a <= 2.62) return 0.495;
+        if (a <= HMD_IN.kranzInnen) return 0.45;
+        if (a <= HMD_IN.kranzAussen) return 0.45 + (a - HMD_IN.kranzInnen) * HMD_IN.steig;
+        return 0.75;
+    }
+
+    // Probenpunkte eines Würfels: Ecken, Kantenmitten, Flächenmitten (Kanten sind leicht gerundet)
+    const WUERFEL_PROBEN = [];
+    for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) for (let k = -1; k <= 1; k++) if (i || j || k) WUERFEL_PROBEN.push([i * 1.27, j * 1.27, k * 1.27]);
+
+    // Würfel mit der Mitte bei Radius cx, gegen die Radiale um psi gedreht und um die Tangente um w gekippt:
+    // Höhe der Mitte, auf der er aufliegt, und wie weit er in die Wand ragt
+    function hmdLage(cx, psi, w) {
+        const c = Math.cos(psi), s = Math.sin(psi), cw = Math.cos(w), sw = Math.sin(w);
+        let y = -Infinity, raus = -Infinity;
+        for (const [u, h, v] of WUERFEL_PROBEN) {
+            const a = u * c - v * s, b = u * s + v * c;
+            const a2 = a * cw - h * sw, h2 = a * sw + h * cw;
+            const r = Math.hypot(cx + a2, b);
+            y = Math.max(y, hmdBoden(r) - h2);
+            raus = Math.max(raus, r - HMD_IN.wand + HMD_IN.luft);
+        }
+        return { y, raus };
+    }
+
+    // Ruhelage: flach so, dass der Schwerpunkt am tiefsten liegt (an der Wand rutscht sie nach innen);
+    // schräg hochkant mit gut 55° an die Wand gelehnt, so weit außen wie es geht
+    function hmdRuhelage(cx, psi, schraeg) {
+        const innen = (r, w) => {
+            if (hmdLage(r, psi, w).raus <= 0) return r;
+            let lo = 0, hi = r;
+            for (let k = 0; k < 22; k++) { const m = (lo + hi) / 2; if (hmdLage(m, psi, w).raus > 0) hi = m; else lo = m; }
+            return lo;
+        };
+        if (schraeg) {
+            const w = -0.96, r = innen(3.4, w);
+            return { r, y: hmdLage(r, psi, w).y, w };
+        }
+        let best = null;
+        for (let w = -0.3; w <= 0.3001; w += 0.01) {
+            const r = innen(cx, w), y = hmdLage(r, psi, w).y;
+            if (!best || y < best.y - 1e-5) best = { r, y, w };
+        }
+        return best;
+    }
+    // hängt nur von Radius und Gier (wegen der Würfelsymmetrie 0..45°) ab: einmal rechnen, dann merken
+    const HMD_LAGEN = new Map(), GRAD5 = 5 * Math.PI / 180;
+    function hmdRuheTabelle(cx, psi, schraeg) {
+        let p = ((psi % (Math.PI / 2)) + Math.PI / 2) % (Math.PI / 2);
+        if (p > Math.PI / 4) p = Math.PI / 2 - p;
+        const pk = Math.round(p / GRAD5), ck = schraeg ? 0 : Math.round(clamp(cx, 0, 2.3) * 10);
+        const key = (schraeg ? 's' : 'f') + ck + '_' + pk;
+        let e = HMD_LAGEN.get(key);
+        if (!e) { e = hmdRuhelage(ck / 10, pk * GRAD5, schraeg); HMD_LAGEN.set(key, e); }
+        return e;
+    }
+
+    // Liegen zwei Würfel (Lagen im HMD-System, cm) ineinander? Je 27 Punkte des einen im anderen. Die echten Würfel
+    // haben abgeplatzte, gerundete Kanten: gut 1 mm Berührung gilt noch als frei.
+    const _wq = new THREE.Quaternion(), _wv = new THREE.Vector3();
+    function wuerfelUeberlapp(pa, qa, pb, qb, tol = 1.15) {
+        const drin = (p1, q1, p2, q2) => {
+            _wq.copy(q2).invert();
+            for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) for (let k = -1; k <= 1; k++) {
+                _wv.set(i * 1.27, j * 1.27, k * 1.27).applyQuaternion(q1).add(p1).sub(p2).applyQuaternion(_wq);
+                if (Math.abs(_wv.x) < tol && Math.abs(_wv.y) < tol && Math.abs(_wv.z) < tol) return true;
+            }
+            return false;
+        };
+        return drin(pa, qa, pb, qb) || drin(pb, qb, pa, qa);
+    }
+
+    // Gier eines aufgerichteten Würfels: Richtung einer waagrechten Achse (atan2(x, z))
+    function wuerfelGier(q) {
+        for (const a of [[1, 0, 0], [0, 0, 1], [0, 1, 0]]) {
+            _wv.set(...a).applyQuaternion(q);
+            if (Math.abs(_wv.y) < 0.5) return Math.atan2(_wv.x, _wv.z);
+        }
+        return 0;
+    }
+    // Lage aus Winkel phi, Gier, Ruhelage e und der aufgerichteten Ausgangslage q0 (Gier g0)
+    function hmdLageBauen(phi, gier, e, q0, g0) {
+        const er = new THREE.Vector3(Math.sin(phi), 0, Math.cos(phi));
+        const achse = new THREE.Vector3().crossVectors(er, OBEN).normalize();
+        let d = (gier - g0) % (Math.PI / 2);
+        if (d > Math.PI / 4) d -= Math.PI / 2; else if (d < -Math.PI / 4) d += Math.PI / 2;
+        const q = new THREE.Quaternion().setFromAxisAngle(achse, e.w).multiply(new THREE.Quaternion().setFromAxisAngle(OBEN, d)).multiply(q0);
+        const p = er.multiplyScalar(e.r);
+        p.y = e.y;
+        return { p, q, d };
+    }
+
+    // Freien Platz suchen, nahe am Wunschpunkt (cm, HMD-lokal); andere: [{ p, q }]. Liefert { p, q, e } oder null.
+    function hmdPlatz(wx, wz, q0, schraeg, andere) {
+        const g0 = wuerfelGier(q0), kand = [];
+        for (let a = 0; a < 72; a++) {
+            const phi = a * GRAD5;
+            for (let pk = 0; pk < 18; pk++) {
+                const gier = phi + pk * GRAD5;
+                let d = (gier - g0) % (Math.PI / 2);
+                if (d > Math.PI / 4) d -= Math.PI / 2; else if (d < -Math.PI / 4) d += Math.PI / 2;
+                for (let ck = 0; ck <= (schraeg ? 0 : 23); ck++) {
+                    const e = hmdRuheTabelle(ck / 10, pk * GRAD5, schraeg);
+                    const x = Math.sin(phi) * e.r, z = Math.cos(phi) * e.r;
+                    kand.push({ kosten: Math.hypot(x - wx, z - wz) + 0.03 * Math.abs(d) * 180 / Math.PI, phi, gier, e });
+                }
+            }
+        }
+        kand.sort((a, b) => a.kosten - b.kosten);
+        for (const c of kand) {
+            const l = hmdLageBauen(c.phi, c.gier, c.e, q0, g0);
+            if (andere.every((o) => !wuerfelUeberlapp(l.p, l.q, o.p, o.q))) return { ...l, e: c.e };
+        }
+        return null;
+    }
+
+    // Die enge Anordnung für drei flache Kohlen (zwei nebeneinander, die dritte davor), einmal ausgerechnet
+    let HMD_DREI = null;
+    function hmdDreiPlaetze() {
+        if (HMD_DREI) return HMD_DREI;
+        const q0 = new THREE.Quaternion(), l = [];
+        HMD_DREI = [];
+        for (const [x, z] of [[-1.3, -0.8125], [1.3, -0.8125], [0, 1.7875]]) {
+            const pl = hmdPlatz(x, z, q0, false, l);
+            if (!pl) break;
+            l.push(pl);
+            HMD_DREI.push({ phi: Math.atan2(pl.p.x, pl.p.z), gier: wuerfelGier(pl.q), e: pl.e });
+        }
+        return HMD_DREI;
+    }
+
+    // Lage einer Kohle im HMD aus dem Zielpunkt (Welt). Ist für die dritte kein Platz, schiebt die Zange die beiden
+    // anderen in die enge Anordnung (schieben: neue Lagen für sie). Liefert HMD-lokale Lagen (m) oder null.
+    function hmdKohleLage(punkt, k, schraeg) {
+        hmd.updateMatrixWorld(true);
+        const ziel = hmd.worldToLocal(punkt.clone()).divideScalar(CM);
+        const qhi = hmd.getWorldQuaternion(new THREE.Quaternion()).invert();
+        const lokal = (x) => ({
+            k: x,
+            p: hmd.worldToLocal(x.mesh.getWorldPosition(new THREE.Vector3())).divideScalar(CM),
+            q: qhi.clone().multiply(x.mesh.getWorldQuaternion(new THREE.Quaternion())),
+        });
+        const andere = spielKohlen.filter((x) => x !== k && x.ort === 'hmd').map(lokal);
+        // die Seite, die in der Zange unten ist, bleibt unten
+        const q0 = qhi.clone().multiply(aufrichten(k.mesh.getWorldQuaternion(new THREE.Quaternion())));
+        const fertig = (l, schieben = []) => {
+            const kipp = Math.abs(l.e.w);
+            return { p: l.p.multiplyScalar(CM), q: l.q, kipp, deckung: kipp < 0.075 ? 0.8 : kipp < 0.2 ? 0.45 : 0.22, r: l.e.r, schraeg, schieben };
+        };
+        const pl = hmdPlatz(ziel.x, ziel.z, q0, schraeg, andere);
+        if (pl) return fertig(pl);
+        if (schraeg || andere.length !== 2 || andere.some((o) => o.k.schraeg)) return null;
+        // zusammenschieben: Drehung und Zuordnung der engen Anordnung, bei der sich am wenigsten bewegt
+        const drei = hmdDreiPlaetze();
+        if (drei.length < 3) return null;
+        let best = null;
+        for (let a = 0; a < 120; a++) {
+            const th = a * 3 * Math.PI / 180;
+            const pos = drei.map((s) => [Math.sin(s.phi + th) * s.e.r, Math.cos(s.phi + th) * s.e.r]);
+            for (const [i, j, n] of [[0, 1, 2], [1, 0, 2], [0, 2, 1], [2, 0, 1], [1, 2, 0], [2, 1, 0]]) {
+                const c = Math.hypot(pos[i][0] - andere[0].p.x, pos[i][1] - andere[0].p.z) + Math.hypot(pos[j][0] - andere[1].p.x, pos[j][1] - andere[1].p.z)
+                    + Math.hypot(pos[n][0] - ziel.x, pos[n][1] - ziel.z);
+                if (!best || c < best.c) best = { c, th, zu: [i, j, n] };
+            }
+        }
+        const slot = (s, qa) => {
+            const g0 = wuerfelGier(aufrichten(qa));
+            return hmdLageBauen(s.phi + best.th, s.gier + best.th, s.e, aufrichten(qa.clone()), g0);
+        };
+        const schieben = andere.map((o, i) => {
+            const l = slot(drei[best.zu[i]], o.q);
+            return { k: o.k, p: l.p.multiplyScalar(CM), q: l.q, kipp: Math.abs(drei[best.zu[i]].e.w) };
+        });
+        const l = slot(drei[best.zu[2]], q0);
+        return fertig({ ...l, e: drei[best.zu[2]].e }, schieben);
+    }
+
+    // Kohle liegt im HMD: hängt an ihm, Auflage für die Wärmeleitung, Buchführung für die Bewertung
+    function kohleImHmd(k, lage) {
+        hmd.attach(k.mesh);
+        for (const sc of lage.schieben) { sc.k.hmdDeckung = sc.kipp < 0.075 ? 0.8 : sc.kipp < 0.2 ? 0.45 : 0.22; sc.k.mesh.updateMatrixWorld(true); sc.k.aufgelegt(sc.k.hmdDeckung); }
+        k.unterwegsBeimAuflegen = k.unterwegs || 0;
+        k.hmdDeckung = lage.deckung;
+        k.schraeg = lage.schraeg;
+        const b = k.kern.bewertung();
+        k.durchBeimAuflegen = !!k.warDurch || (b.min >= 0.55 && b.asche >= 0.08);
+        k.kaltBeimAuflegen = b.mittel < 0.35;
+        k.aufgelegt(lage.deckung);
+        const n = hmdKohlen().length;
+        if (!k.durchBeimAuflegen) meldung('Die Kohle glüht noch nicht rundum: im HMD glüht sie nur langsam nach.', 3.4, 'hmdKohle');
+        else if (lage.schieben.length) meldung('Eng: die Zange schiebt die beiden anderen Kohlen zusammen.', 3, 'hmdKohle');
+        else if (n < 3) meldung(`${n} von 3 Kohlen im HMD.` + (lage.schraeg ? ' Schräg angelehnt: sie braucht den Platz einer zweiten.' : ''), 2.6, 'hmdKohle');
+        else meldung('Drei Kohlen im HMD. Der Kopf heizt jetzt vor.', 3, 'hmdKohle');
+        aufbauKarte(5);
+    }
+
+    // ---------------------------------------------------------------------------
+    // Wärme: der HMD sammelt Strahlung und Kontaktwärme der Kohlen und gibt sie an Kopf und Luft ab; der Kopf folgt
+    // langsamer. (Fürs Anrauchen in Etappe 5; hier zeigt die Anzeige schon die Temperatur.)
+
+    function hmdWaerme(h) {
+        let rein = 0;
+        for (const k of spielKohlen) {
+            if (k.ort !== 'hmd') continue;
+            const b = k.kern.bewertung();
+            const unten = k.kern.seite(k.untenSeite()).glut;
+            rein += 0.95 * b.mittel + 0.8 * k.hmdDeckung * unten;
+        }
+        AB.hmdT += (rein - 0.0085 * (AB.hmdT - GLUT.umgebung)) * h;
+        const kopfZiel = GLUT.umgebung + (AB.hmdT - GLUT.umgebung) * 0.72;
+        AB.kopfT += (kopfZiel - AB.kopfT) * (1 - Math.exp(-h / 140));
+    }
+
+    // ---------------------------------------------------------------------------
+    // Zuordnung, Aktionen, Tipps
+
+    function aufbauZuordnen(o) {
+        if (flasche && istIn(o, flasche)) return { art: 'flasche', obj: flasche };
+        if (istIn(o, hmd)) return { art: 'hmd', obj: hmd };
+        if (istIn(o, kopf)) return { art: 'kopf', obj: kopf };
+        if (istIn(o, dichtung)) return { art: 'dichtung', obj: dichtung };
+        if (istIn(o, mundstueck)) return { art: 'mundstueck', obj: mundstueck };
+        if (istIn(o, schlauchLose) || istIn(o, adapterLose) || (SL.roehre && istIn(o, SL.roehre.mesh))) return { art: 'schlauch', obj: SL.roehre ? SL.roehre.mesh : schlauchLose };
+        if (istIn(o, saeuleObj())) return { art: 'saeule', obj: saeuleObj() };
+        if (istIn(o, shisha)) return { art: 'bowl', obj: shisha.userData.bowl };
+        return null;
+    }
+
+    const zahl = (x, n = 1) => x.toFixed(n).replace('.', ',');
+
+    function aufbauAktion(z) {
+        switch (z.art) {
+            case 'flasche':
+                if (AB.saeule === 'drin' && AB.wasserMl <= 0) return { tipp: 'Flasche nehmen (vorher die Rauchsäule abnehmen)', tun: flascheNehmen };
+                return { tipp: 'Flasche nehmen', tun: flascheNehmen };
+            case 'saeule':
+                if (AB.saeule === 'liegt') return { tipp: 'Rauchsäule einsetzen', tun: saeuleEinsetzen };
+                if (AB.saeule !== 'drin') return null;
+                if (!saeuleFrei()) return null;
+                return { tipp: AB.wasserMl > 0 ? 'Rauchsäule abnehmen (Wasser nachfüllen)' : 'Rauchsäule abnehmen, um Wasser einzufüllen', tun: saeuleAbnehmen };
+            case 'bowl':
+                if (AB.saeule === 'liegt') return { tipp: `Bowl: ${Math.round(AB.wasserMl)} ml · erst die Flasche nehmen`, tun: null };
+                return null;
+            case 'schlauch':
+                if (AB.schlauch === 'lose') {
+                    if (AB.saeule !== 'drin') return { tipp: 'Schlauch: erst die Rauchsäule einsetzen', tun: null };
+                    if (AB.wasserMl < 50) return { tipp: 'Schlauch: erst Wasser einfüllen, danach bleibt die Säule drin', tun: null };
+                    return { tipp: 'Schlauch am Anschluss einstecken', tun: schlauchAnschliessen };
+                }
+                return null;
+            case 'mundstueck':
+                if (AB.mund === 'lose') return { tipp: 'Mundstück in den Schlauch stecken', tun: mundstueckAufstecken };
+                return null;
+            case 'dichtung':
+                if (AB.dichtung !== 'lose') return null;
+                if (AB.saeule !== 'drin') return { tipp: 'Kopfdichtung: erst die Rauchsäule einsetzen', tun: null };
+                if (AB.wasserMl < 50) return { tipp: 'Kopfdichtung: erst Wasser einfüllen, danach bleibt die Säule drin', tun: null };
+                return { tipp: 'Kopfdichtung auf den Kopfanschluss setzen', tun: dichtungAufsetzen };
+            case 'kopf':
+                if (AB.kopf !== 'matte') return null;
+                if (!spiel.fertig.has(2)) return null;
+                if (AB.saeule !== 'drin') return { tipp: 'Kopf: erst die Rauchsäule einsetzen', tun: null };
+                if (AB.dichtung !== 'drauf') return { tipp: 'Kopf: erst die Kopfdichtung aufsetzen', tun: null };
+                return { tipp: 'Kopf auf die Shisha setzen', tun: kopfAufsetzen };
+            case 'hmd':
+                if (AB.hmd !== 'tisch') return null;
+                if (AB.kopf !== 'drauf') return { tipp: 'HMD: erst den Kopf aufsetzen', tun: null };
+                return { tipp: 'HMD auf den Kopf setzen', tun: hmdAufsetzen };
+        }
+        return null;
+    }
+
+    // Tipp am Zeiger, solange die Flasche in der Hand ist
+    function flascheTipp() {
+        if (FL.uebergang) return null;
+        if (AB.saeule !== 'liegt' && !FL.druck) return { tipp: 'Säule steckt: erst abnehmen · Klick oder Esc stellt die Flasche ab', tun: null };
+        if (!FL.druck) return { tipp: FL.zielOk ? 'Gedrückt halten und nach oben ziehen: gießen' : 'Über den Bowlhals führen · Klick daneben oder Esc stellt sie ab', tun: FL.zielOk ? () => {} : null };
+        const t = tauchTiefeVorschau();
+        if (FL.fluss < 0.5) return { tipp: `Neigung ${Math.round(FL.kipp)}°: weiter nach oben ziehen`, tun: () => {} };
+        const wo = FL.treffer === 'bowl' && FL.rein > 0.98 ? '' : ' · geht daneben!';
+        return { tipp: `${Math.round(FL.fluss)} ml/s · ${Math.round(AB.wasserMl)} ml im Bowl · Tauchrohr ${t > 0 ? zahl(t) + ' cm' : 'noch trocken'}${wo}`, tun: () => {} };
+    }
+
+    // ---------------------------------------------------------------------------
+    // Bild für Bild
+
+    function aufbauFrame(dt) {
+        if (!flasche) return;
+        flascheFrame(dt);
+        wasserFrame(dt);
+        schlauchFrame(dt);
+        if (FL.inHand || FL.fluss > 0) tonGiessen(FL.fluss, AB.pegel, FL.treffer, FL.rein);
+        else tonGiessen(0);
+        AB.takt -= dt;
+        if (AB.takt <= 0) { AB.takt = 0.25; aufbauPruefen(); }
+    }
+
+    // ---------------------------------------------------------------------------
+    // Phasen 4-6: Fortschritt und Bewertung
+
+    function hmdKohlen() { return spielKohlen.filter((k) => k.ort === 'hmd'); }
+    // voll: drei Kohlen, oder zwei, wenn eine schräg lehnt (sie nimmt den Platz der dritten)
+    function hmdVoll() {
+        const ks = hmdKohlen();
+        return ks.length >= 3 || (ks.length === 2 && ks.some((k) => k.schraeg) && !H.kohle);
+    }
+
+    function aufbauPruefen() {
+        // Wasser: Säule sitzt wieder, Wasser drin. Im richtigen Bereich gleich fertig, sonst sobald es weitergeht.
+        if (!spiel.fertig.has(3) && AB.saeule === 'drin' && AB.wasserMl > 50 && AB.eingesetztMit !== null) {
+            const t = tauchTiefe();
+            const weiter = AB.schlauch !== 'lose' || AB.dichtung !== 'lose' || AB.mund !== 'lose';
+            if ((t >= 1.5 && t <= 4) || weiter) wasserBewerten();
+        }
+        if (!spiel.fertig.has(4) && AB.schlauch === 'dran' && AB.mund === 'dran' && AB.dichtung === 'drauf' && AB.kopf === 'drauf') {
+            if (!spiel.fertig.has(3) && AB.wasserMl > 50) wasserBewerten();
+            aufbauBewerten();
+        }
+        if (!spiel.fertig.has(0) && hmdVoll() && !H.ablauf) kohlePhaseNachtragen();
+        if (!spiel.fertig.has(5) && AB.hmd === 'drauf' && hmdVoll() && !H.ablauf) hitzeBewerten();
+    }
+
+    function wasserBewerten() {
+        const t = tauchTiefe();
+        let wert = 100;
+        const notizen = [];
+        if (t < 0) { wert = 30; notizen.push('Tauchrohr hängt in der Luft'); }
+        else if (t < 1) { wert -= 35; notizen.push(`nur ${zahl(t)} cm Wasser über dem Tauchrohr: kratzt und wird heiß`); }
+        else if (t < 2) { wert -= Math.round((2 - t) * 20); notizen.push(`Tauchrohr ${zahl(t)} cm im Wasser, knapp`); }
+        else if (t <= 3) notizen.push(`Tauchrohr ${zahl(t)} cm im Wasser`);
+        else if (t <= 4) { wert -= Math.round((t - 3) * 15); notizen.push(`Tauchrohr ${zahl(t)} cm im Wasser, etwas viel`); }
+        else { wert -= Math.min(45, 15 + Math.round((t - 4) * 10)); notizen.push(`${zahl(t)} cm Wasser über dem Rohr: der Zug wird schwer`); }
+        if (AB.verschuettet > 5) { wert -= Math.min(20, Math.round(AB.verschuettet / 4)); notizen.push(`${Math.round(AB.verschuettet)} ml verschüttet`); }
+        phaseAbschliessen(3, clamp(wert, 10, 100), notizen);
+    }
+
+    function aufbauBewerten() {
+        let wert = 100;
+        const notizen = ['Säule dicht', 'Schlauch und Mundstück dran'];
+        if (AB.kopfVerlust > 3) { wert -= Math.min(20, AB.kopfVerlust); notizen.push('beim Aufsetzen Tabak verloren'); }
+        else notizen.push('Kopf sitzt fest auf der Dichtung');
+        phaseAbschliessen(4, clamp(wert, 40, 100), notizen);
+    }
+
+    function hitzeBewerten() {
+        const ks = hmdKohlen();
+        let wert = 100;
+        const notizen = [];
+        const roh = ks.filter((k) => !k.durchBeimAuflegen).length;
+        if (roh) { wert -= 12 * roh; notizen.push(`${roh} Kohle${roh > 1 ? 'n' : ''} nicht durchgeglüht aufgelegt`); }
+        // Verteilung: Winkellücken rund um die Achse
+        hmd.updateMatrixWorld(true);
+        const w = ks.map((k) => { const p = hmd.worldToLocal(k.mesh.getWorldPosition(new THREE.Vector3())); return { a: Math.atan2(p.x, p.z), r: Math.hypot(p.x, p.z) / CM }; });
+        const a = w.map((x) => x.a).sort((x, y) => x - y);
+        let luecke = 0;
+        for (let i = 0; i < a.length; i++) luecke = Math.max(luecke, ((a[(i + 1) % a.length] - a[i]) + TAU) % TAU || TAU);
+        if (luecke > 3.6) { wert -= 15; notizen.push('Kohlen auf einer Seite: der Kopf wird einseitig heiß'); }
+        else notizen.push('Kohlen gleichmäßig verteilt');
+        const mitte = w.filter((x) => x.r < 0.9).length;
+        if (mitte) { wert -= 5; notizen.push('eine Kohle mitten über dem Kamin'); }
+        const schraeg = ks.filter((k) => k.schraeg).length;
+        if (schraeg) notizen.push(`${schraeg} schräg angelehnt: weniger Hitze`);
+        if (ks.length < 3) notizen.push('nur zwei Kohlen');
+        const kalt = ks.filter((k) => k.unterwegsBeimAuflegen > 25).length;
+        if (kalt) { wert -= 5 * kalt; notizen.push('lange in der Zange: abgekühlt'); }
+        const matt = ks.filter((k) => k.kaltBeimAuflegen && k.durchBeimAuflegen).length;
+        if (matt) { wert -= 6 * matt; notizen.push('kaum noch Glut beim Auflegen'); }
+        if (spiel.anzuender.an && kohlenAufSpirale().length === 0) notizen.push('Anzünder läuft noch');
+        phaseAbschliessen(5, clamp(wert, 30, 100), notizen);
+    }
+
+    // Schritte und Tipps für die Karte
+    function schritteWasser() {
+        const t = tauchTiefeVorschau(), drin = AB.saeule === 'drin';
+        const l = [
+            { text: 'Rauchsäule abnehmen', sub: AB.saeule === 'liegt' ? 'liegt auf dem Teppich' : '', ok: !drin || AB.wasserMl > 50 || spiel.fertig.has(3) },
+            { text: 'Wasser einfüllen, bis das Tauchrohr 2–3 cm eintaucht', sub: AB.wasserMl > 0 ? `${Math.round(AB.wasserMl)} ml · Tauchrohr ${t > 0 ? zahl(t) + ' cm im Wasser' : 'noch trocken'}${AB.verschuettet > 2 ? ` · ${Math.round(AB.verschuettet)} ml daneben` : ''}` : 'Flasche nehmen, über den Hals halten, gedrückt nach oben ziehen', ok: (t >= 2 && t <= 3.2) || (drin && AB.wasserMl > 50) || spiel.fertig.has(3) },
+            { text: 'Säule wieder einsetzen', sub: drin && AB.wasserMl > 50 ? `Tauchrohr ${zahl(tauchTiefe())} cm im Wasser` : '', ok: (drin && AB.wasserMl > 50) || spiel.fertig.has(3) },
+        ];
+        const j = l.findIndex((x) => !x.ok);
+        if (j >= 0) l[j].jetzt = true;
+        return l;
+    }
+    function tippWasser() {
+        if (spiel.fertig.has(3)) return 'Das Wasser kühlt den Rauch. 2–3 cm über dem Tauchrohr: weich, aber ohne schweren Zug.';
+        const t = tauchTiefeVorschau();
+        if (AB.saeule === 'drin' && AB.wasserMl <= 0) return 'Die Säule an der Manschette greifen und nach oben abziehen. Danach liegt sie auf dem Teppich.';
+        if (AB.saeule === 'drin') return t < 1.5 ? 'Noch zu wenig Wasser: Säule nochmal abnehmen und nachfüllen.' : t > 4 ? 'Ziemlich viel Wasser: der Zug wird schwer. Weiter geht es trotzdem.' : '';
+        if (!FL.inHand) return 'Flasche nehmen. Der Hals ist eng: lieber langsam gießen, der Pegel steigt oben schnell.';
+        if (t < 0) return `Bis zum Tauchrohr fehlen noch gut ${Math.round(bowlVolumen(BOWL_WASSER.tauchEnde) - AB.wasserMl)} ml.`;
+        if (t < 2) return `Noch ${Math.max(1, Math.round(bowlVolumen(BOWL_WASSER.tauchEnde + 2.3) - AB.wasserMl))} ml bis gut 2 cm. Langsamer gießen: wenig kippen.`;
+        if (t <= 3) return 'Passt. Flasche aufrichten und mit Esc abstellen, dann die Säule einsetzen.';
+        return 'Zu viel Wasser: abgießen geht hier nicht, aber es funktioniert auch so.';
+    }
+
+    function schritteAufbau() {
+        const l = [
+            { text: 'Schlauch am Anschluss einstecken', ok: AB.schlauch === 'dran' },
+            { text: 'Mundstück in den Schlauch stecken', ok: AB.mund === 'dran' },
+            { text: 'Kopfdichtung auf den Kopfanschluss', ok: AB.dichtung === 'drauf' },
+            { text: 'Gebauten Kopf aufsetzen', sub: spiel.fertig.has(2) ? '' : 'erst den Kopf fertig bauen', ok: AB.kopf === 'drauf' },
+        ];
+        const j = l.findIndex((x) => !x.ok);
+        if (j >= 0) l[j].jetzt = true;
+        return l;
+    }
+    function tippAufbau() {
+        if (spiel.fertig.has(4)) return 'Alles dicht: Bowl, Schlauch und Kopf. Jetzt fehlt nur noch die Hitze.';
+        if (AB.saeule !== 'drin') return 'Zuerst muss die Rauchsäule wieder im Bowl sitzen.';
+        if (AB.wasserMl < 50) return 'Erst Wasser einfüllen (Phase 4): sind Schlauch und Dichtung dran, bleibt die Säule drin.';
+        if (AB.schlauch === 'lose') return 'Den Schlauch am Edelstahladapter anfassen und in den schrägen Anschluss stecken.';
+        if (AB.dichtung === 'lose') return 'Die weiße Kegeldichtung kommt oben auf den Kopfanschluss über dem Teller. Ohne sie zieht der Kopf Nebenluft.';
+        if (AB.kopf === 'matte') return 'Den Kopf gerade nach oben nehmen und auf die Dichtung setzen; der Tabak darf dabei nicht verrutschen.';
+        return '';
+    }
+
+    function schritteHitze() {
+        const n = hmdKohlen().length;
+        const l = [
+            { text: 'HMD auf den Kopf setzen', ok: AB.hmd === 'drauf' },
+            { text: 'Drei Kohlen mit der Zange in den HMD', sub: `${n} von 3${hmdKohlen().some((k) => k.schraeg) ? ' · eine schräge zählt doppelt' : ''}${spiel.fertig.has(0) ? '' : ' · Kohlen glühen noch nicht durch'}`, ok: hmdVoll() },
+            { text: 'Anzünder ausschalten (wenn keine Kohle mehr nachkommt)', ok: !spiel.anzuender.an && hmdVoll(), wahl: true },
+        ];
+        const j = l.findIndex((x) => !x.ok);
+        if (j >= 0) l[j].jetzt = true;
+        return l;
+    }
+    function tippHitze() {
+        const n = hmdKohlen().length;
+        if (AB.hmd !== 'drauf') return AB.kopf === 'drauf' ? 'Den HMD mittig auf den Kopfrand setzen: die Zentrierlippe greift in die Öffnung.' : 'Der HMD kommt erst auf den Kopf, wenn der auf der Shisha sitzt.';
+        if (n < 3 && !H.inHand) return 'Zange nehmen, eine durchgeglühte Kohle vom Rost greifen und über den HMD führen.';
+        if (!hmdVoll() && H.kohle) return H.schraeg ? 'Schräg: die Kohle lehnt hochkant an der Wand, liegt kaum auf und gibt weniger Hitze ab. Sie reicht bis zur Mitte, daneben passt nur noch eine. R: wieder flach.' : 'Drei Würfel passen nur eng: zwei nebeneinander an den Rand, die dritte davor. Am Lochkranz kippen sie leicht. R: schräg an die Wand lehnen.';
+        if (hmdVoll()) return `HMD ${Math.round(AB.hmdT)} °C. Der Kopf heizt jetzt vor; ans Anrauchen geht es in Etappe 5.`;
+        return '';
+    }
+    // ---------------------------------------------------------------------------
+    // Etappe 5: Anrauchen.
+    // Der Tabak liegt in fünf Schichten im Kopf. Von oben heizt der HMD (bei Kontakt über die Platte, bei Abstand fast
+    // nur durch Strahlung). Beim Ziehen strömt heiße Luft von der Kohle durch den Tabak und gibt ihre Wärme Schicht für
+    // Schicht ab, die Kohle selbst flammt dabei auf. Ab gut 150 °C verdampft das Glycerin aus der Molasse – das ist der
+    // Rauch, und das Verdampfen kühlt; über 250 °C verkohlt der Tabak. Der Dampf geht mit dem Zug durch die Säule,
+    // blubbert durchs Wasser in den Bowl und von dort durch den Schlauch in die Lunge. Ausgeatmet wird, was ankommt.
+
+    const RK = {
+        CL: 15,                  // J/K je Schicht (Tabak mit Molasse, gut 6 g)
+        hKontakt: 0.07,          // W/K Platte -> oberste Schicht bei Kontakt
+        hStrahl: 0.012,          // W/K bei Abstand (Strahlung, Konvektion)
+        spaltMm: 1.6,            // Abfall der Kopplung mit dem Spalt (mm)
+        kl: 0.025, kb: 0.02,     // W/K zwischen den Schichten, unten zur Keramik
+        beta: 0.7,               // Wärmeübergang Luft -> Schicht (Übertragungseinheiten je Schicht)
+        luftW: 1.2,              // J/(l·K) Luft
+        k0: 0.007, latent: 1800, mG: 1000,   // Verdampfen: Rate bei 228 °C, J und mg Glycerin je Schicht
+        leck: 0.3, vKopf: 0.03, vSchlauch: 0.17, absetz: 0.012,
+        pMax: 1800, R0: 520,     // Pa Saugdruck bei vollem Zug, Pa·s/l Widerstand (Schlauch, Säule, Tabak)
+        mischung: 0.2,           // Anteil Kohlentemperatur in der Luft, die in den Kopf strömt
+        verkohl: 0.006, lungeMax: 3.6,
+        dicht: 18, gut: 8, wenig: 3,          // mg je Zug
+    };
+
+    const RA = {
+        T: new Float32Array(5).fill(GLUT.umgebung), G: new Float32Array(5).fill(1), C: new Float32Array(5),
+        aktiv: false, spalt: 0, stau: 0, hmdSeit: -1, spaltTakt: 0,
+        inHand: false, uebergang: null, ruhe: null, genommen: false,
+        ziehen: false, taste: false, staerke: 0.5, staerkeStart: 0.5, y0: 0,
+        Q: 0, lunge: 0, kohleZug: 0, kohleT: GLUT.umgebung, leck: 0,
+        dampf: 0, bowl: 0, schlauch: 0, eingeatmet: 0,
+        zugZeit: 0, zugMaxT: 0, kraeftig: 0, zugStart: 0,
+        ausatmen: null, zuege: [], dicht: false, tMax: GLUT.umgebung,
+        blasen: [], blasenTakt: 0, wischTakt: 0, panelTakt: 0,
+        uBowl: null, uWasser: null,
+    };
+    const _rqa = new THREE.Vector3(), _rqb = new THREE.Vector3(), _rqc = new THREE.Vector3(), _rqd = new THREE.Vector3(), _rqe = new THREE.Vector3();
+
+    // ---------------------------------------------------------------------------
+    // Wärme, Dampf, Rauchweg (in Spielzeit, aus glutSimulieren je Teilschritt)
+
+    function kohleOberflaeche(k) {
+        let s = 0, n = 0;
+        for (let i = 0; i < 27; i++) if (GLUT_LUFT[i] > 0.5) { s += k.kern.T[i]; n++; }
+        return s / n;
+    }
+    function bowlLuftLiter() { return Math.max(0.08, (bowlVolumen(BOWL_WASSER.hals) - AB.wasserMl) / 1000 + 0.05); }
+
+    function rauchenStart() {
+        RA.aktiv = true;
+        RA.hmdSeit = spiel.zeit;
+        RA.spaltTakt = 0;
+        RA.T.fill(GLUT.umgebung);
+        spaltMessen();
+    }
+    // Spalt zwischen HMD-Platte (2 mm unter dem Rand) und Tabak, Verdichtung; misst nach, bis sich alles gesetzt hat
+    function spaltMessen() {
+        const s = kopfStatistik();
+        RA.spalt = Math.max(0, -2.0 - s.delta);
+        RA.stau = s.stau;
+    }
+
+    function rauchenWaerme(h) {
+        if (!RA.aktiv) {
+            if (AB.kopf === 'drauf' && AB.hmd === 'drauf') rauchenStart(); else return;
+        }
+        if (spiel.zeit - RA.hmdSeit < 12) { RA.spaltTakt -= h; if (RA.spaltTakt <= 0) { RA.spaltTakt = 2; spaltMessen(); } }
+        const L = 5, T = RA.T, G = RA.G, C = RA.C;
+        const ks = hmdKohlen();
+        let kt = GLUT.umgebung;
+        if (ks.length) { kt = 0; for (const k of ks) kt += kohleOberflaeche(k); kt /= ks.length; }
+        RA.kohleT = kt;
+        // Zug: Saugdruck gegen Wassersäule und Widerstand; der Luftstrom folgt träge, die Lunge fasst gut 3,5 l
+        const pw = 98 * Math.max(0, tauchTiefe());
+        const R = RK.R0 * (1 + 2 * RA.stau);
+        const zieht = RA.ziehen && RA.lunge < RK.lungeMax;
+        const QZiel = zieht ? Math.max(0, (RA.staerke * RK.pMax - pw) / R) : 0;
+        RA.Q += (QZiel - RA.Q) * (1 - Math.exp(-h / 0.25));
+        if (!zieht && RA.Q < 0.003) RA.Q = 0;
+        const Q = RA.Q;
+        RA.kohleZug = Math.min(1, Q / 1.6);
+        // Wärme: Platte, Leitung zwischen den Schichten, unten die Keramik, beim Ziehen die heiße Luft
+        const dT = [0, 0, 0, 0, 0];
+        const hTop = RA.spalt <= 0.3 ? RK.hKontakt * (1 + 6 * RA.stau) : RK.hKontakt * Math.exp(-RA.spalt / RK.spaltMm) + RK.hStrahl;
+        if (AB.hmd === 'drauf') dT[0] += hTop * (AB.hmdT - T[0]);
+        for (let i = 0; i < L - 1; i++) { const q = RK.kl * (T[i] - T[i + 1]); dT[i] -= q; dT[i + 1] += q; }
+        dT[L - 1] += RK.kb * (AB.kopfT - T[L - 1]);
+        if (Q > 0.01 && AB.hmd === 'drauf') {
+            // bei kräftigem Zug glüht die Kohle auf, die Luft kommt heißer an
+            let Ta = AB.hmdT + RK.mischung * (kt - AB.hmdT) + 65 * Math.max(0, Q - 1.0) * smooth(300, 600, kt);
+            const W = Q * RK.luftW, e = Math.exp(-RK.beta);
+            for (let i = 0; i < L; i++) { const Tn = T[i] + (Ta - T[i]) * e; dT[i] += W * (Ta - Tn); Ta = Tn; }
+        }
+        // Glycerin verdampft (kühlt), über 250 °C verkohlt der Tabak
+        let prod = 0;
+        for (let i = 0; i < L; i++) {
+            const r = G[i] * Math.min(0.08, RK.k0 * Math.exp((T[i] - 228) / 17)) * smooth(110, 150, T[i]);
+            dT[i] -= r * RK.latent;
+            G[i] = Math.max(0, G[i] - r * h);
+            prod += r * RK.mG;
+            C[i] = Math.min(1, C[i] + RK.verkohl * smooth(250, 330, T[i]) * (1.4 - G[i]) * h);
+            T[i] += dT[i] / RK.CL * h;
+        }
+        RA.tMax = Math.max(RA.tMax, T[0]);
+        // Dampf steht im Kopf und zieht oben durch den HMD ab; beim Ziehen geht er mit dem Luftstrom nach unten
+        let F = 0;
+        if (Q > 0.01) {
+            const f = Math.min(1, Q * h / RK.vKopf);
+            F = prod + RA.dampf * f / h;
+            RA.dampf -= RA.dampf * f;
+            RA.leck = 0;
+        } else {
+            RA.leck = RA.dampf * RK.leck;
+            RA.dampf += (prod - RA.leck) * h;
+        }
+        // Bowl und Schlauch als durchmischte Luftvolumen
+        if (Q > 0.01) {
+            RA.bowl += (F - Q * RA.bowl) / bowlLuftLiter() * h;
+            RA.schlauch += Q * (RA.bowl - RA.schlauch) / RK.vSchlauch * h;
+            RA.eingeatmet += Q * RA.schlauch * h;
+            RA.lunge += Q * h;
+        } else {
+            RA.bowl -= RA.bowl * RK.absetz * h;
+            RA.schlauch -= RA.schlauch * RK.absetz * 2 * h;
+        }
+        if (RA.ziehen) {
+            RA.zugZeit += h;
+            RA.zugMaxT = Math.max(RA.zugMaxT, T[0]);
+            if (RA.staerke > 0.85 && Q > 0.5) RA.kraeftig += h;
+        }
+    }
+
+    // ---------------------------------------------------------------------------
+    // Mundstück: nehmen, halten, ablegen. Die Knoten des Mundstücks im Schlauchseil werden fest geführt, der Schlauch
+    // hängt dazwischen frei.
+
+    function mundstueckKnoten() { const n = SL.nS; return { von: n - 1, bis: SL.seil.p.length - 1 }; }
+
+    // gehaltene Lage: die Spitze am Mund (knapp 10 cm unter den Augen), das Mundstück schräg nach vorn unten
+    function mundstueckHaltung(out) {
+        const vor = _rqa.set(0, 0, -1).applyQuaternion(camera.quaternion);
+        const oben = _rqb.set(0, 1, 0).applyQuaternion(camera.quaternion);
+        const rechts = _rqc.set(1, 0, 0).applyQuaternion(camera.quaternion);
+        const atem = 0.006 * Math.min(1, RA.Q);
+        const spitze = _rqd.copy(camera.position).addScaledVector(vor, 0.04 - atem).addScaledVector(oben, -0.095);
+        const dir = _rqe.copy(vor).multiplyScalar(0.84).addScaledVector(oben, -0.48).addScaledVector(rechts, 0.2).normalize();
+        const L = (MUNDSTUECK.laenge - 2.8) * CM;
+        for (let j = 0; j < SL.nM; j++) out[j].copy(spitze).addScaledVector(dir, L * (1 - j / (SL.nM - 1)));
+    }
+
+    function mundstueckNehmen() {
+        if (RA.inHand || RA.uebergang || H.ablauf || AB.mund !== 'dran' || !SL.seil) return;
+        if (!spiel.fertig.has(5)) { meldung('Erst HMD und Kohlen (Phase 6).', 2.6); return; }
+        if (!handFrei(() => mundstueckNehmen())) return;
+        const s = SL.seil, k = mundstueckKnoten();
+        RA.ruhe = [];
+        for (let i = k.von; i <= k.bis; i++) { RA.ruhe.push(s.p[i].clone()); s.fix.add(i); }
+        RA.inHand = true;
+        RA.genommen = true;
+        RA.uebergang = { t: 0, dauer: 1.1, hin: true, von: RA.ruhe.map((v) => v.clone()) };
+        if (spiel.tempo > 1) tempoSetzen(1);
+        controls.enabled = false;
+        fliegeZu(...SPIEL_BLICK[6]);
+        SL.aktiv = true;
+        geraeusch.silikon(0.4);
+        hinweisSetzen();
+        rauchenKarte();
+    }
+
+    function mundstueckAblegen() {
+        if (!RA.inHand || RA.uebergang) return;
+        if (RA.ziehen) rauchenLoslassen();
+        const s = SL.seil, k = mundstueckKnoten();
+        RA.uebergang = { t: 0, dauer: 0.9, hin: false, von: s.p.slice(k.von, k.bis + 1).map((v) => v.clone()) };
+    }
+
+    const _halt = Array.from({ length: 8 }, () => new THREE.Vector3());
+    function mundstueckFrame(dt) {
+        if (!RA.inHand || !SL.seil) return;
+        const s = SL.seil, k = mundstueckKnoten();
+        const u = RA.uebergang;
+        if (u) {
+            u.t += dt / u.dauer;
+            const t = smooth(0, 1, u.t);
+            if (u.hin) mundstueckHaltung(_halt);
+            for (let j = 0; j <= k.bis - k.von; j++) {
+                const ziel = u.hin ? _halt[j] : RA.ruhe[j];
+                const p = s.p[k.von + j];
+                p.lerpVectors(u.von[j], ziel, t);
+                if (!u.hin) p.y += Math.sin(t * Math.PI) * 0.06;
+                s.a[k.von + j].copy(p);
+            }
+            if (u.t >= 1) {
+                RA.uebergang = null;
+                if (!u.hin) {
+                    for (let i = k.von; i <= k.bis; i++) s.fix.delete(i);
+                    RA.inHand = false;
+                    controls.enabled = true;
+                    geraeusch.klack(0.3, false);
+                    hinweisSetzen();
+                }
+            }
+        } else {
+            mundstueckHaltung(_halt);
+            for (let j = 0; j <= k.bis - k.von; j++) { s.p[k.von + j].copy(_halt[j]); s.a[k.von + j].copy(_halt[j]); }
+        }
+        SL.aktiv = true;
+        SL.ruhig = 0;
+    }
+
+    // ---------------------------------------------------------------------------
+    // Ziehen: Maus gedrückt halten (oder Leertaste), beim Ziehen nach oben kräftiger, nach unten sanfter
+
+    function rauchenDruck(e) {
+        if (!RA.inHand || RA.uebergang) return false;
+        zugStarten(e.clientY);
+        return true;
+    }
+    function zugStarten(y) {
+        if (RA.ausatmen) { meldung('Erst ausatmen.', 1.4, 'zug'); return; }
+        if (RA.ziehen) return;
+        RA.ziehen = true;
+        RA.y0 = y; RA.staerkeStart = RA.staerke;
+        RA.lunge = 0; RA.eingeatmet = 0; RA.zugZeit = 0; RA.kraeftig = 0; RA.zugMaxT = RA.T[0];
+        RA.zugStart = spiel.zeit;
+    }
+    function rauchenZiehen(e) {
+        if (!RA.ziehen || RA.taste) return;
+        RA.staerke = clamp(RA.staerkeStart + (RA.y0 - e.clientY) * 0.004, 0.12, 1);
+    }
+    function rauchenTaste(an) {
+        if (!RA.inHand || RA.uebergang) return;
+        if (an && !RA.ziehen) { RA.taste = true; zugStarten(zeiger.y); }
+        if (!an && RA.taste) { RA.taste = false; rauchenLoslassen(); }
+    }
+    function rauchenLoslassen() {
+        if (!RA.ziehen) return;
+        RA.ziehen = false;
+        RA.taste = false;
+        zugBeenden();
+    }
+
+    function zugKlasse(mg) { return mg >= RK.dicht ? 'dicht' : mg >= RK.gut ? 'gut' : mg >= RK.wenig ? 'wenig' : 'kaum'; }
+
+    function zugBeenden() {
+        if (RA.zugZeit < 0.5 || RA.lunge < 0.25) return;      // nur kurz angesetzt
+        const mg = RA.eingeatmet;
+        const z = {
+            nr: RA.zuege.length + 1, mg, klasse: zugKlasse(mg), dauer: RA.zugZeit, liter: RA.lunge,
+            kraeftig: RA.kraeftig > 0.8, tMax: RA.zugMaxT, vorheiz: RA.zugStart - RA.hmdSeit,
+        };
+        RA.zuege.push(z);
+        // kurz halten, dann ausatmen: länger bei mehr Luft
+        RA.ausatmen = { t: -0.45, dauer: clamp(0.9 + RA.lunge * 0.45, 1.2, 2.8), mg: mg * 0.75, takt: 0, ende: false };
+        geraeusch.ausatmen(RA.ausatmen.dauer, Math.min(1, RA.lunge / 2.5));
+        if (z.klasse === 'dicht') RA.dicht = true;
+    }
+
+    // ---------------------------------------------------------------------------
+    // Rauchteilchen: Billboards mit prozeduraler Textur, ausgeatmete Wolke und Fäden über dem HMD
+
+    const RAUCH = { max: 360, n: 0, mesh: null, pos: null, dat: null, v: null, alter: null, leben: null, s0: null, wachs: null, a0: null, drehV: null, zaeh: null, auf: null };
+
+    function rauchTextur() {
+        const n = 128, d = new Uint8Array(n * n * 4);
+        for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+            const u = x / n, v = y / n;
+            let f = 0, a = 1, s = 3;
+            for (let o = 0; o < 4; o++) { f += a * (N.n2(u * s + o * 7.1, v * s - o * 3.3) * 0.5 + 0.5); a *= 0.5; s *= 2.1; }
+            f = clamp((f / 1.875 - 0.28) * 1.7, 0, 1);
+            const i = (y * n + x) * 4;
+            d[i] = d[i + 1] = d[i + 2] = 255; d[i + 3] = Math.round(f * 255);
+        }
+        const t = new THREE.DataTexture(d, n, n, THREE.RGBAFormat);
+        t.wrapS = t.wrapT = THREE.RepeatWrapping;
+        t.magFilter = THREE.LinearFilter; t.minFilter = THREE.LinearMipmapLinearFilter; t.generateMipmaps = true;
+        t.needsUpdate = true;
+        return t;
+    }
+
+    function rauchSystemBauen() {
+        const m = RAUCH.max;
+        const basis = new THREE.PlaneGeometry(1, 1);
+        const g = new THREE.InstancedBufferGeometry();
+        g.index = basis.index;
+        g.setAttribute('position', basis.attributes.position);
+        g.setAttribute('uv', basis.attributes.uv);
+        RAUCH.pos = new Float32Array(m * 3);
+        RAUCH.dat = new Float32Array(m * 4);           // Größe, Deckkraft, Drehung, Zufall
+        const ap = new THREE.InstancedBufferAttribute(RAUCH.pos, 3), ad = new THREE.InstancedBufferAttribute(RAUCH.dat, 4);
+        ap.setUsage(THREE.DynamicDrawUsage); ad.setUsage(THREE.DynamicDrawUsage);
+        g.setAttribute('aPos', ap); g.setAttribute('aDat', ad);
+        g.instanceCount = 0;
+        RAUCH.v = new Float32Array(m * 3);
+        for (const k of ['alter', 'leben', 's0', 'wachs', 'a0', 'drehV', 'zaeh', 'auf']) RAUCH[k] = new Float32Array(m);
+        const mat = new THREE.ShaderMaterial({
+            uniforms: { uTex: { value: rauchTextur() }, uFarbe: { value: new THREE.Color(0.8, 0.81, 0.82) } },
+            vertexShader: /* glsl */`
+      attribute vec3 aPos; attribute vec4 aDat;
+      varying vec2 vUv; varying float vA; varying float vS;
+      void main() {
+        vec3 r = vec3(viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0]);
+        vec3 u = vec3(viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1]);
+        float c = cos(aDat.z), s = sin(aDat.z);
+        vec2 p = vec2(c * position.x - s * position.y, s * position.x + c * position.y) * aDat.x;
+        vUv = uv; vA = aDat.y; vS = aDat.w;
+        gl_Position = projectionMatrix * viewMatrix * vec4(aPos + r * p.x + u * p.y, 1.0);
+      }`,
+            fragmentShader: /* glsl */`
+      uniform sampler2D uTex; uniform vec3 uFarbe;
+      varying vec2 vUv; varying float vA; varying float vS;
+      void main() {
+        float d = length(vUv - 0.5) * 2.0;
+        float t = texture2D(uTex, vUv * 0.55 + vec2(fract(vS * 7.13), fract(vS * 3.71))).a;
+        float a = smoothstep(1.0, 0.15, d) * (0.35 + 0.65 * t) * vA;
+        if (a < 0.003) discard;
+        gl_FragColor = vec4(uFarbe * (0.9 + 0.1 * t), a);
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
+      }`,
+            transparent: true, depthWrite: false,
+        });
+        RAUCH.mesh = new THREE.Mesh(g, mat);
+        RAUCH.mesh.name = 'rauch';
+        RAUCH.mesh.frustumCulled = false;
+        RAUCH.mesh.renderOrder = 6;
+        RAUCH.mesh.raycast = () => {};
+        scene.add(RAUCH.mesh);
+    }
+
+    function rauchTeilchen(p, v, o) {
+        if (RAUCH.n >= RAUCH.max) return;
+        const i = RAUCH.n++;
+        RAUCH.pos[i * 3] = p.x; RAUCH.pos[i * 3 + 1] = p.y; RAUCH.pos[i * 3 + 2] = p.z;
+        RAUCH.v[i * 3] = v.x; RAUCH.v[i * 3 + 1] = v.y; RAUCH.v[i * 3 + 2] = v.z;
+        RAUCH.alter[i] = 0; RAUCH.leben[i] = o.leben; RAUCH.s0[i] = o.groesse; RAUCH.wachs[i] = o.wachs; RAUCH.a0[i] = o.alpha;
+        RAUCH.drehV[i] = (Math.random() - 0.5) * 0.8; RAUCH.zaeh[i] = o.zaeh; RAUCH.auf[i] = o.auftrieb;
+        RAUCH.dat[i * 4 + 2] = Math.random() * TAU; RAUCH.dat[i * 4 + 3] = Math.random();
+    }
+
+    function rauchTeilchenFrame(dt) {
+        if (!RAUCH.mesh) return;
+        const zeit = performance.now() * 0.001;
+        let i = 0;
+        while (i < RAUCH.n) {
+            RAUCH.alter[i] += dt;
+            if (RAUCH.alter[i] >= RAUCH.leben[i]) {
+                // mit dem letzten tauschen
+                const j = --RAUCH.n;
+                if (i !== j) {
+                    for (let k = 0; k < 3; k++) { RAUCH.pos[i * 3 + k] = RAUCH.pos[j * 3 + k]; RAUCH.v[i * 3 + k] = RAUCH.v[j * 3 + k]; }
+                    for (let k = 0; k < 4; k++) RAUCH.dat[i * 4 + k] = RAUCH.dat[j * 4 + k];
+                    for (const f of ['alter', 'leben', 's0', 'wachs', 'a0', 'drehV', 'zaeh', 'auf']) RAUCH[f][i] = RAUCH[f][j];
+                }
+                continue;
+            }
+            const a = RAUCH.alter[i], k3 = i * 3;
+            const px = RAUCH.pos[k3], py = RAUCH.pos[k3 + 1], pz = RAUCH.pos[k3 + 2];
+            // zähe Luft bremst, warme Luft steigt, kleine Wirbel lassen es ausfransen
+            const z = Math.exp(-RAUCH.zaeh[i] * dt);
+            const wx = N.n2(py * 9 + zeit * 0.35, pz * 9 + i * 0.37) * 0.22, wz = N.n2(px * 9 - zeit * 0.3, py * 9 + i * 0.71) * 0.22;
+            RAUCH.v[k3] = RAUCH.v[k3] * z + wx * dt;
+            RAUCH.v[k3 + 1] = RAUCH.v[k3 + 1] * z + RAUCH.auf[i] * dt;
+            RAUCH.v[k3 + 2] = RAUCH.v[k3 + 2] * z + wz * dt;
+            RAUCH.pos[k3] += RAUCH.v[k3] * dt; RAUCH.pos[k3 + 1] += RAUCH.v[k3 + 1] * dt; RAUCH.pos[k3 + 2] += RAUCH.v[k3 + 2] * dt;
+            const L = RAUCH.leben[i];
+            RAUCH.dat[i * 4] = RAUCH.s0[i] + RAUCH.wachs[i] * Math.sqrt(a);
+            RAUCH.dat[i * 4 + 1] = RAUCH.a0[i] * Math.min(1, a / 0.15) * Math.pow(Math.max(0, 1 - a / L), 1.6);
+            RAUCH.dat[i * 4 + 2] += RAUCH.drehV[i] * dt;
+            i++;
+        }
+        const g = RAUCH.mesh.geometry;
+        g.instanceCount = RAUCH.n;
+        g.attributes.aPos.needsUpdate = true;
+        g.attributes.aDat.needsUpdate = true;
+    }
+
+    // Ausatmen: aus dem Mund nach vorn, die Menge bestimmt Dichte und Größe der Wolke
+    function ausatmenFrame(dt) {
+        const A = RA.ausatmen;
+        if (!A) return;
+        A.t += dt;
+        if (A.t < 0) return;
+        const st = clamp(A.mg / 40, 0, 1.4);
+        if (A.t < A.dauer && A.mg > 0.4) {
+            const kurve = Math.sin(Math.PI * clamp(A.t / A.dauer, 0, 1));
+            A.takt += dt * (18 + 30 * Math.min(1, st)) * (0.3 + 0.7 * kurve);
+            const vor = _rqa.set(0, 0, -1).applyQuaternion(camera.quaternion);
+            const oben = _rqb.set(0, 1, 0).applyQuaternion(camera.quaternion);
+            const rechts = _rqc.set(1, 0, 0).applyQuaternion(camera.quaternion);
+            while (A.takt > 1) {
+                A.takt -= 1;
+                const p = _rqd.copy(camera.position).addScaledVector(vor, 0.09).addScaledVector(oben, -0.085).addScaledVector(rechts, (Math.random() - 0.5) * 0.02);
+                const tempo = (0.75 + 0.6 * kurve) * (0.8 + Math.random() * 0.4);
+                const v = _rqe.copy(vor).multiplyScalar(tempo).addScaledVector(oben, 0.05 + (Math.random() - 0.5) * 0.18).addScaledVector(rechts, (Math.random() - 0.5) * 0.22);
+                rauchTeilchen(p, v, {
+                    leben: 4.5 + Math.random() * 3, groesse: 0.025, wachs: 0.13 + 0.1 * Math.min(1, st),
+                    alpha: clamp(0.05 + 0.2 * st, 0.04, 0.32) * (0.6 + 0.4 * kurve), zaeh: 1.7, auftrieb: 0.05,
+                });
+            }
+        }
+        if (A.t >= A.dauer + 0.2) {
+            RA.ausatmen = null;
+            zugMelden();
+        }
+    }
+
+    function zugMelden() {
+        const z = RA.zuege[RA.zuege.length - 1];
+        if (!z) return;
+        const text = {
+            kaum: RA.T[0] < 150 ? 'kaum Rauch: der Tabak ist noch kalt' : 'kaum Rauch',
+            wenig: 'etwas Rauch, der Kopf kommt',
+            gut: 'guter Rauch, noch nicht ganz dicht',
+            dicht: 'dichter Rauch: angeraucht',
+        }[z.klasse];
+        let zusatz = '';
+        if (z.tMax > 265) zusatz = ' · kratzt: der Kopf ist zu heiß';
+        else if (z.kraeftig) zusatz = ' · zu kräftig gezogen, die Kohle flammt auf';
+        meldung(`Zug ${z.nr}: ${text}${zusatz}.`, 3.2, 'zug');
+    }
+
+    // Rauchfäden über dem HMD, wenn der Kopf heiß ist und nicht gezogen wird
+    function faedenFrame(dt) {
+        if (AB.hmd !== 'drauf' || RA.Q > 0.02 || RA.leck < 0.05) return;
+        RA.wischTakt += dt * Math.min(14, RA.leck * 1.6);
+        if (RA.wischTakt < 1) return;
+        RA.wischTakt -= 1;
+        hmd.getWorldPosition(_rqa);
+        const w = Math.random() * TAU, r = (1.2 + Math.random() * 1.6) * CM;
+        const p = _rqb.set(_rqa.x + Math.cos(w) * r, _rqa.y + 3.6 * CM, _rqa.z + Math.sin(w) * r);
+        const v = _rqc.set((Math.random() - 0.5) * 0.01, 0.035 + Math.random() * 0.03, (Math.random() - 0.5) * 0.01);
+        rauchTeilchen(p, v, { leben: 3 + Math.random() * 2.5, groesse: 0.012, wachs: 0.035, alpha: clamp(0.03 + RA.leck * 0.012, 0.03, 0.14), zaeh: 0.6, auftrieb: 0.06 });
+    }
+
+    // ---------------------------------------------------------------------------
+    // Bowl: milchiger Rauch über dem Wasser (im Glas eingefärbt) und Blasen im Wasser (im Wassershader gezeichnet,
+    // das Wasser ist hinter dem Glas undurchsichtig)
+
+    const BLASEN_MAX = 24;
+    function rauchShaderEinbauen() {
+        const bowl = shisha.userData.bowl, w = shisha.userData.wasser;
+        RA.uBowl = { uRauch: { value: 0 }, uPegelY: { value: 0 }, uZeit: { value: 0 }, uAchse: { value: new THREE.Vector2() } };
+        RA.uWasser = { uBlasen: { value: Array.from({ length: BLASEN_MAX }, () => new THREE.Vector4()) }, uBlasenN: { value: 0 }, uPegelY: RA.uBowl.uPegelY };
+        const weltVarying = (sh) => {
+            sh.vertexShader = sh.vertexShader
+                .replace('#include <common>', '#include <common>\nvarying vec3 vRWelt;')
+                .replace('#include <project_vertex>', '#include <project_vertex>\nvRWelt = (modelMatrix * vec4(transformed, 1.0)).xyz;');
+        };
+        bowl.material.onBeforeCompile = (sh) => {
+            Object.assign(sh.uniforms, RA.uBowl);
+            weltVarying(sh);
+            sh.fragmentShader = sh.fragmentShader
+                .replace('#include <common>', '#include <common>\nvarying vec3 vRWelt;\nuniform float uRauch; uniform float uPegelY; uniform float uZeit; uniform vec2 uAchse;')
+                .replace('#include <opaque_fragment>', `#include <opaque_fragment>
+        if (uRauch > 0.002 && vRWelt.y > uPegelY) {
+          vec2 q = vRWelt.xz - uAchse;
+          float w = atan(q.y, q.x);
+          float n = 0.5 + 0.5 * sin(vRWelt.y * 70.0 - uZeit * 0.7 + sin(w * 3.0 + uZeit * 0.35) * 2.2 + sin(w * 7.0 - vRWelt.y * 40.0) * 0.6);
+          float d = uRauch * (0.78 + 0.22 * n) * smoothstep(0.0, 0.01, vRWelt.y - uPegelY);
+          gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.72, 0.74, 0.76), clamp(d, 0.0, 0.9));
+        }`);
+        };
+        bowl.material.needsUpdate = true;
+        w.koerper.material.onBeforeCompile = (sh) => {
+            Object.assign(sh.uniforms, RA.uWasser);
+            weltVarying(sh);
+            sh.fragmentShader = sh.fragmentShader
+                .replace('#include <common>', `#include <common>\nvarying vec3 vRWelt;\nuniform vec4 uBlasen[${BLASEN_MAX}]; uniform int uBlasenN; uniform float uPegelY;`)
+                .replace('#include <opaque_fragment>', `#include <opaque_fragment>
+        if (uBlasenN > 0) {
+          vec3 rd = normalize(vRWelt - cameraPosition);
+          float tB = 1e9; vec3 nB = vec3(0.0);
+          for (int i = 0; i < ${BLASEN_MAX}; i++) {
+            if (i >= uBlasenN) break;
+            vec4 b = uBlasen[i];
+            vec3 oc = vRWelt - b.xyz;
+            float pb = dot(oc, rd), c = dot(oc, oc) - b.w * b.w, hh = pb * pb - c;
+            if (hh > 0.0) { float t = -pb - sqrt(hh); if (t > 0.0 && t < tB) { tB = t; nB = normalize(oc + rd * t); } }
+          }
+          if (tB < 1e8 && vRWelt.y + rd.y * tB < uPegelY) {
+            float fr = pow(1.0 - abs(dot(nB, rd)), 1.5);
+            gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.88, 0.94, 1.0), 0.22 + 0.6 * fr);
+          }
+        }`);
+        };
+        w.koerper.material.needsUpdate = true;
+    }
+
+    // Blasen steigen am unteren Ende des Tauchrohrs auf, je kräftiger der Zug, desto mehr und größer
+    function blasenFrame(dt) {
+        const Q = RA.Q;
+        const unten = TISCH_Y + BOWL_WASSER.tauchEnde * CM, oben = TISCH_Y + AB.pegel * CM;
+        bowlAchse(_rqa);
+        if (Q > 0.08 && oben > unten + 0.003) {
+            RA.blasenTakt += dt * (7 + 12 * Q);
+            while (RA.blasenTakt > 1) {
+                RA.blasenTakt -= 1;
+                const w = Math.random() * TAU, r = (0.6 + Math.random() * 0.5) * CM;
+                const rad = (0.22 + 0.22 * Math.min(1.5, Q) + Math.random() * 0.15) * CM;
+                if (RA.blasen.length >= BLASEN_MAX) RA.blasen.shift();
+                RA.blasen.push({ x: _rqa.x + Math.cos(w) * r, y: unten + rad * 0.5, z: _rqa.z + Math.sin(w) * r, r: rad, v: 0.16 + Math.random() * 0.1, w, phase: Math.random() * TAU });
+                if (Math.random() < 0.55) geraeusch.blase(rad / CM, Math.min(1, Q / 1.4));
+            }
+            AB.wellen = Math.max(AB.wellen, 0.35 + 0.45 * Math.min(1, Q));
+        }
+        // aufsteigen, leicht nach außen und taumelnd; an der Oberfläche platzen
+        for (let i = RA.blasen.length - 1; i >= 0; i--) {
+            const b = RA.blasen[i];
+            b.y += b.v * dt;
+            b.phase += dt * 22;
+            b.x += Math.cos(b.w) * 0.02 * dt + Math.cos(b.phase) * 0.012 * dt;
+            b.z += Math.sin(b.w) * 0.02 * dt + Math.sin(b.phase) * 0.012 * dt;
+            if (b.y > oben - b.r * 0.3) RA.blasen.splice(i, 1);
+        }
+        if (!RA.uWasser) return;
+        const u = RA.uWasser.uBlasen.value;
+        RA.blasen.forEach((b, i) => u[i].set(b.x, b.y, b.z, b.r));
+        RA.uWasser.uBlasenN.value = RA.blasen.length;
+    }
+
+    // ---------------------------------------------------------------------------
+    // Bild für Bild
+
+    function rauchenFrame(dt) {
+        mundstueckFrame(dt);
+        if (RA.ziehen && RA.lunge >= RK.lungeMax) { rauchenLoslassen(); meldung('Lunge voll.', 1.4, 'lunge'); }
+        ausatmenFrame(dt);
+        faedenFrame(dt);
+        blasenFrame(dt);
+        rauchTeilchenFrame(dt);
+        if (RA.uBowl) {
+            RA.uBowl.uRauch.value = 1 - Math.exp(-RA.bowl / 6);
+            RA.uBowl.uPegelY.value = TISCH_Y + AB.pegel * CM;
+            RA.uBowl.uZeit.value = performance.now() * 0.001;
+            bowlAchse(_rqa);
+            RA.uBowl.uAchse.value.set(_rqa.x, _rqa.z);
+        }
+        tonZiehen(RA.Q, bowlLuftLiter());
+        rauchenPruefen();
+        RA.panelTakt -= dt;
+        if (RA.panelTakt <= 0) { RA.panelTakt = 0.1; rauchenPanelZeichnen(); }
+    }
+
+    function rauchenPruefen() {
+        if (spiel.fertig.has(6) || RA.ausatmen || RA.ziehen) return;
+        if (RA.dicht || RA.zuege.length >= 12) rauchenBewerten();
+    }
+
+    function rauchenBewerten() {
+        let wert = 100;
+        const notizen = [], zz = RA.zuege, n = zz.length;
+        if (RA.dicht) notizen.push(`dichter Rauch nach ${n} ${n === 1 ? 'Zug' : 'Zügen'}`);
+        else { wert -= 30; notizen.push('kein dichter Rauch'); }
+        if (n > 6) { wert -= Math.min(15, 3 * (n - 6)); notizen.push('viele Züge gebraucht'); }
+        const kr = zz.filter((z) => z.kraeftig).length;
+        if (kr) { wert -= Math.min(18, 6 * kr); notizen.push(`${kr}× zu kräftig gezogen`); }
+        if (RA.C[0] > 0.15 || RA.tMax > 290) { wert -= 25; notizen.push('Tabak oben verbrannt'); }
+        else if (RA.tMax > 265) { wert -= 10; notizen.push('Kopf zu heiß geworden'); }
+        if (zz.length && zz[0].vorheiz < 60) notizen.push('kaum vorgeheizt');
+        if (tauchTiefe() > 4) notizen.push('zieht schwer: viel Wasser');
+        else if (RA.stau > 0.08) notizen.push('fest gepackt: zieht schwerer');
+        if (RA.spalt > 1.5) notizen.push('Abstand: braucht länger');
+        phaseAbschliessen(6, clamp(wert, 10, 100), notizen);
+    }
+
+    // ---------------------------------------------------------------------------
+    // Zuordnung, Anzeige, Karte
+
+    function rauchenAktion(z) {
+        if (!z || z.art !== 'mundstueck' || AB.mund !== 'dran') return null;
+        if (!spiel.fertig.has(5)) return { tipp: 'Mundstück: erst HMD und Kohlen (Phase 6)', tun: null };
+        return { tipp: 'Mundstück nehmen und anrauchen', tun: mundstueckNehmen };
+    }
+
+    function zugStaerkeText(s) { return s < 0.38 ? 'sanft' : s < 0.72 ? 'mittel' : s < 0.86 ? 'kräftig' : 'zu kräftig'; }
+
+    function rauchenTipp() {
+        if (RA.uebergang) return null;
+        if (RA.ausatmen) return { tipp: 'Ausatmen …', tun: null };
+        if (RA.ziehen) return { tipp: `Zug ${zugStaerkeText(RA.staerke)} · ${zahl(RA.lunge)} l · nach oben kräftiger, nach unten sanfter`, tun: () => {} };
+        return { tipp: 'Gedrückt halten oder Leertaste: ziehen · Esc legt das Mundstück ab', tun: () => {} };
+    }
+
+    function rauchenPanelZeichnen() {
+        const el = $('#zugPanel');
+        if (!el) return;
+        const da = spiel.laeuft && (RA.inHand || spiel.ansicht === 6) && AB.mund === 'dran';
+        el.classList.toggle('da', da);
+        if (!da) return;
+        const bar = (k, w, txt) => { el.querySelector(`.${k} i`).style.width = `${Math.round(clamp(w, 0, 1) * 100)}%`; el.querySelector(`.${k} b`).textContent = txt; };
+        bar('zug', RA.ziehen ? RA.staerke : 0, RA.ziehen ? zugStaerkeText(RA.staerke) : '–');
+        bar('lunge', RA.lunge / RK.lungeMax, `${zahl(RA.lunge)} l`);
+        const r = 1 - Math.exp(-RA.bowl / 6);
+        bar('bowl', r, r < 0.08 ? 'klar' : r < 0.4 ? 'leicht' : r < 0.75 ? 'milchig' : 'voll');
+        el.querySelector('.zug i').classList.toggle('heiss', RA.ziehen && RA.staerke > 0.85);
+        el.querySelector('.werte').innerHTML = `Tabak oben <b>${Math.round(RA.T[0])} °C</b> · HMD <b>${Math.round(AB.hmdT)} °C</b>`;
+        el.querySelector('.zuege').textContent = RA.zuege.length ? RA.zuege.slice(-6).map((z) => `${z.nr}: ${z.klasse}`).join(' · ') : 'noch kein Zug';
+        el.querySelector('.ablegen').style.display = RA.inHand ? '' : 'none';
+    }
+
+    function rauchenKarte() {
+        if (spiel.ansicht !== 6) { spiel.ansicht = 6; phasenLeiste(); karteZeichnen(); }
+    }
+
+    function schritteRauchen() {
+        const vor = RA.aktiv ? spiel.zeit - RA.hmdSeit : 0;
+        const n = RA.zuege.length, z = RA.zuege[n - 1];
+        return [
+            { text: 'Vorheizen: zwei, drei Minuten unter dem HMD', sub: RA.aktiv ? `seit ${mmss(vor)} · Tabak oben ${Math.round(RA.T[0])} °C` : 'erst HMD und Kohlen', ok: RA.T[0] >= 150 || n > 0 },
+            { text: 'Mundstück nehmen', ok: RA.genommen },
+            { text: 'Gleichmäßig ziehen, drei, vier Sekunden, dann ausatmen', sub: n ? `${n} ${n === 1 ? 'Zug' : 'Züge'} · zuletzt ${z.klasse}` : '', ok: n > 0 },
+            { text: 'Bis dichter Rauch kommt', ok: RA.dicht },
+        ];
+    }
+
+    function tippRauchen() {
+        if (spiel.fertig.has(6)) return 'Angeraucht. Ausblasen, Ringe und das Abklopfen der Kohle kommen in Etappe 6.';
+        if (!spiel.fertig.has(5)) return 'Erst müssen HMD und drei Kohlen auf dem Kopf sitzen.';
+        if (!RA.inHand && RA.T[0] < 140) return 'Der Kopf braucht ein paar Minuten unter dem HMD, sonst kommt beim Ziehen fast nichts. Z läuft schneller.';
+        if (!RA.inHand) return 'Das Mundstück liegt auf dem Tisch. Nehmen, dann gedrückt halten zum Ziehen.';
+        if (RA.T[0] > 255) return 'Der Tabak ist sehr heiß: sanfter und kürzer ziehen, sonst verbrennt er.';
+        return 'Ruhig und gleichmäßig ziehen. Kräftige Züge lassen die Kohle aufflammen: viel Rauch, aber der Tabak kratzt und verbrennt.';
+    }
+
+    function rauchenAufbauen() {
+        rauchSystemBauen();
+        rauchShaderEinbauen();
+        $('#zugPanel .ablegen').addEventListener('click', () => mundstueckAblegen());
+    }
 
     // ---------------------------------------------------------------------------
     // Laden & Loop
@@ -8139,7 +10981,7 @@
             ['Teppich wird geknüpft', () => { T.teppich = texTeppich(); T.samt = texSamt(); }],
             ['Edelstahl wird gedreht', () => { T.stahl = texDrehriefen(); T.raendel = texRaendel(); T.hmdGravur = texHmdGravur(); T.riffel = texRiffel(); }],
             ['Gummi wird gegossen', () => { T.gummi = texGummi(); T.schiefer = texSchiefer(); T.karton = texKarton(); }],
-            ['Kohle wird gepresst', () => { T.kohle = texKohle(); }],
+            ['Kohle wird gepresst', () => { T.kohle = texKohle(); T.wellen = texWellen(); }],
             ['Etikett wird gedruckt', () => { T.etikett = texEtikett(); T.faser = texFaser(); T.tabak = texTabak(); T.folieUnten = texFolieUnten(); T.reglerSchrift = texReglerSchrift(); T.warndreieck = texWarndreieck(); T.aufkleber = texRunderAufkleber(); T.stecherGriff = texStecherGriff(); T.tuch = texTuch(); }],
             ['Materialien werden angerührt', () => materialienAnlegen()],
             ['Raum wird eingerichtet', () => raumBauen()],
