@@ -192,7 +192,9 @@
         #zugPanel .werte { margin: 9px 0 4px; font-size: 11.5px; color: var(--ink-3); }
         #zugPanel .werte b { color: var(--ink-2); font-weight: 500; }
         #zugPanel .zuege { font-size: 11px; color: var(--ink-3); min-height: 15px; }
-        #zugPanel .ablegen { width: 100%; margin-top: 10px; }
+        #zugPanel .knoepfe { display: flex; gap: 6px; margin-top: 10px; }
+        #zugPanel .knoepfe .btn { flex: 1; padding-left: 4px; padding-right: 4px; white-space: nowrap; font-size: 12px; }
+        #zugPanel .pusten.an { border-color: var(--ember); color: var(--ink); background: rgba(233,162,95,.12); }
         #kopfPanel.da { display: block; }
         #kopfPanel h3 { margin: 0 0 7px; font: 600 10.5px/1 var(--sans); letter-spacing: .8px; text-transform: uppercase; color: var(--ink-3); }
         #kopfPanel .setups { display: flex; gap: 3px; margin-bottom: 10px; }
@@ -239,7 +241,7 @@
 <div id="loader">
     <div class="box">
         <h1>Köpfchen bauen</h1>
-        <div class="sub">Shisha-Simulator · Etappe 5: Anrauchen</div>
+        <div class="sub">Shisha-Simulator · Etappe 6: Rauchen und Ausblasen</div>
         <div class="bar"><i></i></div>
         <div class="step">lädt …</div>
         <button class="go" type="button">Loslegen</button>
@@ -247,7 +249,7 @@
     </div>
 </div>
 
-<div id="brand"><b>Köpfchen bauen</b><span>Etappe 5 · Anrauchen</span></div>
+<div id="brand"><b>Köpfchen bauen</b><span>Etappe 6 · Ausblasen</span></div>
 <div id="fps"></div>
 
 <div id="knoepfe">
@@ -316,7 +318,7 @@
         <div class="zeile bowl"><span>Bowl</span><div class="balken rauch"><i></i></div><b>klar</b></div>
         <div class="werte"></div>
         <div class="zuege"></div>
-        <button class="btn ablegen" type="button">Mundstück ablegen (Esc)</button>
+        <div class="knoepfe"><button class="btn pusten" type="button" title="gedrückt halten">Ausblasen (B)</button><button class="btn ablegen" type="button">Ablegen (Esc)</button></div>
     </div>
 </div>
 <div id="tipp"></div>
@@ -2305,12 +2307,17 @@
         [4.0, 33.4], [3.78, 33.68], [3.55, 33.98], [3.3, 34.28], [3.05, 34.56], [2.82, 34.84, 'c'],
         [2.76, 34.88], [2.68, 34.95, 'c'], [2.7, 35.05, 'c'], [2.74, 35.1], [2.64, 35.2, 'c'], [2.66, 35.3, 'c'], [2.68, 35.36],
         [2.56, 35.46, 'c'], [2.5, 35.6], [2.44, 35.76, 'c'],
-        [2.39, 35.9], [2.27, 36.4], [2.14, 36.9], [2.03, 37.25, 'c'], [1.92, 37.36], [1.72, 37.5], [1.6, 37.62, 'c'],
+        [2.39, 35.9], [2.27, 36.4], [2.14, 36.9], [2.07, 37.14], [2.04, 37.24, 'c'],
+        // oben ein Ring mit Bohrung: die Säule steckt darin, rundum bleibt ein Spalt von gut 1 mm (Ausblasventil)
+        [2.0, 37.3], [1.95, 37.32, 'c'], [1.83, 37.32, 'c'], [1.79, 37.3], [1.775, 37.26, 'c'],
+        [1.775, 36.82, 'c'], [1.45, 36.82, 'c'],
     ];
 
-    // Rauchsäule in Bambus-Optik: zwei Glieder mit Taille, drei Knoten
+    // Rauchsäule in Bambus-Optik: zwei Glieder mit Taille, drei Knoten. Unten ein Zapfen in der Korpusbohrung,
+    // darüber eine polierte Fase bis zum Hals.
     const SAEULE = [
-        [1.6, 37.62, 'c'], [1.58, 37.66], [1.45, 37.7], [1.36, 37.74, 'c'],
+        [1.3, 36.9, 'c'], [1.635, 36.9, 'c'], [1.635, 37.3], [1.63, 37.36, 'c'],
+        [1.55, 37.46], [1.46, 37.56], [1.4, 37.64, 'c'], [1.36, 37.74, 'c'],
         [1.38, 37.8], [1.5, 37.98], [1.57, 38.18], [1.57, 38.32], [1.48, 38.46], [1.3, 38.58], [1.22, 38.66, 'c'],
         [1.25, 38.78], [1.33, 38.98], [1.46, 39.22], [1.54, 39.45], [1.555, 39.6], [1.53, 39.75],
         [1.45, 40.1], [1.38, 40.6], [1.31, 41.2], [1.24, 41.9], [1.18, 42.6], [1.14, 43.3], [1.13, 43.9], [1.15, 44.5], [1.19, 45.1],
@@ -2354,6 +2361,7 @@
         portBasis: new THREE.Vector3(-3.45, 33.75, 0).multiplyScalar(CM),
         portRichtung: new THREE.Vector3(-Math.cos(40 * Math.PI / 180), Math.sin(40 * Math.PI / 180), 0),
         portLaenge: 3.73 * CM,
+        spalt: { y: 37.32, r: 1.705, breite: 0.14 },   // Ringspalt zwischen Korpus und Säule (cm)
     };
 
     // Sandglas mit gedrehten Blau-Weiß-Schlieren
@@ -2506,6 +2514,10 @@
         }
         const teller = mesh(lathe(verfeinern(TELLER, 2), { segs: 180 }), M.teller, { name: 'teller' });
         saeule.add(teller);
+        // O-Ring im Spalt am Korpus: sitzt knapp unter der Stirnfläche, von oben als schwarzer Ring zu sehen
+        const spaltRing = mesh(new THREE.TorusGeometry(SHISHA.spalt.r * CM, 0.06 * CM, 10, 64), M.oRing, { schatten: false });
+        spaltRing.rotation.x = Math.PI / 2; spaltRing.position.y = 37.12 * CM;
+        saeule.add(spaltRing);
         // O-Ringe unter dem Teller
         for (const h of [58.02, 58.3]) {
             const o = mesh(new THREE.TorusGeometry(1.19 * CM, 0.075 * CM, 10, 48), M.oRing);
@@ -4697,6 +4709,36 @@
         }
     }
 
+    // Ausblasen: der Atem geht gedämpft ins Mundstück, der Schlauch brummt hohl mit, oben am Spalt zischt die Luft
+    // hinaus und das Ventil flattert leise
+    function tonAusblasen(Q) {
+        if (!ton.ctx) return;
+        const ctx = ton.ctx, jetzt = ctx.currentTime;
+        let b = ton.blasen;
+        if (!b && Q > 0.05) {
+            const neu = (f, typ, q) => {
+                const src = ctx.createBufferSource(); src.buffer = ton.rauschen; src.loop = true; src.playbackRate.value = 0.85 + Math.random() * 0.3;
+                const fl = ctx.createBiquadFilter(); fl.type = typ; fl.frequency.value = f; fl.Q.value = q;
+                const v = ctx.createGain(); v.gain.value = 0;
+                src.connect(fl); fl.connect(v); v.connect(ton.trocken); src.start(jetzt, Math.random());
+                return { src, fl, v };
+            };
+            b = ton.blasen = { atem: neu(650, 'bandpass', 0.7), rohr: neu(118, 'bandpass', 5), zisch: neu(4300, 'bandpass', 0.9), flattern: neu(380, 'lowpass', 0.7) };
+            b.lfo = ctx.createOscillator(); b.lfo.type = 'square'; b.lfo.frequency.value = 27;
+            b.tiefe = ctx.createGain(); b.tiefe.gain.value = 0;
+            b.lfo.connect(b.tiefe); b.tiefe.connect(b.flattern.v.gain); b.lfo.start(jetzt);
+        }
+        if (!b) return;
+        const st = Math.min(1, Q / 1.6), an = Q > 0.03;
+        b.atem.v.gain.setTargetAtTime(an ? 0.018 + 0.03 * st : 0, jetzt, 0.05);
+        b.rohr.v.gain.setTargetAtTime(an ? 0.05 * st : 0, jetzt, 0.08);
+        b.zisch.v.gain.setTargetAtTime(an ? 0.014 * Math.pow(st, 1.5) : 0, jetzt, 0.05);
+        b.zisch.fl.frequency.setTargetAtTime(3600 + 1500 * st, jetzt, 0.1);
+        b.flattern.v.gain.setTargetAtTime(an ? 0.011 * st : 0, jetzt, 0.05);
+        b.tiefe.gain.setTargetAtTime(an ? 0.011 * st : 0, jetzt, 0.05);
+        b.lfo.frequency.setTargetAtTime(22 + 14 * st, jetzt, 0.1);
+    }
+
     // Gießen: Wasser trifft Wasser im Bowl und regt die Luft darüber an (Helmholtz: je voller, desto höher), dazu
     // Plätschern und Tropfen; daneben klatscht es aufs Holz oder rinnt am Glas. Läuft der Flaschenmund unter Wasser,
     // gluckert die Luft hinein.
@@ -4785,10 +4827,11 @@
         { kurz: 'Aufbau', titel: 'Zusammenbauen', etappe: 4 },
         { kurz: 'Hitze', titel: 'HMD und Kohlen', etappe: 4 },
         { kurz: 'Rauchen', titel: 'Anrauchen', etappe: 5 },
-        { kurz: 'Ringe', titel: 'Ausblasen und Ringe', etappe: 6 },
-        { kurz: 'Session', titel: 'Kohle abklopfen', etappe: 6 },
+        { kurz: 'Ausblasen', titel: 'Rauchen und Ausblasen', etappe: 6 },
+        { kurz: 'Ringe', titel: 'Ringe blasen', etappe: 7 },
+        { kurz: 'Session', titel: 'Kohle abklopfen', etappe: 7 },
     ];
-    const ETAPPE = 5;
+    const ETAPPE = 6;
 
     const spiel = {
         laeuft: false,
@@ -4848,16 +4891,20 @@
             b.className = [phaseOffen(i) ? 'offen' : 'zu', spiel.fertig.has(i) ? 'fertig' : '', spiel.ansicht === i ? 'aktiv' : ''].join(' ');
             b.title = phaseOffen(i) ? p.titel : `${p.titel} – kommt in Etappe ${p.etappe}`;
             if (phaseOffen(i)) b.addEventListener('click', () => {
-                const erstmals = i === 2 ? !KB.gesehen : i >= 3 && i <= 5 ? !AB.gesehen[i - 3] : i === 6 ? !RA.gesehen : false;
+                const erstmals = i === 2 ? !KB.gesehen : i >= 3 && i <= 5 ? !AB.gesehen[i - 3] : i === 6 ? !RA.gesehen : i === 7 ? !AUS.gesehen : false;
                 if (i === 2) KB.gesehen = true;
                 if (i >= 3 && i <= 5) AB.gesehen[i - 3] = true;
                 if (i === 6) RA.gesehen = true;
+                if (i === 7) AUS.gesehen = true;
                 spiel.ansicht = i; phasenLeiste(); karteZeichnen();
-                if (erstmals && SPIEL_BLICK[i]) fliegeZu(...(i === 6 ? SPIEL_BLICK[5] : SPIEL_BLICK[i]));
+                if (erstmals && !RA.inHand) fliegeZu(...phasenBlick(i));
             });
             el.appendChild(b);
         });
     }
+
+    // fürs Anrauchen erst einmal auf den Kopf schauen, gesessen wird mit dem Mundstück; beim Ausblasen auf die Säule
+    function phasenBlick(i) { return i === 6 ? SPIEL_BLICK[5] : SPIEL_BLICK[Math.min(i, SPIEL_BLICK.length - 1)]; }
 
     function kohlenAufSpirale() { return spielKohlen.filter((k) => k.ort === 'spirale'); }
 
@@ -4945,6 +4992,9 @@
         } else if (i === 6) {
             text = 'Den Kopf unter dem HMD vorheizen lassen, dann am Mundstück ruhig ziehen und ausatmen, bis dichter Rauch kommt. Wer zu kräftig zieht, lässt die Kohle aufflammen und verbrennt den Tabak.';
             schritte = schritteRauchen(); tipp = tippRauchen();
+        } else if (i === 7) {
+            text = 'Rauch, der lange im Bowl steht, schmeckt alt. Ins Mundstück pusten drückt ihn durch den Spalt oben am Korpus hinaus: er steigt an der Säule hoch und teilt sich am Teller. Danach kommt frischer Rauch.';
+            schritte = schritteSession(); tipp = tippSession();
         }
         $('#karte p').textContent = text;
         ol.innerHTML = '';
@@ -4968,15 +5018,16 @@
         else if (i !== 4 && spiel.fertig.has(3) && !spiel.fertig.has(4)) { andere = 4; label = 'Weiter: Zusammenbauen →'; }
         else if (i !== 5 && spiel.fertig.has(4) && !spiel.fertig.has(5) && spiel.fertig.has(0)) { andere = 5; label = 'Weiter: HMD und Kohlen →'; }
         else if (i !== 6 && spiel.fertig.has(5) && !spiel.fertig.has(6)) { andere = 6; label = 'Weiter: Anrauchen →'; }
+        else if (i !== 7 && spiel.fertig.has(6) && !spiel.fertig.has(7)) { andere = 7; label = 'Weiter: Rauchen und Ausblasen →'; }
         else if (i !== 0 && !spiel.fertig.has(0)) { andere = 0; label = 'Zurück zur Kohle →'; }
         w.style.display = andere >= 0 ? '' : 'none';
         w.textContent = label;
         w.onclick = () => {
             if (andere >= 3 && andere <= 5) AB.gesehen[andere - 3] = true;
             if (andere === 6) RA.gesehen = true;
+            if (andere === 7) AUS.gesehen = true;
             spiel.ansicht = andere; phasenLeiste(); karteZeichnen();
-            // fürs Anrauchen erst einmal auf den Kopf schauen, gesessen wird mit dem Mundstück
-            fliegeZu(...(andere === 6 ? SPIEL_BLICK[5] : SPIEL_BLICK[andere]));
+            if (!RA.inHand) fliegeZu(...phasenBlick(andere));
         };
         kopfPanelZeichnen();
     }
@@ -5076,15 +5127,18 @@
         const kopfZeile = k ? `<p>Gebaut: <b>${SETUPS[k.setup].name}</b> (${hoeheText(k.hoeheMm)}), Ziel war ${SETUPS[k.ziel].name}.</p>` : '';
         const hmdZeile = `<p>Wasser: Tauchrohr ${zahl(tauchTiefe())} cm eingetaucht · HMD ${Math.round(AB.hmdT)} °C${hmdKohlen().some((x) => x.schraeg) ? ', Kohlen teils schräg' : ''}.</p>`;
         const zz = RA.zuege;
-        const rauchZeile = zz.length ? `<p>Angeraucht mit ${zz.length} ${zz.length === 1 ? 'Zug' : 'Zügen'} (${zz.map((z) => z.klasse).join(', ')}) · Tabak oben bis ${Math.round(RA.tMax)} °C.</p>` : '';
-        el.querySelector('.inhalt').innerHTML = `<h2>Angeraucht</h2>
+        const an = zz.filter((z) => !z.session), ses = zz.filter((z) => z.session);
+        const rauchZeile = an.length ? `<p>Angeraucht mit ${an.length} ${an.length === 1 ? 'Zug' : 'Zügen'} (${an.map((z) => z.klasse).join(', ')}) · Tabak oben bis ${Math.round(RA.tMax)} °C.</p>` : '';
+        const blasZeile = ses.length || AUS.liste.length ? `<p>Danach ${ses.length} ${ses.length === 1 ? 'Zug' : 'Züge'} und ${AUS.liste.length}× ausgeblasen, ${zahl(AUS.liste.reduce((s, e) => s + e.mg, 0), 0)} mg Rauch durch den Spalt.</p>` : '';
+        el.querySelector('.inhalt').innerHTML = `<h2>${spiel.fertig.has(7) ? 'Ausgeblasen' : 'Angeraucht'}</h2>
     <p>Zwischenstand für den Köpfchen-Score nach ${mmss(spiel.zeit)} Spielzeit.</p>
     ${kopfZeile}
     ${hmdZeile}
     ${rauchZeile}
+    ${blasZeile}
     <table>${zeilen}</table>
     <div class="summe">Ø ${Math.round(summe / Math.max(1, anz))} Punkte</div>
-    <p class="klein">Etappe 6 bringt Ausblasen und Ringe und das Abklopfen der Kohle. Bis dahin glüht die Kohle weiter.</p>`;
+    <p class="klein">Etappe 7 bringt Ringe und das Abklopfen der Kohle. Bis dahin kannst du weiterrauchen und ausblasen, die Kohle glüht weiter.</p>`;
         el.classList.add('da');
     }
 
@@ -5157,7 +5211,7 @@
     // ---------------------------------------------------------------------------
     // Zeiger, Hervorhebung, Zange, Kohlen auf dem Anzünder
 
-    const zeiger = { ndc: new THREE.Vector2(), x: 0, y: 0, drin: false, unten: null, ziehen: null, shift: false, kohleDruck: null, kopfbau: false, flasche: false, rauchen: false };
+    const zeiger = { ndc: new THREE.Vector2(), x: 0, y: 0, drin: false, unten: null, ziehen: null, shift: false, kohleDruck: null, kopfbau: false, flasche: false, rauchen: false, blasen: false };
     const strahl = new THREE.Raycaster();
     const OBEN = new THREE.Vector3(0, 1, 0);
     const _v = new THREE.Vector3(), _v2 = new THREE.Vector3(), _q = new THREE.Quaternion(), _m = new THREE.Matrix4();
@@ -5261,7 +5315,7 @@
         H.leuchtZiel = obj;
         if (!obj) return;
         const meshes = [];
-        obj.traverse((o) => { if (o.isMesh && !o.isInstancedMesh && o.material !== leuchtMat && !(o.material.clippingPlanes && o.material.clippingPlanes.length)) meshes.push(o); });
+        obj.traverse((o) => { if (o.isMesh && !o.isInstancedMesh && o.material !== leuchtMat && !o.userData.ohneLeuchten && !(o.material.clippingPlanes && o.material.clippingPlanes.length)) meshes.push(o); });
         for (const o of meshes) {
             const m = new THREE.Mesh(o.geometry, leuchtMat);
             m.raycast = () => {};
@@ -5299,7 +5353,15 @@
         el.addEventListener('pointerleave', () => { zeiger.drin = false; });
         // Ziehen abfangen, bevor OrbitControls den Druck bekommt (Capture auf window)
         addEventListener('pointerdown', (e) => {
-            if (e.target !== el || e.button !== 0 || studio.an || !spiel.laeuft) return;
+            if (e.target !== el || studio.an || !spiel.laeuft) return;
+            // Mundstück am Mund, rechte Maustaste: ausblasen
+            if (e.button === 2 && RA.inHand) {
+                if (blasStarten(e.clientY)) zeiger.blasen = true;
+                e.stopPropagation();
+                el.setPointerCapture(e.pointerId);
+                return;
+            }
+            if (e.button !== 0) return;
             zeiger.unten = [e.clientX, e.clientY];
             zeiger.shift = e.shiftKey;
             zeiger.ndc.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
@@ -5340,6 +5402,7 @@
         }, true);
         addEventListener('pointermove', (e) => {
             if (zeiger.rauchen) rauchenZiehen(e);
+            if (zeiger.blasen) blasZiehen(e);
             if (zeiger.flasche) flascheZiehen(e);
             if (zeiger.ziehen) doseZiehen(e);
             const kd = zeiger.kohleDruck;
@@ -5349,6 +5412,7 @@
             }
         });
         addEventListener('pointerup', (e) => {
+            if (zeiger.blasen && e.button === 2) { zeiger.blasen = false; blasLoslassen(); return; }
             if (zeiger.rauchen) { zeiger.rauchen = false; zeiger.unten = null; rauchenLoslassen(); return; }
             if (zeiger.flasche) { zeiger.flasche = false; zeiger.unten = null; flascheLoslassen(); return; }
             if (zeiger.kopfbau) { zeiger.kopfbau = false; zeiger.unten = null; kopfbauLoslassen(); return; }
@@ -5374,6 +5438,7 @@
         addEventListener('keydown', (e) => {
             if (e.target && e.target.tagName === 'INPUT') return;
             if (e.key === ' ' && RA.inHand) { e.preventDefault(); if (!e.repeat) rauchenTaste(true); return; }
+            if ((e.key === 'b' || e.key === 'B') && RA.inHand) { if (!e.repeat) blasTaste(true); return; }
             if (e.key === 'Escape') {
                 if (RA.inHand) mundstueckAblegen();
                 else if (FL.inHand) flascheAbstellen();
@@ -5391,8 +5456,11 @@
         addEventListener('keyup', (e) => {
             if ('qQeE'.includes(e.key)) W.rollTaste = 0;
             if (e.key === ' ' && (RA.inHand || RA.taste)) { e.preventDefault(); rauchenTaste(false); }
+            if (e.key === 'b' || e.key === 'B') blasTaste(false);
         });
-        addEventListener('blur', () => { W.rollTaste = 0; rauchenTaste(false); });
+        addEventListener('blur', () => { W.rollTaste = 0; rauchenTaste(false); zeiger.blasen = false; blasLoslassen(); });
+        // mit dem Mundstück am Mund gehört die rechte Maustaste dem Ausblasen
+        el.addEventListener('contextmenu', (e) => { if (RA.inHand) e.preventDefault(); });
         // Mausrad über dem Regler dreht ihn eine Raste weiter, statt zu zoomen
         let radSumme = 0, radZeit = 0;
         addEventListener('wheel', (e) => {
@@ -8555,7 +8623,7 @@
     function hinweisSetzen() {
         const el = $('#hinweis');
         if (!el) return;
-        if (RA.inHand) el.textContent = 'Mundstück am Mund · gedrückt halten oder Leertaste = ziehen · beim Ziehen nach oben = kräftiger, nach unten = sanfter · loslassen = ausatmen · Esc legt es ab';
+        if (RA.inHand) el.textContent = 'Mundstück am Mund · gedrückt halten oder Leertaste = ziehen · dabei nach oben = kräftiger, nach unten = sanfter · loslassen = ausatmen · rechte Maustaste oder B halten = ausblasen · Esc legt es ab';
         else if (FL.inHand) el.textContent = 'Flasche · über den Bowlhals führen · gedrückt halten und nach oben ziehen = kippen und gießen · loslassen richtet sie auf · Klick daneben oder Esc stellt sie ab';
         else if (W.inHand) el.textContent = `${W.ende === 'gabel' ? 'Gabel' : 'Spitze'} vorn · gedrückt halten = eintauchen, abstreifen, schieben · loslassen = anheben · Rad beim Drücken = Druck${W.ende === 'gabel' ? ' · Q/E dreht die Gabel um ihre Achse' : ''} · F wendet den Stecher · Esc legt ihn ab`;
         else if (TU.inHand) el.textContent = 'Küchenpapier · gedrückt halten und über den Rand wischen · Esc legt es weg';
@@ -10065,7 +10133,7 @@
 
     // ---------------------------------------------------------------------------
     // Wärme: der HMD sammelt Strahlung und Kontaktwärme der Kohlen und gibt sie an Kopf und Luft ab; der Kopf folgt
-    // langsamer. (Fürs Anrauchen in Etappe 5; hier zeigt die Anzeige schon die Temperatur.)
+    // langsamer. Wie der Tabak darunter warm wird, rechnet rauchenWaerme.
 
     function hmdWaerme(h) {
         let rein = 0;
@@ -10299,7 +10367,7 @@
         if (AB.hmd !== 'drauf') return AB.kopf === 'drauf' ? 'Den HMD mittig auf den Kopfrand setzen: die Zentrierlippe greift in die Öffnung.' : 'Der HMD kommt erst auf den Kopf, wenn der auf der Shisha sitzt.';
         if (n < 3 && !H.inHand) return 'Zange nehmen, eine durchgeglühte Kohle vom Rost greifen und über den HMD führen.';
         if (!hmdVoll() && H.kohle) return H.schraeg ? 'Schräg: die Kohle lehnt hochkant an der Wand, liegt kaum auf und gibt weniger Hitze ab. Sie reicht bis zur Mitte, daneben passt nur noch eine. R: wieder flach.' : 'Drei Würfel passen nur eng: zwei nebeneinander an den Rand, die dritte davor. Am Lochkranz kippen sie leicht. R: schräg an die Wand lehnen.';
-        if (hmdVoll()) return `HMD ${Math.round(AB.hmdT)} °C. Der Kopf heizt jetzt vor; ans Anrauchen geht es in Etappe 5.`;
+        if (hmdVoll()) return `HMD ${Math.round(AB.hmdT)} °C. Der Kopf heizt jetzt vor; nach zwei, drei Minuten geht es ans Anrauchen.`;
         return '';
     }
     // ---------------------------------------------------------------------------
@@ -10337,6 +10405,8 @@
         ausatmen: null, zuege: [], dicht: false, tMax: GLUT.umgebung,
         blasen: [], blasenTakt: 0, wischTakt: 0, panelTakt: 0,
         uBowl: null, uWasser: null,
+        bowlAlter: 0,            // s, so lange steht der Rauch im Bowl schon (gemischt)
+        wirbel: 0, zugAlt: false, gesehen: false,
     };
     const _rqa = new THREE.Vector3(), _rqb = new THREE.Vector3(), _rqc = new THREE.Vector3(), _rqd = new THREE.Vector3(), _rqe = new THREE.Vector3();
 
@@ -10417,8 +10487,10 @@
             RA.leck = RA.dampf * RK.leck;
             RA.dampf += (prod - RA.leck) * h;
         }
-        // Bowl und Schlauch als durchmischte Luftvolumen
+        // Bowl und Schlauch als durchmischte Luftvolumen; frischer Rauch verjüngt den, der schon steht
         if (Q > 0.01) {
+            const m = RA.bowl * bowlLuftLiter(), neu = F * h;
+            if (m + neu > 1e-6) RA.bowlAlter *= m / (m + neu);
             RA.bowl += (F - Q * RA.bowl) / bowlLuftLiter() * h;
             RA.schlauch += Q * (RA.bowl - RA.schlauch) / RK.vSchlauch * h;
             RA.eingeatmet += Q * RA.schlauch * h;
@@ -10427,6 +10499,8 @@
             RA.bowl -= RA.bowl * RK.absetz * h;
             RA.schlauch -= RA.schlauch * RK.absetz * 2 * h;
         }
+        RA.bowlAlter += h;
+        ausblasenStrom(h);
         if (RA.ziehen) {
             RA.zugZeit += h;
             RA.zugMaxT = Math.max(RA.zugMaxT, T[0]);
@@ -10445,7 +10519,7 @@
         const vor = _rqa.set(0, 0, -1).applyQuaternion(camera.quaternion);
         const oben = _rqb.set(0, 1, 0).applyQuaternion(camera.quaternion);
         const rechts = _rqc.set(1, 0, 0).applyQuaternion(camera.quaternion);
-        const atem = 0.006 * Math.min(1, RA.Q);
+        const atem = 0.006 * Math.min(1, RA.Q) - 0.004 * Math.min(1, AUS.Q);
         const spitze = _rqd.copy(camera.position).addScaledVector(vor, 0.04 - atem).addScaledVector(oben, -0.095);
         const dir = _rqe.copy(vor).multiplyScalar(0.84).addScaledVector(oben, -0.48).addScaledVector(rechts, 0.2).normalize();
         const L = (MUNDSTUECK.laenge - 2.8) * CM;
@@ -10474,6 +10548,7 @@
     function mundstueckAblegen() {
         if (!RA.inHand || RA.uebergang) return;
         if (RA.ziehen) rauchenLoslassen();
+        if (AUS.blasen) blasLoslassen();
         const s = SL.seil, k = mundstueckKnoten();
         RA.uebergang = { t: 0, dauer: 0.9, hin: false, von: s.p.slice(k.von, k.bis + 1).map((v) => v.clone()) };
     }
@@ -10522,8 +10597,9 @@
     }
     function zugStarten(y) {
         if (RA.ausatmen) { meldung('Erst ausatmen.', 1.4, 'zug'); return; }
-        if (RA.ziehen) return;
+        if (RA.ziehen || AUS.blasen) return;
         RA.ziehen = true;
+        RA.zugAlt = bowlAbgestanden();
         RA.y0 = y; RA.staerkeStart = RA.staerke;
         RA.lunge = 0; RA.eingeatmet = 0; RA.zugZeit = 0; RA.kraeftig = 0; RA.zugMaxT = RA.T[0];
         RA.zugStart = spiel.zeit;
@@ -10534,7 +10610,7 @@
     }
     function rauchenTaste(an) {
         if (!RA.inHand || RA.uebergang) return;
-        if (an && !RA.ziehen) { RA.taste = true; zugStarten(zeiger.y); }
+        if (an && !RA.ziehen && !AUS.blasen) { RA.taste = true; zugStarten(zeiger.y); }
         if (!an && RA.taste) { RA.taste = false; rauchenLoslassen(); }
     }
     function rauchenLoslassen() {
@@ -10552,6 +10628,7 @@
         const z = {
             nr: RA.zuege.length + 1, mg, klasse: zugKlasse(mg), dauer: RA.zugZeit, liter: RA.lunge,
             kraeftig: RA.kraeftig > 0.8, tMax: RA.zugMaxT, vorheiz: RA.zugStart - RA.hmdSeit,
+            session: spiel.fertig.has(6), abgestanden: RA.zugAlt, start: RA.zugStart,
         };
         RA.zuege.push(z);
         // kurz halten, dann ausatmen: länger bei mehr Luft
@@ -10563,7 +10640,7 @@
     // ---------------------------------------------------------------------------
     // Rauchteilchen: Billboards mit prozeduraler Textur, ausgeatmete Wolke und Fäden über dem HMD
 
-    const RAUCH = { max: 360, n: 0, mesh: null, pos: null, dat: null, v: null, alter: null, leben: null, s0: null, wachs: null, a0: null, drehV: null, zaeh: null, auf: null };
+    const RAUCH = { max: 1400, n: 0, mesh: null, pos: null, dat: null, v: null, alter: null, leben: null, s0: null, wachs: null, a0: null, drehV: null, zaeh: null, auf: null };
 
     function rauchTextur() {
         const n = 128, d = new Uint8Array(n * n * 4);
@@ -10667,6 +10744,7 @@
             RAUCH.v[k3 + 1] = RAUCH.v[k3 + 1] * z + RAUCH.auf[i] * dt;
             RAUCH.v[k3 + 2] = RAUCH.v[k3 + 2] * z + wz * dt;
             RAUCH.pos[k3] += RAUCH.v[k3] * dt; RAUCH.pos[k3 + 1] += RAUCH.v[k3 + 1] * dt; RAUCH.pos[k3 + 2] += RAUCH.v[k3 + 2] * dt;
+            if (SW.aktiv) rauchHindernis(k3);
             const L = RAUCH.leben[i];
             RAUCH.dat[i * 4] = RAUCH.s0[i] + RAUCH.wachs[i] * Math.sqrt(a);
             RAUCH.dat[i * 4 + 1] = RAUCH.a0[i] * Math.min(1, a / 0.15) * Math.pow(Math.max(0, 1 - a / L), 1.6);
@@ -10716,10 +10794,11 @@
             kaum: RA.T[0] < 150 ? 'kaum Rauch: der Tabak ist noch kalt' : 'kaum Rauch',
             wenig: 'etwas Rauch, der Kopf kommt',
             gut: 'guter Rauch, noch nicht ganz dicht',
-            dicht: 'dichter Rauch: angeraucht',
+            dicht: z.session ? 'dichter Rauch' : 'dichter Rauch: angeraucht',
         }[z.klasse];
         let zusatz = '';
-        if (z.tMax > 265) zusatz = ' · kratzt: der Kopf ist zu heiß';
+        if (z.abgestanden) zusatz = ' · schmeckt abgestanden: der Rauch stand zu lange im Bowl, vorher ausblasen';
+        else if (z.tMax > 265) zusatz = ' · kratzt: der Kopf ist zu heiß';
         else if (z.kraeftig) zusatz = ' · zu kräftig gezogen, die Kohle flammt auf';
         meldung(`Zug ${z.nr}: ${text}${zusatz}.`, 3.2, 'zug');
     }
@@ -10832,16 +10911,18 @@
         ausatmenFrame(dt);
         faedenFrame(dt);
         blasenFrame(dt);
+        ausblasenFrame(dt);
         rauchTeilchenFrame(dt);
         if (RA.uBowl) {
             RA.uBowl.uRauch.value = 1 - Math.exp(-RA.bowl / 6);
             RA.uBowl.uPegelY.value = TISCH_Y + AB.pegel * CM;
-            RA.uBowl.uZeit.value = performance.now() * 0.001;
+            RA.uBowl.uZeit.value = RA.wirbel % 1000;
             bowlAchse(_rqa);
             RA.uBowl.uAchse.value.set(_rqa.x, _rqa.z);
         }
         tonZiehen(RA.Q, bowlLuftLiter());
         rauchenPruefen();
+        sessionPruefen();
         RA.panelTakt -= dt;
         if (RA.panelTakt <= 0) { RA.panelTakt = 0.1; rauchenPanelZeichnen(); }
     }
@@ -10874,7 +10955,7 @@
     function rauchenAktion(z) {
         if (!z || z.art !== 'mundstueck' || AB.mund !== 'dran') return null;
         if (!spiel.fertig.has(5)) return { tipp: 'Mundstück: erst HMD und Kohlen (Phase 6)', tun: null };
-        return { tipp: 'Mundstück nehmen und anrauchen', tun: mundstueckNehmen };
+        return { tipp: spiel.fertig.has(6) ? 'Mundstück nehmen: rauchen und ausblasen' : 'Mundstück nehmen und anrauchen', tun: mundstueckNehmen };
     }
 
     function zugStaerkeText(s) { return s < 0.38 ? 'sanft' : s < 0.72 ? 'mittel' : s < 0.86 ? 'kräftig' : 'zu kräftig'; }
@@ -10883,28 +10964,44 @@
         if (RA.uebergang) return null;
         if (RA.ausatmen) return { tipp: 'Ausatmen …', tun: null };
         if (RA.ziehen) return { tipp: `Zug ${zugStaerkeText(RA.staerke)} · ${zahl(RA.lunge)} l · nach oben kräftiger, nach unten sanfter`, tun: () => {} };
-        return { tipp: 'Gedrückt halten oder Leertaste: ziehen · Esc legt das Mundstück ab', tun: () => {} };
+        if (AUS.blasen) return { tipp: `Ausblasen ${blasStaerkeText(AUS.staerke)} · noch ${zahl(AUS.luft)} l Luft · Bowl ${bowlText(RA.bowl)}`, tun: () => {} };
+        return { tipp: 'Gedrückt halten oder Leertaste: ziehen · rechte Maustaste oder B: ausblasen · Esc legt das Mundstück ab', tun: () => {} };
     }
+    function blasStaerkeText(s) { return s < 0.38 ? 'sanft' : s < 0.75 ? 'kräftig' : 'mit voller Puste'; }
 
     function rauchenPanelZeichnen() {
         const el = $('#zugPanel');
         if (!el) return;
-        const da = spiel.laeuft && (RA.inHand || spiel.ansicht === 6) && AB.mund === 'dran';
+        const da = spiel.laeuft && (RA.inHand || spiel.ansicht === 6 || spiel.ansicht === 7) && AB.mund === 'dran';
         el.classList.toggle('da', da);
         if (!da) return;
         const bar = (k, w, txt) => { el.querySelector(`.${k} i`).style.width = `${Math.round(clamp(w, 0, 1) * 100)}%`; el.querySelector(`.${k} b`).textContent = txt; };
-        bar('zug', RA.ziehen ? RA.staerke : 0, RA.ziehen ? zugStaerkeText(RA.staerke) : '–');
-        bar('lunge', RA.lunge / RK.lungeMax, `${zahl(RA.lunge)} l`);
-        const r = 1 - Math.exp(-RA.bowl / 6);
-        bar('bowl', r, r < 0.08 ? 'klar' : r < 0.4 ? 'leicht' : r < 0.75 ? 'milchig' : 'voll');
-        el.querySelector('.zug i').classList.toggle('heiss', RA.ziehen && RA.staerke > 0.85);
-        el.querySelector('.werte').innerHTML = `Tabak oben <b>${Math.round(RA.T[0])} °C</b> · HMD <b>${Math.round(AB.hmdT)} °C</b>`;
-        el.querySelector('.zuege').textContent = RA.zuege.length ? RA.zuege.slice(-6).map((z) => `${z.nr}: ${z.klasse}`).join(' · ') : 'noch kein Zug';
-        el.querySelector('.ablegen').style.display = RA.inHand ? '' : 'none';
+        const blast = AUS.blasen || AUS.Q > 0.05;
+        el.querySelector('h3').textContent = spiel.fertig.has(6) ? 'Rauchen' : 'Anrauchen';
+        el.querySelector('.zug span').textContent = blast ? 'Puste' : 'Zug';
+        el.querySelector('.lunge span').textContent = blast ? 'Luft' : 'Lunge';
+        if (blast) {
+            bar('zug', AUS.blasen ? AUS.staerke : 0, AUS.blasen ? blasStaerkeText(AUS.staerke) : '–');
+            bar('lunge', AUS.luft / AK.luft, `${zahl(AUS.luft)} l`);
+        } else {
+            bar('zug', RA.ziehen ? RA.staerke : 0, RA.ziehen ? zugStaerkeText(RA.staerke) : '–');
+            bar('lunge', RA.lunge / RK.lungeMax, `${zahl(RA.lunge)} l`);
+        }
+        bar('bowl', 1 - Math.exp(-RA.bowl / 6), bowlText(RA.bowl) + (bowlAbgestanden() ? ', alt' : ''));
+        el.querySelector('.zug i').classList.toggle('heiss', !blast && RA.ziehen && RA.staerke > 0.85);
+        el.querySelector('.werte').innerHTML = blast
+            ? `Spalt <b>${zahl(AUS.Q)} l/s</b> · raus <b>${zahl(AUS.menge)} mg</b>`
+            : `Tabak oben <b>${Math.round(RA.T[0])} °C</b> · HMD <b>${Math.round(AB.hmdT)} °C</b>`;
+        const n = AUS.liste.length;
+        el.querySelector('.zuege').textContent = (RA.zuege.length ? RA.zuege.slice(-5).map((z) => `${z.nr}: ${z.klasse}${z.abgestanden ? ' (alt)' : ''}`).join(' · ') : 'noch kein Zug')
+            + (n ? ` · ${n}× ausgeblasen` : '');
+        el.querySelector('.knoepfe').style.display = RA.inHand ? '' : 'none';
+        el.querySelector('.pusten').classList.toggle('an', AUS.blasen);
     }
 
     function rauchenKarte() {
-        if (spiel.ansicht !== 6) { spiel.ansicht = 6; phasenLeiste(); karteZeichnen(); }
+        const i = spiel.fertig.has(6) && phaseOffen(7) ? 7 : 6;
+        if (spiel.ansicht !== i) { spiel.ansicht = i; phasenLeiste(); karteZeichnen(); }
     }
 
     function schritteRauchen() {
@@ -10919,7 +11016,7 @@
     }
 
     function tippRauchen() {
-        if (spiel.fertig.has(6)) return 'Angeraucht. Ausblasen, Ringe und das Abklopfen der Kohle kommen in Etappe 6.';
+        if (spiel.fertig.has(6)) return 'Angeraucht. Weiter geht es mit Rauchen und Ausblasen (Phase 8).';
         if (!spiel.fertig.has(5)) return 'Erst müssen HMD und drei Kohlen auf dem Kopf sitzen.';
         if (!RA.inHand && RA.T[0] < 140) return 'Der Kopf braucht ein paar Minuten unter dem HMD, sonst kommt beim Ziehen fast nichts. Z läuft schneller.';
         if (!RA.inHand) return 'Das Mundstück liegt auf dem Tisch. Nehmen, dann gedrückt halten zum Ziehen.';
@@ -10930,7 +11027,544 @@
     function rauchenAufbauen() {
         rauchSystemBauen();
         rauchShaderEinbauen();
+        ausblasenAufbauen();
         $('#zugPanel .ablegen').addEventListener('click', () => mundstueckAblegen());
+        // Ausblasen auch über den Knopf: gedrückt halten
+        const k = $('#zugPanel .pusten');
+        k.addEventListener('pointerdown', (e) => { if (e.button === 0 && blasStarten(e.clientY)) { AUS.taste = true; k.setPointerCapture(e.pointerId); } });
+        const los = () => { if (AUS.taste) blasLoslassen(); };
+        k.addEventListener('pointerup', los);
+        k.addEventListener('pointercancel', los);
+        k.addEventListener('contextmenu', (e) => e.preventDefault());
+    }
+    // ---------------------------------------------------------------------------
+    // Etappe 6: Rauchen und Ausblasen.
+    // Pustet man ins Mundstück, drückt die Luft durch den Schlauch in den Bowl. Das Tauchrohr steht im Wasser und
+    // bleibt zu, also öffnet das Ausblasventil am Ringspalt oben am Korpus: Luft und stehender Rauch gehen dort hinaus. Der Strahl
+    // legt sich an die Säule, steigt an ihr hoch, wird dabei breiter und langsamer, trifft auf die Unterseite des
+    // Tellers und läuft als flacher Fächer nach außen, bis er am Rand abreißt.
+    //
+    // Zu sehen ist das als zwei durchscheinende Hüllen um Säule und Tellerunterseite (innen dünn und dicht, außen
+    // breiter und zerfasert). Die Rauchdichte entlang des Wegs schiebt die CPU mit dem Strom weiter und gibt sie als
+    // Textur an die Hüllen; außen reißen Teilchen ab, am Tellerrand strömt der Rest als Teilchen aus.
+
+    const AK = {
+        pMax: 2400,          // Pa Blasdruck bei voller Stärke
+        pVentil: 120,        // Pa, ab da öffnet das Ventil
+        R: 1100,             // Pa·s/l Schlauch, Bowl und Spalt
+        luft: 2.4,           // l, die man für einmal Ausblasen in der Lunge hat
+        U0: 150,             // cm/s je l/s direkt über dem Spalt (fürs Auge gekappt, echt wären es einige m/s)
+        L0: 4,               // cm: auf dieser Länge fällt der Wandstrahl auf gut 70 %
+        drift: 4,            // cm/s: so weit trägt es den Rauch auch ohne Antrieb
+        abgestanden: 90,     // s: so lange stehender Rauch schmeckt alt
+        milchig: 2,          // mg/l: ab da lohnt das Ausblasen
+        klar: 0.5,           // mg/l: darunter ist der Bowl klar
+    };
+
+    const AUS = {
+        blasen: false, taste: false, staerke: 0.6, staerkeStart: 0.6, y0: 0,
+        Q: 0, luft: 0, seit: 0, menge: 0, klarGepustet: 0, start: null,
+        liste: [], klarZeit: -1, gesehen: false,
+        feld: null, feldB: null, tex: null, uni: null, huellen: [], leer: true,
+        randTakt: 0, abrissTakt: 0,
+    };
+
+    // Strömungsweg: s in cm vom Spalt an der Säule hoch (bis s1) und unter dem Teller nach außen (bis sMax)
+    const SW = { n: 120, y0: SHISHA.spalt.y, yTop: 59.55, rTop: 1.62, rEnde: 14.6, s1: 0, sMax: 0, u: null, T: null, tab: null, ax: 0, az: 0, aktiv: false };
+    const _ava = new THREE.Vector3(), _avb = new THREE.Vector3(), _avc = new THREE.Vector3();
+
+    // ---------------------------------------------------------------------------
+    // Geometrie des Wegs
+
+    // Außenradius der Säule je Höhe (cm), dazu eine geglättete Hülle, die keinen Knoten schneidet
+    function saeuleTabelle() {
+        const p = verfeinern(SAEULE, 3);
+        const y0 = 36.8, dy = 0.05, n = Math.ceil((59.7 - y0) / dy) + 1;
+        const r = new Float32Array(n);
+        for (let i = 0; i < p.length - 1; i++) {
+            const [r1, h1] = p[i], [r2, h2] = p[i + 1];
+            const lo = Math.min(h1, h2), hi = Math.max(h1, h2);
+            for (let k = Math.max(0, Math.ceil((lo - y0) / dy)); k < n && y0 + k * dy <= hi + 1e-6; k++) {
+                const y = y0 + k * dy;
+                const rr = hi - lo < 1e-4 ? Math.max(r1, r2) : r1 + (r2 - r1) * (y - h1) / (h2 - h1);
+                if (rr > r[k]) r[k] = rr;
+            }
+        }
+        for (const h of [58.02, 58.3]) {
+            for (let k = 0; k < n; k++) {
+                const d = Math.abs(y0 + k * dy - h);
+                if (d < 0.075) r[k] = Math.max(r[k], 1.19 + Math.sqrt(0.075 * 0.075 - d * d));
+            }
+        }
+        // gleitendes Maximum, dann gemittelt: liegt überall auf oder über der Säule
+        const w = Math.round(0.7 / dy), w2 = Math.round(0.45 / dy);
+        const m = new Float32Array(n), huelle = new Float32Array(n);
+        for (let k = 0; k < n; k++) { let x = 0; for (let j = Math.max(0, k - w); j <= Math.min(n - 1, k + w); j++) x = Math.max(x, r[j]); m[k] = x; }
+        for (let k = 0; k < n; k++) { let s = 0, c = 0; for (let j = Math.max(0, k - w2); j <= Math.min(n - 1, k + w2); j++) { s += m[j]; c++; } huelle[k] = s / c; }
+        SW.tab = { y0, dy, n, r, huelle };
+    }
+    function tabWert(a, y) {
+        const t = SW.tab, x = (y - t.y0) / t.dy;
+        if (x <= 0) return a[0];
+        if (x >= t.n - 1) return a[t.n - 1];
+        const i = Math.floor(x);
+        return a[i] + (a[i + 1] - a[i]) * (x - i);
+    }
+    function saeuleR(y) { return y < 36.8 || y > 59.7 ? 0 : tabWert(SW.tab.r, y); }
+    function huelleR(y) { return tabWert(SW.tab.huelle, y); }
+
+    // Unterseite des Tellers (cm): innen eben, zum Rand hin hochgewölbt
+    const TELLER_UNTEN = TELLER.slice(0, TELLER.findIndex((p) => p[0] >= 13.23) + 1);
+    function tellerUnten(r) {
+        const t = TELLER_UNTEN;
+        if (r <= t[0][0]) return t[0][1];
+        for (let i = 1; i < t.length; i++) if (r <= t[i][0]) return t[i - 1][1] + (t[i][1] - t[i - 1][1]) * (r - t[i - 1][0]) / (t[i][0] - t[i - 1][0]);
+        return t[t.length - 1][1];
+    }
+
+    // Geschwindigkeit je l/s (cm/s): an der Säule klingt der Wandstrahl ab, unter dem Teller verteilt er sich auf einen
+    // wachsenden Umfang
+    function stromU(s) {
+        if (s <= SW.s1) return AK.U0 / Math.sqrt(1 + Math.max(0, s) / AK.L0);
+        return stromU(SW.s1) * (SW.rTop + 1) / (SW.rTop + (s - SW.s1) + 1);
+    }
+    // fürs Muster auf den Hüllen: unter dem Teller weniger gestaucht, sonst würde es zum Rand hin zu fein
+    function stromUMuster(s) {
+        if (s <= SW.s1) return stromU(s);
+        return stromU(SW.s1) * Math.sqrt((SW.rTop + 1) / (SW.rTop + (s - SW.s1) + 1));
+    }
+    function wegTabellen() {
+        SW.s1 = SW.yTop - SW.y0;
+        SW.sMax = SW.s1 + SW.rEnde - SW.rTop;
+        const n = SW.n, ds = SW.sMax / n;
+        SW.u = new Float32Array(n);
+        SW.T = new Float32Array(n + 1);
+        for (let i = 0; i < n; i++) {
+            SW.u[i] = stromU((i + 0.5) * ds);
+            SW.T[i + 1] = SW.T[i] + ds / stromUMuster((i + 0.5) * ds);
+        }
+    }
+    // Laufzeit bei 1 l/s bis s: daran hängt das Muster, das mit dem Strom zieht
+    function laufzeit(s) {
+        const x = clamp(s / SW.sMax * SW.n, 0, SW.n), i = Math.min(SW.n - 1, Math.floor(x));
+        return SW.T[i] + (SW.T[i + 1] - SW.T[i]) * (x - i);
+    }
+
+    // Profil einer Hülle (cm): an der Säule im Abstand d0 + kS·s hoch, mit einem Bogen um die Ecke unter den Teller,
+    // dort mit wachsendem Abstand nach außen bis hinter den Rand
+    function huellenProfil(d0, kS, kT) {
+        const dTop = d0 + kS * SW.s1;
+        const rho = 0.55 * dTop + 0.3;
+        const yA = SW.yTop - dTop - rho;
+        const pts = [];
+        for (let y = SW.y0 + 0.03; y < yA; y += 0.18) pts.push([huelleR(y) + d0 + kS * (y - SW.y0), y]);
+        const rA = huelleR(yA) + d0 + kS * (yA - SW.y0), mx = rA + rho;
+        for (let k = 0; k <= 12; k++) {
+            const w = Math.PI - (k / 12) * Math.PI / 2;
+            pts.push([mx + Math.cos(w) * rho, yA + Math.sin(w) * rho]);
+        }
+        for (let r = mx + 0.22; r <= SW.rEnde; r += 0.22) {
+            let y = tellerUnten(Math.min(r, 13.23)) - (dTop + kT * (r - mx));
+            if (r > 13.23) y += (r - 13.23) * 0.3;          // hinter dem Rand reißt der Fächer ab und steigt
+            pts.push([r, y]);
+        }
+        return pts;
+    }
+
+    // Drehkörper aus dem Profil mit Weg (aS), Laufzeit (aT) und Umfangswinkel (aW) je Punkt
+    function huellenGeo(pts, segs) {
+        const R = pts.length, S = segs + 1;
+        const bogen = new Float32Array(R);
+        for (let i = 1; i < R; i++) bogen[i] = bogen[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+        const k = SW.sMax / bogen[R - 1];
+        const pos = new Float32Array(S * R * 3), nor = new Float32Array(S * R * 3);
+        const aS = new Float32Array(S * R), aT = new Float32Array(S * R), aW = new Float32Array(S * R);
+        let v = 0;
+        for (let j = 0; j < S; j++) {
+            const phi = (j / segs) * TAU, sn = Math.sin(phi), cs = Math.cos(phi);
+            for (let i = 0; i < R; i++, v++) {
+                const a = pts[Math.max(0, i - 1)], b = pts[Math.min(R - 1, i + 1)];
+                const tr = b[0] - a[0], th = b[1] - a[1], l = Math.hypot(tr, th) || 1;
+                pos[v * 3] = pts[i][0] * CM * sn; pos[v * 3 + 1] = pts[i][1] * CM; pos[v * 3 + 2] = pts[i][0] * CM * cs;
+                nor[v * 3] = th / l * sn; nor[v * 3 + 1] = -tr / l; nor[v * 3 + 2] = th / l * cs;
+                aS[v] = bogen[i] * k; aT[v] = laufzeit(bogen[i] * k); aW[v] = j / segs;
+            }
+        }
+        const idx = [];
+        for (let j = 0; j < segs; j++) {
+            for (let i = 0; i < R - 1; i++) {
+                const a = j * R + i, b = (j + 1) * R + i;
+                idx.push(a, b, a + 1, b, b + 1, a + 1);
+            }
+        }
+        const g = new THREE.BufferGeometry();
+        g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+        g.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+        g.setAttribute('aS', new THREE.BufferAttribute(aS, 1));
+        g.setAttribute('aT', new THREE.BufferAttribute(aT, 1));
+        g.setAttribute('aW', new THREE.BufferAttribute(aW, 1));
+        g.setIndex(idx);
+        return g;
+    }
+
+    // ---------------------------------------------------------------------------
+    // Hüllen: Shader und Texturen
+
+    // kachelbares Rauschen in drei Kanälen (die Hüllen schließen sich um die Säule): r und g sind Schlieren, längs
+    // gestreckt, b sind grobe Ballen
+    function musterTextur() {
+        const n = 128, d = new Uint8Array(n * n * 4);
+        const fbm = (u, v, fu, fv, versatz) => {
+            let s = 0, a = 0.5, norm = 0;
+            for (let o = 0; o < 3; o++) {
+                const ku = fu << o, kv = fv << o;
+                s += a * N2.n2(u * ku + versatz, v * kv + versatz * 0.7, ku, kv);
+                norm += a; a *= 0.45;
+            }
+            return s / norm;
+        };
+        for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+            const u = x / n, v = y / n, i = (y * n + x) * 4;
+            d[i] = Math.round(clamp(0.5 + 0.8 * fbm(u, v, 4, 2, 0.0), 0, 1) * 255);
+            d[i + 1] = Math.round(clamp(0.5 + 0.8 * fbm(u, v, 6, 3, 17.3), 0, 1) * 255);
+            d[i + 2] = Math.round(clamp(0.5 + 0.8 * fbm(u, v, 2, 2, 41.9), 0, 1) * 255);
+            d[i + 3] = 255;
+        }
+        const t = new THREE.DataTexture(d, n, n, THREE.RGBAFormat);
+        t.wrapS = t.wrapT = THREE.RepeatWrapping;
+        t.magFilter = THREE.LinearFilter; t.minFilter = THREE.LinearMipmapLinearFilter; t.generateMipmaps = true;
+        t.needsUpdate = true;
+        return t;
+    }
+
+    const HUELLE_VERT = /* glsl */`
+  attribute float aS; attribute float aT; attribute float aW;
+  uniform sampler2D uMuster; uniform float uPhase; uniform float uSMax; uniform float uAuslenk; uniform float uQuer;
+  varying vec3 vP; varying vec3 vN; varying float vS; varying float vT; varying float vW;
+  void main() {
+    vS = aS; vT = aT; vW = aW;
+    // die Hülle ist nicht rund: der Abstand zur Säule schwankt mit einem Muster, das mit dem Strom läuft
+    float m = texture2D(uMuster, vec2(aW * uQuer * 0.5 + 0.31, (aT - uPhase) * 8.0)).b;
+    vec3 p = position + normal * (m - 0.5) * uAuslenk * (0.35 + aS / uSMax);
+    vec4 w = modelMatrix * vec4(p, 1.0);
+    vP = w.xyz;
+    vN = normalize(mat3(modelMatrix) * normal);
+    gl_Position = projectionMatrix * viewMatrix * w;
+  }`;
+
+    const HUELLE_FRAG = /* glsl */`
+  uniform sampler2D uMuster; uniform sampler2D uDichte;
+  uniform float uPhase; uniform float uSMax; uniform float uS1; uniform float uDicke; uniform float uDeck; uniform float uQuer; uniform float uWeich;
+  uniform vec3 uFarbe;
+  varying vec3 vP; varying vec3 vN; varying float vS; varying float vT; varying float vW;
+  void main() {
+    float d = texture2D(uDichte, vec2(vS / uSMax, 0.5)).r;
+    if (d < 0.004) discard;
+    vec3 v = normalize(cameraPosition - vP);
+    float c = abs(dot(normalize(vN), v));
+    // Muster ziehen mit dem Strom: grobe Ballen, darin Schlieren in Strömungsrichtung, dazwischen Lücken
+    float t = vT - uPhase;
+    float ballen = texture2D(uMuster, vec2(vW * uQuer * 0.5 + 0.17, t * 7.0)).b;
+    float m1 = texture2D(uMuster, vec2(vW * uQuer, t * 16.0)).r;
+    float m2 = texture2D(uMuster, vec2(vW * uQuer * 2.0 + 0.41, t * 30.0 + 0.27)).g;
+    float m = mix(m1, m2, 0.35);
+    // unter dem Teller verteilt sich der Fächer auf einen wachsenden Umfang: dünner und löchriger
+    float aussen = max(0.0, vS - uS1);
+    float faser = smoothstep(0.34 + 0.012 * aussen, 0.86, m) * (0.3 + 1.15 * smoothstep(0.22, 0.78, ballen));
+    float verd = pow(3.6 / (3.6 + aussen), 1.1);
+    float rand = smoothstep(0.0, 0.2, vS) * (1.0 - smoothstep(uSMax - 3.0, uSMax, vS));
+    // innen: schräg gesehen ist der Weg durch die Schicht länger, dicht an der Säule wirkt der Umriss heller (ganz am
+    // Rand läuft er aus, sonst zeichnet sich eine Linie); außen läuft die Schicht weich aus
+    float weg = mix(smoothstep(0.0, 0.14, c) / max(c, 0.3), 1.4 * smoothstep(0.02, 0.6, c), uWeich);
+    float tau = d * uDicke * faser * verd * rand * weg;
+    float a = (1.0 - exp(-tau)) * uDeck;
+    if (a < 0.004) discard;
+    gl_FragColor = vec4(uFarbe * (0.9 + 0.14 * m), a);
+    #include <tonemapping_fragment>
+    #include <colorspace_fragment>
+  }`;
+
+    function huellenBauen() {
+        const n = SW.n;
+        AUS.feld = new Float32Array(n);
+        AUS.feldB = new Float32Array(n);
+        AUS.tex = new THREE.DataTexture(new Uint8Array(n * 4), n, 1, THREE.RGBAFormat);
+        AUS.tex.magFilter = THREE.LinearFilter; AUS.tex.minFilter = THREE.LinearFilter; AUS.tex.generateMipmaps = false;
+        AUS.tex.needsUpdate = true;
+        AUS.uni = {
+            uMuster: { value: musterTextur() }, uDichte: { value: AUS.tex }, uPhase: { value: 0 }, uSMax: { value: SW.sMax }, uS1: { value: SW.s1 },
+            uFarbe: RAUCH.mesh ? RAUCH.mesh.material.uniforms.uFarbe : { value: new THREE.Color(0.8, 0.81, 0.82) },
+        };
+        const saeule = shisha.userData.saeule;
+        // innen: dicht an der Säule, dünn; außen: breiter, zerfasert, wackelt
+        for (const h of [
+            { d0: 0.07, kS: 0.017, kT: 0.018, dicke: 1.3, deck: 0.92, auslenk: 0.002, quer: 7, weich: 0, segs: 96, reihe: 4 },
+            { d0: 0.3, kS: 0.05, kT: 0.04, dicke: 0.85, deck: 0.8, auslenk: 0.005, quer: 4, weich: 1, segs: 80, reihe: 5 },
+        ]) {
+            const mat = new THREE.ShaderMaterial({
+                uniforms: {
+                    uMuster: AUS.uni.uMuster, uDichte: AUS.uni.uDichte, uPhase: AUS.uni.uPhase, uSMax: AUS.uni.uSMax, uS1: AUS.uni.uS1, uFarbe: AUS.uni.uFarbe,
+                    uDicke: { value: h.dicke }, uDeck: { value: h.deck }, uAuslenk: { value: h.auslenk }, uQuer: { value: h.quer }, uWeich: { value: h.weich },
+                },
+                vertexShader: HUELLE_VERT, fragmentShader: HUELLE_FRAG,
+                transparent: true, depthWrite: false, side: THREE.DoubleSide,
+            });
+            const m = new THREE.Mesh(huellenGeo(huellenProfil(h.d0, h.kS, h.kT), h.segs), mat);
+            m.name = 'spaltRauch';
+            m.renderOrder = h.reihe;
+            m.frustumCulled = false;
+            m.visible = false;
+            m.raycast = () => {};
+            m.userData.ohneLeuchten = true;
+            saeule.add(m);
+            AUS.huellen.push(m);
+        }
+    }
+
+    // ---------------------------------------------------------------------------
+    // Strom: Blasdruck gegen Ventil und Widerstand, der Bowl wird durchgespült (aus rauchenWaerme je Teilschritt)
+
+    function ausblasenStrom(h) {
+        const ziel = AUS.blasen && AUS.luft > 0 ? Math.max(0, (AUS.staerke * AK.pMax - AK.pVentil) / AK.R) : 0;
+        AUS.Q += (ziel - AUS.Q) * (1 - Math.exp(-h / 0.12));
+        if (!AUS.blasen && AUS.Q < 0.004) AUS.Q = 0;
+        const Q = AUS.Q;
+        if (Q <= 0) return;
+        AUS.luft = Math.max(0, AUS.luft - Q * h);
+        // frische Luft schiebt den Schlauchinhalt in den Bowl, der Bowl geht durch den Spalt hinaus
+        const ein = RA.schlauch;
+        RA.schlauch *= Math.exp(-Q * h / RK.vSchlauch);
+        AUS.menge += Q * RA.bowl * h;
+        RA.bowl = ein + (RA.bowl - ein) * Math.exp(-Q * h / bowlLuftLiter());
+    }
+
+    // ---------------------------------------------------------------------------
+    // Bedienung: rechte Maustaste oder B halten, beim Halten nach oben = kräftiger, nach unten = sanfter
+
+    function blasStarten(y) {
+        if (!RA.inHand || RA.uebergang || RA.ziehen) return false;
+        if (RA.ausatmen) { meldung('Erst ausatmen.', 1.4, 'zug'); return false; }
+        if (AUS.blasen) return true;
+        AUS.blasen = true;
+        AUS.luft = AK.luft; AUS.seit = 0; AUS.menge = 0; AUS.klarGepustet = 0;
+        AUS.start = { vorher: RA.bowl, alt: RA.bowlAlter, zeit: spiel.zeit };
+        AUS.y0 = y; AUS.staerkeStart = AUS.staerke;
+        return true;
+    }
+    function blasZiehen(e) {
+        if (!AUS.blasen || AUS.taste) return;
+        AUS.staerke = clamp(AUS.staerkeStart + (AUS.y0 - e.clientY) * 0.004, 0.15, 1);
+    }
+    function blasTaste(an) {
+        if (an && !AUS.blasen) { if (blasStarten(zeiger.y)) AUS.taste = true; }
+        if (!an && AUS.taste) blasLoslassen();
+    }
+    function blasLoslassen() {
+        if (!AUS.blasen) return;
+        AUS.blasen = false;
+        AUS.taste = false;
+        const a = AUS.start;
+        AUS.start = null;
+        if (!a || AUS.seit < 0.3) return;            // nur angetippt
+        const e = {
+            nr: AUS.liste.length + 1, vorher: a.vorher, nachher: RA.bowl, mg: AUS.menge, dauer: AUS.seit, klarGepustet: AUS.klarGepustet,
+            alt: a.alt, zeit: spiel.zeit, session: spiel.fertig.has(6),
+        };
+        AUS.liste.push(e);
+        if (e.session && e.vorher >= AK.milchig && e.nachher < AK.klar && AUS.klarZeit < 0) AUS.klarZeit = spiel.zeit;
+        let text;
+        if (e.vorher < AK.klar) text = 'Ausgeblasen: der Bowl war schon klar.';
+        else if (e.nachher < AK.klar) text = e.alt > AK.abgestanden && e.vorher >= 1 ? 'Ausgeblasen: der abgestandene Rauch ist raus, der Bowl ist klar.' : 'Ausgeblasen: der Bowl ist wieder klar.';
+        else text = `Ausgeblasen: noch ${bowlText(e.nachher)}. Nochmal pusten.`;
+        meldung(text, 3, 'zug');
+    }
+
+    function bowlText(c) {
+        const r = 1 - Math.exp(-c / 6);
+        return r < 0.08 ? 'klar' : r < 0.4 ? 'leicht' : r < 0.75 ? 'milchig' : 'voll';
+    }
+    function bowlAbgestanden() { return RA.bowl > 1 && RA.bowlAlter > AK.abgestanden; }
+
+    // ---------------------------------------------------------------------------
+    // Bild für Bild: Dichte entlang des Wegs, Teilchen, Ton
+
+    function ausblasenFrame(dt) {
+        if (!AUS.feld) return;
+        // ausgeblasen wird nur mit eingesetzter Säule, dann steht sie in der Achse des Bowls
+        SW.aktiv = AB.saeule === 'drin';
+        bowlAchse(_ava);
+        SW.ax = _ava.x; SW.az = _ava.z;
+        if (AUS.blasen) {
+            AUS.seit += dt;
+            if (RA.bowl < AK.klar && AUS.Q > 0.2) AUS.klarGepustet += dt;
+            if (AUS.luft <= 0) { blasLoslassen(); meldung('Luft ist raus.', 1.4, 'lunge'); }
+        }
+        const A = AUS.Q;
+        RA.wirbel += dt * (1 + 6 * Math.min(1, A));
+        if (A > 0.1) AB.wellen = Math.max(AB.wellen, 0.12 + 0.2 * Math.min(1, A));
+        feldSchritt(dt, A);
+        if (!AUS.leer && SW.aktiv) teilchenAusstossen(dt, A);
+        tonAusblasen(A);
+    }
+
+    // Dichte am Spalt aus dem Bowl, dann mit dem Strom verschoben (semi-Lagrange, zwei halbe Schritte), dabei dünnt sie
+    // aus: im Strahl langsam, ohne Antrieb schnell
+    function feldSchritt(dt, A) {
+        const n = SW.n, ds = SW.sMax / n, f = AUS.feld, g = AUS.feldB;
+        const ein = A > 0.02 && SW.aktiv ? 1 - Math.exp(-RA.bowl / 4) : 0;
+        if (AUS.leer && ein <= 0) return;
+        const z = Math.exp(-(0.18 + 1.4 * (1 - smooth(0.05, 0.4, A))) * dt);
+        const wert = (x) => {                     // x in Zellen, -0,5 = Spalt
+            if (x <= -1) return ein;
+            const j = Math.floor(x), t = x - j;
+            const a = j < 0 ? ein : f[Math.min(n - 1, j)], b = f[Math.min(n - 1, j + 1)];
+            return a + (b - a) * t;
+        };
+        let max = 0;
+        for (let i = 0; i < n; i++) {
+            const s = (i + 0.5) * ds;
+            const sm = s - (A * SW.u[i] + AK.drift) * dt * 0.5;
+            const sd = s - (A * stromU(Math.max(0, sm)) + AK.drift) * dt;
+            const v = wert(sd / ds - 0.5) * z;
+            g[i] = v < 0.002 ? 0 : v;
+            if (g[i] > max) max = g[i];
+        }
+        AUS.feld = g; AUS.feldB = f;
+        AUS.uni.uPhase.value = (AUS.uni.uPhase.value + (A + 0.03) * dt) % 50;
+        AUS.leer = max < 0.003;
+        for (const m of AUS.huellen) m.visible = !AUS.leer && SW.aktiv;
+        const d = AUS.tex.image.data;
+        for (let i = 0; i < n; i++) { const b = Math.round(clamp(g[i], 0, 1) * 255); d[i * 4] = d[i * 4 + 1] = d[i * 4 + 2] = b; d[i * 4 + 3] = 255; }
+        AUS.tex.needsUpdate = true;
+    }
+
+    // außen an der Säule reißen Fetzen ab, am Tellerrand strömt der Fächer aus
+    function teilchenAusstossen(dt, A) {
+        const n = SW.n, ds = SW.sMax / n, f = AUS.feld;
+        const iS1 = Math.floor(SW.s1 / ds);
+        let summe = 0, max = 0;
+        for (let i = 0; i < iS1; i++) { summe += f[i]; if (f[i] > max) max = f[i]; }
+        AUS.abrissTakt += dt * 110 * (summe / iS1) * (0.3 + Math.min(1, A));
+        while (AUS.abrissTakt > 1) {
+            AUS.abrissTakt -= 1;
+            let i = 0;
+            for (let k = 0; k < 6; k++) { i = Math.floor(Math.random() * iS1); if (Math.random() * max < f[i]) break; }
+            const s = (i + Math.random()) * ds, y = SW.y0 + s;
+            const w = Math.random() * TAU, ex = Math.cos(w), ez = Math.sin(w);
+            const r = huelleR(y) + (0.34 + 0.06 * s) * (0.5 + 0.7 * Math.random());
+            _avb.set(SW.ax + ex * r * CM, TISCH_Y + y * CM, SW.az + ez * r * CM);
+            const hoch = (A * SW.u[i] + AK.drift) * CM * (0.25 + 0.2 * Math.random()), raus = 0.008 + 0.02 * Math.random();
+            _avc.set(ex * raus - ez * (Math.random() - 0.5) * 0.02, hoch, ez * raus + ex * (Math.random() - 0.5) * 0.02);
+            rauchTeilchen(_avb, _avc, { leben: 1.1 + Math.random() * 1.3, groesse: 0.01 + Math.random() * 0.008, wachs: 0.028, alpha: clamp(0.02 + 0.08 * f[i], 0.015, 0.1), zaeh: 2.4, auftrieb: 0.035 });
+        }
+        const iR = Math.floor((SW.sMax - 1.8) / ds), dR = f[iR];
+        const uR = A * SW.u[iR] + AK.drift;
+        // am Rand: der Fächer reißt ab, die warme Luft um Kopf und Teller nimmt ihn mit nach oben
+        AUS.randTakt += dt * Math.min(220, dR * uR * 20);
+        while (AUS.randTakt > 1) {
+            AUS.randTakt -= 1;
+            const w = Math.random() * TAU, ex = Math.cos(w), ez = Math.sin(w);
+            const r = 13.3 + Math.random() * 0.8, y = 60.25 - (0.2 + Math.random() * 1.5);
+            _avb.set(SW.ax + ex * r * CM, TISCH_Y + y * CM, SW.az + ez * r * CM);
+            const vr = uR * CM * (0.3 + Math.random() * 0.45), quer = (Math.random() - 0.5) * 0.025;
+            _avc.set(ex * vr - ez * quer, 0.02 + Math.random() * 0.03, ez * vr + ex * quer);
+            rauchTeilchen(_avb, _avc, { leben: 2.4 + Math.random() * 1.4, groesse: 0.016 + Math.random() * 0.01, wachs: 0.04 + 0.02 * Math.random(), alpha: clamp(0.025 + 0.1 * dR, 0.02, 0.12), zaeh: 1.2, auftrieb: 0.07 });
+        }
+    }
+
+    // Rauchteilchen umströmen Säule und Teller: was von unten an den Teller stößt, wird nach außen umgelenkt
+    function rauchHindernis(i3) {
+        const P = RAUCH.pos, V = RAUCH.v;
+        const dx = P[i3] - SW.ax, dz = P[i3 + 2] - SW.az, r2 = dx * dx + dz * dz;
+        if (r2 > 0.142 * 0.142) return;
+        const y = (P[i3 + 1] - TISCH_Y) / CM;
+        if (y < 36.5 || y > 61.2) return;
+        const rr = Math.sqrt(r2), r = rr / CM;
+        const ex = rr > 1e-6 ? dx / rr : 1, ez = rr > 1e-6 ? dz / rr : 0;
+        if (r < 13.3) {
+            const yu = tellerUnten(r), yo = yu + 0.13;
+            if (y > yu - 0.35 && y < yo + 0.35) {
+                if (V[i3 + 1] >= 0 && y < yu + 0.065) {
+                    P[i3 + 1] = TISCH_Y + (yu - 0.35) * CM;
+                    const vy = V[i3 + 1];
+                    V[i3 + 1] = 0;
+                    V[i3] += ex * vy * 0.85; V[i3 + 2] += ez * vy * 0.85;
+                } else {
+                    P[i3 + 1] = TISCH_Y + (yo + 0.35) * CM;
+                    if (V[i3 + 1] < 0) V[i3 + 1] = 0;
+                }
+            }
+        }
+        if (y < 59.6) {
+            const rs = saeuleR(y) + 0.3;
+            if (r < rs) {
+                P[i3] = SW.ax + ex * rs * CM; P[i3 + 2] = SW.az + ez * rs * CM;
+                const vr = V[i3] * ex + V[i3 + 2] * ez;
+                if (vr < 0) { V[i3] -= vr * ex; V[i3 + 2] -= vr * ez; }
+            }
+        }
+    }
+
+    // ---------------------------------------------------------------------------
+    // Phase 8: Rauchen und Ausblasen
+
+    function sessionZuege() { return RA.zuege.filter((z) => z.session); }
+    function gutAusgeblasen() { return AUS.liste.some((e) => e.session && e.vorher >= AK.milchig); }
+
+    function schritteSession() {
+        const zz = sessionZuege(), n = zz.length;
+        const milchig = gutAusgeblasen(), klar = AUS.klarZeit >= 0;
+        const frisch = klar && zz.some((z) => z.start > AUS.klarZeit);
+        const s = [
+            { text: 'Weiterrauchen: ziehen, kurz halten, ausatmen', sub: n ? `${n} ${n === 1 ? 'Zug' : 'Züge'} seit dem Anrauchen` : '', ok: n > 0 },
+            { text: 'Milchigen Bowl ausblasen: rechte Maustaste oder B halten', sub: `Bowl ${bowlText(RA.bowl)}${bowlAbgestanden() ? ', abgestanden' : ''}`, ok: milchig },
+            { text: 'Kräftig pusten, bis der Bowl wieder klar ist', ok: klar },
+            { text: 'Danach frisch ziehen', ok: frisch },
+        ];
+        const j = s.findIndex((x) => !x.ok);
+        if (j >= 0) s[j].jetzt = true;
+        return s;
+    }
+
+    function tippSession() {
+        if (spiel.fertig.has(7)) return 'Frei weiterrauchen. Steht der Rauch länger als anderthalb Minuten im Bowl, vorher ausblasen.';
+        if (!spiel.fertig.has(6)) return 'Erst anrauchen (Phase 7).';
+        if (!RA.inHand) return 'Mundstück nehmen. Gezogen wird mit der linken Maustaste, ausgeblasen mit der rechten.';
+        if (AUS.blasen) return 'Die Luft geht durch den Bowl und oben am Korpus durch den Spalt hinaus: der Rauch steigt an der Säule hoch und läuft unter dem Teller nach außen.';
+        if (bowlAbgestanden()) return 'Der Rauch steht schon lange im Bowl und schmeckt alt. Erst ausblasen, dann frisch ziehen.';
+        if (RA.bowl >= AK.milchig) return 'Der Bowl ist milchig. Rechte Maustaste oder B halten: pusten, bis er klar ist.';
+        return 'Ziehen, kurz halten, ausatmen. Zum Ausblasen braucht der Bowl erst Rauch.';
+    }
+
+    function sessionPruefen() {
+        if (!spiel.fertig.has(6) || spiel.fertig.has(7) || !phaseOffen(7)) return;
+        if (RA.ziehen || RA.ausatmen || AUS.blasen) return;
+        if (schritteSession().every((x) => x.ok)) sessionBewerten();
+    }
+
+    function sessionBewerten() {
+        let wert = 100;
+        const notizen = [], zz = sessionZuege();
+        const alt = zz.filter((z) => z.abgestanden).length;
+        if (alt) { wert -= Math.min(24, 8 * alt); notizen.push(`${alt}× abgestandenen Rauch gezogen`); }
+        const kr = zz.filter((z) => z.kraeftig).length;
+        if (kr) { wert -= Math.min(15, 5 * kr); notizen.push(`${kr}× zu kräftig gezogen`); }
+        const heiss = Math.max(0, ...zz.map((z) => z.tMax));
+        if (RA.C[0] > 0.15) { wert -= 20; notizen.push('Tabak oben verbrannt'); }
+        else if (heiss > 265) { wert -= 10; notizen.push('Kopf zu heiß geworden'); }
+        const e = AUS.liste.find((x) => x.session && x.vorher >= AK.milchig);
+        notizen.push(e && e.nachher < AK.klar ? 'in einem Zug klar geblasen' : 'Bowl klar geblasen');
+        if (AUS.liste.reduce((s, x) => s + (x.session ? x.klarGepustet : 0), 0) > 4) notizen.push('lange nachgepustet');
+        phaseAbschliessen(7, clamp(wert, 10, 100), notizen);
+    }
+
+    // ---------------------------------------------------------------------------
+    // Aufbau
+
+    function ausblasenAufbauen() {
+        saeuleTabelle();
+        wegTabellen();
+        huellenBauen();
     }
 
     // ---------------------------------------------------------------------------
